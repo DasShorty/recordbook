@@ -1,4 +1,4 @@
-package de.dasshorty.recordbook.authentication;
+package de.dasshorty.recordbook.user;
 
 public enum UserType {
 

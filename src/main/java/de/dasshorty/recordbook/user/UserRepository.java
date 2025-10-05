@@ -1,4 +1,8 @@
-package de.dasshorty.recordbook.authentication;
+package de.dasshorty.recordbook.user;
 
-public class UserRepository {
+import org.springframework.data.repository.CrudRepository;
+
+import java.util.UUID;
+
+public interface UserRepository extends CrudRepository<UserDto, UUID> {
 }

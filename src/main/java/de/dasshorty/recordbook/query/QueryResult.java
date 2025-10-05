@@ -1,4 +1,6 @@
 package de.dasshorty.recordbook.query;
 
-public record QueryResult() {
+import java.util.List;
+
+public record QueryResult<T>(int total, int limit, int offset, List<T> data) {
 }

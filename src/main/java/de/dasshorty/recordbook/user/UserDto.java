@@ -1,4 +1,4 @@
-package de.dasshorty.recordbook.authentication;
+package de.dasshorty.recordbook.user;
 
 import de.dasshorty.recordbook.company.CompanyDto;
 import jakarta.persistence.*;
