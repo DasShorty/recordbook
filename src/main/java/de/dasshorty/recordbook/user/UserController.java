@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -15,6 +17,12 @@ public class UserController {
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
+
+        initFirstUser();
+    }
+
+    private void initFirstUser() {
+        this.userService.createFirstUser(new SimpleUserBody("Anthony", "Timmel", "anthony@eno-intern.de", "test", UserType.COMPANY, List.of(Authority.COMPANY)));
     }
 
     @PostMapping
@@ -23,8 +31,8 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<QueryResult<UserDto>> getUsers(@RequestParam(value = "offset", required = true) Integer offset,
-                                                         @RequestParam(value = "limit", required = true) Integer limit) {
+    public ResponseEntity<QueryResult<UserDto>> getUsers(@RequestParam(value = "offset") Integer offset,
+                                                         @RequestParam(value = "limit") Integer limit) {
 
 
         return null;

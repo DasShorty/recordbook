@@ -35,8 +35,26 @@ public class UserDto implements UserDetails {
     private boolean credentialsExpired = false;
     @Column
     private boolean enabled = true;
+    @Column
+    private UserType userType;
     @ManyToOne
     private CompanyDto assignedCompany;
+
+    public UserDto(String forename, String surname, String email, String password, List<Authority> authorities, UserType userType) {
+        this.forename = forename;
+        this.surname = surname;
+        this.email = email;
+        this.password = password;
+        this.authorities = authorities;
+        this.userType = userType;
+    }
+
+    public UserDto() {
+    }
+
+    public UserType getUserType() {
+        return userType;
+    }
 
     public CompanyDto getAssignedCompany() {
         return assignedCompany;
