@@ -6,3 +6,7 @@ Content-Type: application/json
   "email": "anthony@eno-intern.de",
   "password": "test"
 }
+
+### Renew Access Token
+GET http://localhost:8080/authentication/refresh
+Authorization: Bearer {{ACCESS_TOKEN}}
