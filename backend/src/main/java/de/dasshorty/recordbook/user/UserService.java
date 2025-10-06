@@ -1,6 +1,5 @@
 package de.dasshorty.recordbook.user;
 
-import de.dasshorty.recordbook.company.CompanyDto;
 import de.dasshorty.recordbook.user.httpbodies.SimpleUserBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,11 +29,7 @@ public class UserService implements UserDetailsService {
         String encodedPassword = this.passwordEncoder.encode(simpleUserBody.password());
 
         UserDto user = new UserDto(
-                simpleUserBody.forename(),
-                simpleUserBody.surname(),
-                simpleUserBody.email(),
-                encodedPassword,
-                simpleUserBody.authorities(),
+                simpleUserBody.forename(), simpleUserBody.surname(), simpleUserBody.email(), encodedPassword, simpleUserBody.authorities(),
                 simpleUserBody.userType()
         );
 
@@ -76,11 +71,11 @@ public class UserService implements UserDetailsService {
     }
 
     public List<UserDto> retrieveUsers(int limit, int offset) {
-        return this.userRepository.retrieveUsers(limit, offset);
+        return this.userRepository.findUsers(limit, offset);
     }
 
     public List<UserDto> retrieveUsersByCompany(UUID companyId, int limit, int offset) {
-        return this.userRepository.retrieveUsersByCompany(companyId, limit, offset);
+        return this.userRepository.findUsersByCompany(companyId, limit, offset);
     }
 
     public long getUserCountByCompany(UUID companyId) {

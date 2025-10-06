@@ -16,10 +16,10 @@ public interface UserRepository extends CrudRepository<UserDto, UUID> {
     Optional<UserDto> findByEmail(String email);
 
     @Query(nativeQuery = true, value = "SELECT * FROM users OFFSET ?1 LIMIT ?2")
-    List<UserDto> retrieveUsers(int offset, int limit);
+    List<UserDto> findUsers(int offset, int limit);
 
     @Query(nativeQuery = true, value = "SELECT * FROM users WHERE assigned_company_id == ?1 OFFSET ?2 LIMIT ?3")
-    List<UserDto> retrieveUsersByCompany(UUID companyId, int offset, int limit);
+    List<UserDto> findUsersByCompany(UUID companyId, int offset, int limit);
 
     long countByAssignedCompany_Id(UUID companyId);
 
