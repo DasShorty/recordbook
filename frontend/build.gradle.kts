@@ -3,7 +3,7 @@ import com.github.gradle.node.npm.task.NpmTask
 // build.gradle.kts
 plugins {
   java
-  id("com.github.node-gradle.node") version "3.2.0"
+  id("com.github.node-gradle.node") version "7.1.0"
 }
 
 group = "de.dasshorty"
