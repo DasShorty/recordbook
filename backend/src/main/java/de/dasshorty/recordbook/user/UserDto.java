@@ -26,6 +26,7 @@ public class UserDto implements UserDetails {
     private String email;
     @Column(nullable = false)
     private String password;
+    @Enumerated(EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)
     private List<Authority> authorities;
     @Column
@@ -36,9 +37,10 @@ public class UserDto implements UserDetails {
     private boolean credentialsExpired = false;
     @Column
     private boolean enabled = true;
-    @Column
+    @Enumerated(EnumType.STRING)
     private UserType userType;
-    @ManyToOne
+        @ManyToOne
+        @JoinColumn
     private CompanyDto assignedCompany;
 
     public UserDto(String forename, String surname, String email, String password, List<Authority> authorities, UserType userType) {
@@ -113,12 +115,6 @@ public class UserDto implements UserDetails {
     }
 
     public AdvancedUserBody transformToBody() {
-        return new AdvancedUserBody(
-                this.forename,
-                this.surname,
-                this.email,
-                this.userType,
-                this.assignedCompany,
-                this.authorities);
+        return new AdvancedUserBody(this.forename, this.surname, this.email, this.userType, this.assignedCompany, this.authorities);
     }
 }

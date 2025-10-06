@@ -71,7 +71,7 @@ public class UserService implements UserDetailsService {
     }
 
     public List<UserDto> retrieveUsers(int limit, int offset) {
-        return this.userRepository.findUsers(limit, offset);
+        return this.userRepository.findUsers(offset, limit);
     }
 
     public List<UserDto> retrieveUsersByCompany(UUID companyId, int limit, int offset) {

@@ -38,7 +38,10 @@ public class UserController {
 
     @PostConstruct
     private void initFirstUser() {
-        this.userService.createFirstUser(new SimpleUserBody("Anthony", "Timmel", "anthony@eno-intern.de", "test", UserType.COMPANY, List.of(Authority.ADMINISTRATOR)));
+        this.userService.createFirstUser(new SimpleUserBody(
+                "Anthony", "Timmel", "anthony@eno-intern.de", "test", UserType.COMPANY,
+                List.of(Authority.ADMINISTRATOR)
+        ));
     }
 
     @PostMapping
@@ -48,23 +51,20 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getUsers(@RequestParam(value = "offset") Integer offset,
-                                      @RequestParam(value = "limit") Integer limit,
+    public ResponseEntity<?> getUsers(@RequestParam(value = "offset") Integer offset, @RequestParam(value = "limit") Integer limit,
                                       @RequestParam(value = "company", required = false) String companyId) {
 
         int convertedOffset = UserInputHandler.validInteger(offset) ? offset : this.defaultOffset;
         int convertedLimit = UserInputHandler.validInteger(limit) ? limit : this.defaultLimit;
 
-        boolean isAdmin = SecurityContextHolder.getContext()
-                .getAuthentication().getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ADMINISTRATOR"));
+        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(
+                a -> a.getAuthority().equals("ADMINISTRATOR"));
 
         List<AdvancedUserBody> users;
         long totalCount;
 
         if (isAdmin && companyId == null) {
-            users = this.userService.retrieveUsers(convertedLimit, convertedOffset)
-                    .stream().map(UserDto::transformToBody).toList();
+            users = this.userService.retrieveUsers(convertedLimit, convertedOffset).stream().map(UserDto::transformToBody).toList();
             totalCount = this.userService.count();
         } else {
             if (companyId == null) {
@@ -76,8 +76,8 @@ public class UserController {
             } catch (IllegalArgumentException e) {
                 return ResponseEntity.badRequest().body(new ErrorResult("companyId isn't a valid id", "companyId"));
             }
-            users = this.userService.retrieveUsersByCompany(companyUid, convertedOffset, convertedLimit)
-                    .stream().map(UserDto::transformToBody).toList();
+            users = this.userService.retrieveUsersByCompany(companyUid, convertedLimit, convertedOffset).stream().map(
+                    UserDto::transformToBody).toList();
             totalCount = this.userService.getUserCountByCompany(companyUid);
         }
 
@@ -119,8 +119,8 @@ public class UserController {
             return ResponseEntity.badRequest().body(new ErrorResult("Id is not a valid id", "id"));
         }
 
-        boolean isAdministrator = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals(Authority.ADMINISTRATOR.name()));
+        boolean isAdministrator = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(
+                a -> a.getAuthority().equals(Authority.ADMINISTRATOR.name()));
 
         Optional<UserDto> optional = this.userService.retrieveUserById(uid);
 
