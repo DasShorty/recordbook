@@ -2,13 +2,11 @@ package de.dasshorty.recordbook.authentication;
 
 import de.dasshorty.recordbook.authentication.jwt.JwtAuthenticationConverter;
 import de.dasshorty.recordbook.authentication.jwt.JwtAuthenticationProvider;
-import de.dasshorty.recordbook.authentication.jwt.JwtHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -31,11 +29,11 @@ import java.util.List;
 @EnableMethodSecurity
 public class SpringSecurityConfig implements WebMvcConfigurer {
 
-    private final JwtHandler jwtHandler;
+    private final JwtAuthenticationProvider jwtAuthenticationProvider;
 
     @Autowired
-    public SpringSecurityConfig(JwtHandler jwtHandler) {
-        this.jwtHandler = jwtHandler;
+    public SpringSecurityConfig(JwtAuthenticationProvider jwtAuthenticationProvider) {
+        this.jwtAuthenticationProvider = jwtAuthenticationProvider;
     }
 
     @Bean
@@ -46,38 +44,37 @@ public class SpringSecurityConfig implements WebMvcConfigurer {
             // do nothing, just continue
         });
 
+
+        // @formatter:off
+
         return http.cors(httpSecurityCorsConfigurer -> {
-                    httpSecurityCorsConfigurer.configurationSource(request -> {
+            httpSecurityCorsConfigurer.configurationSource(request -> {
 
-                        CorsConfiguration config = new CorsConfiguration();
+                CorsConfiguration config = new CorsConfiguration();
 
-                        config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost"));
-                        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                        config.setAllowCredentials(true);
-                        config.setExposedHeaders(List.of("Authorization"));
-                        config.setAllowedHeaders(List.of(
-                                "Access-Control-Allow-Headers", "Access-Control-Allow-Origin", "Access-Control-Request-Method",
-                                "Access-Control-Request-Headers", "Origin", "Cache-Control", "Content-Type", "Authorization"
-                        ));
+                config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost"));
+                config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                config.setAllowCredentials(true);
+                config.setExposedHeaders(List.of("Authorization"));
+                config.setAllowedHeaders(List.of("Access-Control-Allow-Headers", "Access-Control-Allow-Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", "Origin", "Cache-Control", "Content-Type", "Authorization"));
 
-                        config.setMaxAge(3600L);
+                config.setMaxAge(3600L);
 
-                        return config;
+                return config;
 
-                    });
-                }).csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable())
-                .sessionManagement(Customizer.withDefaults()).sessionManagement(
-                        sessionManagementConfigurer -> sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            });
+        }).csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable())
+                .sessionManagement(sessionManagementConfigurer ->
+                        sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers(HttpMethod.OPTIONS).permitAll()
                                 .requestMatchers("/authentication/**", "/authentication/login").permitAll()
                                 .anyRequest().authenticated())
-                .authenticationProvider(this.recordBookAuthenticationProvider(this.jwtHandler)).addFilter(authenticationFilter).build();
-    }
+                .authenticationProvider(this.jwtAuthenticationProvider)
+                .addFilter(authenticationFilter)
+                .build();
 
-    @Bean
-    public JwtAuthenticationProvider recordBookAuthenticationProvider(JwtHandler jwtHandler) {
-        return new JwtAuthenticationProvider(jwtHandler);
+        // @formatter:on
     }
 
     @Bean

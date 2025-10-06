@@ -5,6 +5,8 @@ import de.dasshorty.recordbook.http.result.ErrorResult;
 import de.dasshorty.recordbook.http.result.QueryResult;
 import de.dasshorty.recordbook.user.httpbodies.AdvancedUserBody;
 import de.dasshorty.recordbook.user.httpbodies.SimpleUserBody;
+import jakarta.annotation.PostConstruct;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -32,45 +34,16 @@ public class UserController {
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
-        this.initFirstUser();
     }
 
+    @PostConstruct
     private void initFirstUser() {
         this.userService.createFirstUser(new SimpleUserBody("Anthony", "Timmel", "anthony@eno-intern.de", "test", UserType.COMPANY, List.of(Authority.ADMINISTRATOR)));
     }
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('COMPANY', 'ADMINISTRATOR')")
-    public ResponseEntity<?> create(@RequestBody SimpleUserBody body) {
-
-        if (body.authorities().contains(Authority.ADMINISTRATOR)) {
-            return ResponseEntity.badRequest().body(new ErrorResult("Authority is not allowed", "authority"));
-        }
-
-        if (body.email().isBlank()) {
-            return ResponseEntity.badRequest().body(new ErrorResult("Email is required", "email"));
-        }
-
-        if (!UserInputHandler.isEmail(body.email())) {
-            return ResponseEntity.badRequest().body(new ErrorResult("Email not valid", "email"));
-        }
-
-        if (body.forename().isBlank()) {
-            return ResponseEntity.badRequest().body(new ErrorResult("Forename is required", "forename"));
-        }
-
-        if (body.surname().isBlank()) {
-            return ResponseEntity.badRequest().body(new ErrorResult("Surname is required", "surname"));
-        }
-
-        if (body.password().isBlank()) {
-            return ResponseEntity.badRequest().body(new ErrorResult("Password is required", "password"));
-        }
-
-        if (body.password().length() < 6) {
-            return ResponseEntity.badRequest().body(new ErrorResult("Password has to be at least 6 characters long", "password"));
-        }
-
+    public ResponseEntity<?> create(@RequestBody @Valid SimpleUserBody body) {
         return ResponseEntity.ok(this.userService.createUser(body).transformToBody());
     }
 
@@ -146,18 +119,19 @@ public class UserController {
             return ResponseEntity.badRequest().body(new ErrorResult("Id is not a valid id", "id"));
         }
 
-        boolean isAdministrator = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ADMINISTRATOR"));
+        boolean isAdministrator = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals(Authority.ADMINISTRATOR.name()));
 
         Optional<UserDto> optional = this.userService.retrieveUserById(uid);
 
         if (optional.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("User not found", "id"));
         }
 
         UserDto userDto = optional.get();
 
         if (userDto.isAdministrator() && !isAdministrator) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResult("Administrator can't be deleted", "userId"));
         }
 
         this.userService.deleteUser(uid);
