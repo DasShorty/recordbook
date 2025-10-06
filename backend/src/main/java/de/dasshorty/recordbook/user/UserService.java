@@ -1,5 +1,6 @@
 package de.dasshorty.recordbook.user;
 
+import de.dasshorty.recordbook.company.CompanyDto;
 import de.dasshorty.recordbook.user.httpbodies.SimpleUserBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,6 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -44,7 +46,9 @@ public class UserService implements UserDetailsService {
                 simpleUserBody.userType()
         );
 
-        return this.userRepository.save(user);
+        UserDto save = this.userRepository.save(user);
+        this.userRepository.analyse();
+        return save;
     }
 
 
@@ -65,5 +69,21 @@ public class UserService implements UserDetailsService {
         }
 
         return optional.get();
+    }
+
+    public List<UserDto> retrieveUsers(int limit, int offset) {
+        return this.userRepository.retrieveUsers(limit, offset);
+    }
+
+    public List<UserDto> retrieveUsersByCompany(UUID companyId, int limit, int offset) {
+        return this.userRepository.retrieveUsersByCompany(companyId, limit, offset);
+    }
+
+    public long getUserCountByCompany(UUID companyId) {
+        return this.userRepository.countByAssignedCompany_Id(companyId);
+    }
+
+    public long count() {
+        return this.userRepository.getAnalyzedRowCount();
     }
 }

@@ -1,12 +1,19 @@
 package de.dasshorty.recordbook.user;
 
-import de.dasshorty.recordbook.query.QueryResult;
+import de.dasshorty.recordbook.http.handler.UserInputHandler;
+import de.dasshorty.recordbook.http.result.ErrorResult;
+import de.dasshorty.recordbook.http.result.QueryResult;
+import de.dasshorty.recordbook.user.httpbodies.AdvancedUserBody;
 import de.dasshorty.recordbook.user.httpbodies.SimpleUserBody;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
@@ -14,34 +21,110 @@ public class UserController {
 
     private final UserService userService;
 
+    @Value("${query.limit}")
+    private int defaultLimit;
+
+    @Value("${query.offset}")
+    private int defaultOffset;
+
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
-
-        initFirstUser();
+        this.initFirstUser();
     }
 
     private void initFirstUser() {
-        this.userService.createFirstUser(new SimpleUserBody("Anthony", "Timmel", "anthony@eno-intern.de", "test", UserType.COMPANY, List.of(Authority.COMPANY)));
+        this.userService.createFirstUser(new SimpleUserBody("Anthony", "Timmel", "anthony@eno-intern.de", "test", UserType.COMPANY, List.of(Authority.ADMINISTRATOR)));
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> create(@RequestBody SimpleUserBody body) {
-        return null;
+    @PreAuthorize("hasAnyAuthority('COMPANY', 'ADMINISTRATOR')")
+    public ResponseEntity<?> create(@RequestBody SimpleUserBody body) {
+
+        if (body.authorities().contains(Authority.ADMINISTRATOR)) {
+            return ResponseEntity.badRequest().body(new ErrorResult("Authority is not allowed", "authority"));
+        }
+
+        if (body.email().isBlank()) {
+            return ResponseEntity.badRequest().body(new ErrorResult("Email is required", "email"));
+        }
+
+        if (!UserInputHandler.isEmail(body.email())) {
+            return ResponseEntity.badRequest().body(new ErrorResult("Email not valid", "email"));
+        }
+
+        if (body.forename().isBlank()) {
+            return ResponseEntity.badRequest().body(new ErrorResult("Forename is required", "forename"));
+        }
+
+        if (body.surname().isBlank()) {
+            return ResponseEntity.badRequest().body(new ErrorResult("Surname is required", "surname"));
+        }
+
+        if (body.password().isBlank()) {
+            return ResponseEntity.badRequest().body(new ErrorResult("Password is required", "password"));
+        }
+
+        if (body.password().length() < 6) {
+            return ResponseEntity.badRequest().body(new ErrorResult("Password has to be at least 6 characters long", "password"));
+        }
+
+        return ResponseEntity.ok(this.userService.createUser(body).transformToBody());
     }
 
     @GetMapping
-    public ResponseEntity<QueryResult<UserDto>> getUsers(@RequestParam(value = "offset") Integer offset,
-                                                         @RequestParam(value = "limit") Integer limit) {
+    public ResponseEntity<?> getUsers(@RequestParam(value = "offset") Integer offset,
+                                      @RequestParam(value = "limit") Integer limit,
+                                      @RequestParam(value = "company", required = false) String companyId) {
 
+        int convertedOffset = UserInputHandler.validInteger(offset) ? offset : this.defaultOffset;
+        int convertedLimit = UserInputHandler.validInteger(limit) ? limit : this.defaultLimit;
 
-        return null;
+        boolean isAdmin = SecurityContextHolder.getContext()
+                .getAuthentication().getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ADMINISTRATOR"));
+
+        List<AdvancedUserBody> users;
+        long totalCount;
+
+        if (isAdmin && companyId == null) {
+            users = this.userService.retrieveUsers(convertedLimit, convertedOffset)
+                    .stream().map(UserDto::transformToBody).toList();
+            totalCount = this.userService.count();
+        } else {
+            if (companyId == null) {
+                return ResponseEntity.badRequest().body(new ErrorResult("companyId is required for non-admins", "companyId"));
+            }
+            UUID companyUid;
+            try {
+                companyUid = UUID.fromString(companyId);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body(new ErrorResult("companyId isn't a valid id", "companyId"));
+            }
+            users = this.userService.retrieveUsersByCompany(companyUid, convertedOffset, convertedLimit)
+                    .stream().map(UserDto::transformToBody).toList();
+            totalCount = this.userService.getUserCountByCompany(companyUid);
+        }
+
+        return ResponseEntity.ok(new QueryResult<>(totalCount, convertedOffset, convertedLimit, users));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<QueryResult<UserDto>> getUser(@PathVariable String id) {
+    public ResponseEntity<?> getUser(@PathVariable String id) {
 
-        return null;
+        if (id.isBlank()) {
+            return ResponseEntity.badRequest().body(new ErrorResult("Id is required", "id"));
+        }
+
+        UUID uid;
+
+        try {
+            uid = UUID.fromString(id);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ErrorResult("Id is not a valid id", "id"));
+        }
+
+        return ResponseEntity.of(this.userService.retrieveUserById(uid));
 
     }
 }

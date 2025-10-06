@@ -4,6 +4,7 @@ public enum Authority {
 
     TRAINEE,
     TRAINER,
-    COMPANY
+    COMPANY,
+    ADMINISTRATOR,
 
 }

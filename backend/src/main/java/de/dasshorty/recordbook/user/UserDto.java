@@ -1,6 +1,7 @@
 package de.dasshorty.recordbook.user;
 
 import de.dasshorty.recordbook.company.CompanyDto;
+import de.dasshorty.recordbook.user.httpbodies.AdvancedUserBody;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -105,5 +106,15 @@ public class UserDto implements UserDetails {
     @Override
     public boolean isEnabled() {
         return this.enabled;
+    }
+
+    public AdvancedUserBody transformToBody() {
+        return new AdvancedUserBody(
+                this.forename,
+                this.surname,
+                this.email,
+                this.userType,
+                this.assignedCompany,
+                this.authorities);
     }
 }
