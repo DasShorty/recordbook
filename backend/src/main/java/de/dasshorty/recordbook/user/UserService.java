@@ -25,14 +25,6 @@ public class UserService implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public Optional<UserDto> retrieveUserByEmail(String email) {
-        return this.userRepository.findByEmail(email);
-    }
-
-    public Optional<UserDto> retrieveUserById(UUID id) {
-        return this.userRepository.findById(id);
-    }
-
     public UserDto createUser(SimpleUserBody simpleUserBody) {
 
         String encodedPassword = this.passwordEncoder.encode(simpleUserBody.password());
@@ -60,6 +52,10 @@ public class UserService implements UserDetailsService {
         this.createUser(body);
     }
 
+    public void deleteUser(UUID id) {
+        this.userRepository.deleteById(id);
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<UserDto> optional = this.retrieveUserByEmail(username);
@@ -69,6 +65,14 @@ public class UserService implements UserDetailsService {
         }
 
         return optional.get();
+    }
+
+    public Optional<UserDto> retrieveUserByEmail(String email) {
+        return this.userRepository.findByEmail(email);
+    }
+
+    public Optional<UserDto> retrieveUserById(UUID id) {
+        return this.userRepository.findById(id);
     }
 
     public List<UserDto> retrieveUsers(int limit, int offset) {

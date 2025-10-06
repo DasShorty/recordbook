@@ -7,12 +7,14 @@ import de.dasshorty.recordbook.user.httpbodies.AdvancedUserBody;
 import de.dasshorty.recordbook.user.httpbodies.SimpleUserBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -126,5 +128,40 @@ public class UserController {
 
         return ResponseEntity.of(this.userService.retrieveUserById(uid));
 
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'COMPANY')")
+    public ResponseEntity<?> delete(@PathVariable("id") String id) {
+
+        if (id.isBlank()) {
+            return ResponseEntity.badRequest().body(new ErrorResult("Id is required", "id"));
+        }
+
+        UUID uid;
+
+        try {
+            uid = UUID.fromString(id);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ErrorResult("Id is not a valid id", "id"));
+        }
+
+        boolean isAdministrator = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ADMINISTRATOR"));
+
+        Optional<UserDto> optional = this.userService.retrieveUserById(uid);
+
+        if (optional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        UserDto userDto = optional.get();
+
+        if (userDto.isAdministrator() && !isAdministrator) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        this.userService.deleteUser(uid);
+
+        return ResponseEntity.ok().build();
     }
 }

@@ -108,6 +108,10 @@ public class UserDto implements UserDetails {
         return this.enabled;
     }
 
+    public boolean isAdministrator() {
+        return this.authorities.contains(Authority.ADMINISTRATOR);
+    }
+
     public AdvancedUserBody transformToBody() {
         return new AdvancedUserBody(
                 this.forename,
