@@ -39,8 +39,8 @@ public class UserDto implements UserDetails {
     private boolean enabled = true;
     @Enumerated(EnumType.STRING)
     private UserType userType;
-        @ManyToOne
-        @JoinColumn
+    @ManyToOne
+    @JoinColumn
     private CompanyDto assignedCompany;
 
     public UserDto(String forename, String surname, String email, String password, List<Authority> authorities, UserType userType) {
