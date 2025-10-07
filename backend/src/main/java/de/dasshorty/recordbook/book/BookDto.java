@@ -1,6 +1,6 @@
 package de.dasshorty.recordbook.book;
 
-import de.dasshorty.recordbook.book.job.QualifiedJobDto;
+import de.dasshorty.recordbook.job.JobDto;
 import de.dasshorty.recordbook.book.week.BookWeekDto;
 import de.dasshorty.recordbook.user.UserDto;
 import jakarta.persistence.*;
@@ -23,7 +23,7 @@ public class BookDto {
     private List<UserDto> trainers;
 
     @ManyToOne
-    private QualifiedJobDto qualifiedJob;
+    private JobDto qualifiedJob;
 
     @ManyToMany
     private List<BookWeekDto> weeks;
@@ -36,7 +36,7 @@ public class BookDto {
         return trainers;
     }
 
-    public QualifiedJobDto getQualifiedJob() {
+    public JobDto getQualifiedJob() {
         return qualifiedJob;
     }
 

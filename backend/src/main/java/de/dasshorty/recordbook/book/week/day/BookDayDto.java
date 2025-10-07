@@ -1,6 +1,6 @@
 package de.dasshorty.recordbook.book.week.day;
 
-import de.dasshorty.recordbook.book.job.qualifications.QualificationDto;
+import de.dasshorty.recordbook.job.qualifications.QualificationDto;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
