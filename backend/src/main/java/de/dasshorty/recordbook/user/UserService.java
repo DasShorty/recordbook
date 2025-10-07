@@ -1,6 +1,6 @@
 package de.dasshorty.recordbook.user;
 
-import de.dasshorty.recordbook.user.httpbodies.SimpleUserBody;
+import de.dasshorty.recordbook.user.httpbodies.PasswordUserBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,13 +24,13 @@ public class UserService implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UserDto createUser(SimpleUserBody simpleUserBody) {
+    public UserDto createUser(PasswordUserBody passwordUserBody) {
 
-        String encodedPassword = this.passwordEncoder.encode(simpleUserBody.password());
+        String encodedPassword = this.passwordEncoder.encode(passwordUserBody.password());
 
         UserDto user = new UserDto(
-                simpleUserBody.forename(), simpleUserBody.surname(), simpleUserBody.email(), encodedPassword, simpleUserBody.authorities(),
-                simpleUserBody.userType()
+                passwordUserBody.forename(), passwordUserBody.surname(), passwordUserBody.email(), encodedPassword, passwordUserBody.authorities(),
+                passwordUserBody.userType()
         );
 
         UserDto save = this.userRepository.save(user);
@@ -39,7 +39,7 @@ public class UserService implements UserDetailsService {
     }
 
 
-    public void createFirstUser(SimpleUserBody body) {
+    public void createFirstUser(PasswordUserBody body) {
         if (this.userRepository.count() != 0L) {
             return;
         }

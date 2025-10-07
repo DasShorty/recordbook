@@ -4,7 +4,7 @@ import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.ErrorResult;
 import de.dasshorty.recordbook.http.result.QueryResult;
 import de.dasshorty.recordbook.user.httpbodies.AdvancedUserBody;
-import de.dasshorty.recordbook.user.httpbodies.SimpleUserBody;
+import de.dasshorty.recordbook.user.httpbodies.PasswordUserBody;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +38,7 @@ public class UserController {
 
     @PostConstruct
     private void initFirstUser() {
-        this.userService.createFirstUser(new SimpleUserBody(
+        this.userService.createFirstUser(new PasswordUserBody(
                 "Anthony", "Timmel", "anthony@eno-intern.de", "test", UserType.COMPANY,
                 List.of(Authority.ADMINISTRATOR)
         ));
@@ -46,7 +46,7 @@ public class UserController {
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('COMPANY', 'ADMINISTRATOR')")
-    public ResponseEntity<?> create(@RequestBody @Valid SimpleUserBody body) {
+    public ResponseEntity<?> create(@RequestBody @Valid PasswordUserBody body) {
         return ResponseEntity.ok(this.userService.createUser(body).transformToBody());
     }
 
