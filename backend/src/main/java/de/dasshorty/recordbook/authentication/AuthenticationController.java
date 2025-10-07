@@ -2,9 +2,11 @@ package de.dasshorty.recordbook.authentication;
 
 import de.dasshorty.recordbook.authentication.httpbodies.AuthenticationBody;
 import de.dasshorty.recordbook.authentication.httpbodies.TokenBody;
+import de.dasshorty.recordbook.http.result.ErrorResult;
 import de.dasshorty.recordbook.user.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
@@ -34,8 +36,10 @@ public class AuthenticationController {
         try {
             Pair<String, String> tokenPair = this.authenticationService.authenticate(body.email(), body.password());
             return ResponseEntity.ok(new TokenBody(tokenPair.getFirst(), tokenPair.getSecond()));
-        } catch (BadCredentialsException | AccountNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.badRequest().body(new ErrorResult("bad credentials", "req-body"));
+        } catch (AccountNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("account not found", "req-body"));
         }
 
     }

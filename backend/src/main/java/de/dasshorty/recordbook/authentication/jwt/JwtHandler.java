@@ -65,7 +65,8 @@ public class JwtHandler {
 
     public String generateRefreshToken(UserDto user) {
         return Jwts.builder().subject(user.getId().toString()).issuedAt(new Date()).expiration(
-                new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME * 1000L)).claim("type", "access_token").signWith(
+                new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME * 1000L)).claim(
+                "scp", this.mapAuthoritiesToScope(user.getAuthorities())).claim("type", "refresh_token").signWith(
                 this.secretKey).compact();
     }
 

@@ -68,7 +68,7 @@ public class SpringSecurityConfig implements WebMvcConfigurer {
                         sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers(HttpMethod.OPTIONS).permitAll()
-                                .requestMatchers("/authentication/**", "/authentication/login").permitAll()
+                                .requestMatchers("/authentication/**").permitAll()
                                 .anyRequest().authenticated())
                 .authenticationProvider(this.jwtAuthenticationProvider)
                 .addFilter(authenticationFilter)
