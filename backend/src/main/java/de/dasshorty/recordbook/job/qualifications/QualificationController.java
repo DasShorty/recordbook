@@ -36,8 +36,7 @@ public class QualificationController {
 
         List<QualificationDto> qualifications = this.qualificationService.getQualifications(convertedLimit, convertedOffset);
 
-        return ResponseEntity.ok(new QueryResult<>(this.qualificationService.count(), convertedLimit, convertedOffset
-                , qualifications));
+        return ResponseEntity.ok(new QueryResult<>(this.qualificationService.count(), convertedLimit, convertedOffset, qualifications));
     }
 
     @GetMapping("/{id}")

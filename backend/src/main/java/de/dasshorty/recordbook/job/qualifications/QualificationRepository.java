@@ -12,7 +12,7 @@ import java.util.UUID;
 @Repository
 public interface QualificationRepository extends JpaRepository<QualificationDto, UUID> {
 
-        String TABLE_NAME = "qualifications";
+    String TABLE_NAME = "qualifications";
 
     @Modifying
     @Transactional

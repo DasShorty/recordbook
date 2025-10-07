@@ -1,6 +1,8 @@
 package de.dasshorty.recordbook.job;
 
 import de.dasshorty.recordbook.exception.AlreadyExistingException;
+import de.dasshorty.recordbook.exception.NotExistingException;
+import de.dasshorty.recordbook.job.qualifications.QualificationDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,6 +47,21 @@ public class JobService {
 
     public Optional<JobDto> getJobById(UUID jobId) {
         return this.jobRepository.findById(jobId);
+    }
+
+    public JobDto updateAssignedQualifications(UUID jobId, List<QualificationDto> qualifications) {
+
+        Optional<JobDto> optional = this.jobRepository.findById(jobId);
+
+        if (optional.isEmpty()) {
+            throw new NotExistingException("Job not found");
+        }
+
+        JobDto jobDto = optional.get();
+
+        jobDto.setQualifications(qualifications);
+
+
     }
 
 

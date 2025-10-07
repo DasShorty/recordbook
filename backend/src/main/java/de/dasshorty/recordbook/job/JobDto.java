@@ -40,4 +40,8 @@ public class JobDto {
     public List<QualificationDto> getQualifications() {
         return qualifications;
     }
+
+    public void setQualifications(List<QualificationDto> qualifications) {
+        this.qualifications = qualifications;
+    }
 }
