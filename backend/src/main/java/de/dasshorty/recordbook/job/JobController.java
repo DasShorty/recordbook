@@ -89,8 +89,8 @@ public class JobController {
                 .map(Optional::get)
                 .toList();
 
-        this.jobService.upd
+        JobDto updatedJob = this.jobService.updateAssignedQualifications(uid, qualificationDtos);
 
-
+        return ResponseEntity.ok(updatedJob);
     }
 }

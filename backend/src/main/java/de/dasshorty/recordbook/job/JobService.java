@@ -61,7 +61,7 @@ public class JobService {
 
         jobDto.setQualifications(qualifications);
 
-
+        return this.jobRepository.save(jobDto);
     }
 
 
