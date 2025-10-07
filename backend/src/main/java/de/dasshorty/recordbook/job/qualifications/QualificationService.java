@@ -1,5 +1,6 @@
 package de.dasshorty.recordbook.job.qualifications;
 
+import de.dasshorty.recordbook.exception.AlreadyExistingException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,11 @@ public class QualificationService {
     }
 
     public QualificationDto addQualification(@Valid QualificationDto qualification) {
+
+        if (this.qualificationRepository.existsByName(qualification.getName())) {
+            throw new AlreadyExistingException("name", qualification.getName());
+        }
+
         QualificationDto savedQualification = this.qualificationRepository.save(qualification);
         this.qualificationRepository.analyze();
         return savedQualification;
@@ -35,5 +41,9 @@ public class QualificationService {
 
     public Optional<QualificationDto> getQualification(UUID qualificationId) {
         return this.qualificationRepository.findById(qualificationId);
+    }
+
+    public long count() {
+        return this.qualificationRepository.getAnalyzedCount();
     }
 }

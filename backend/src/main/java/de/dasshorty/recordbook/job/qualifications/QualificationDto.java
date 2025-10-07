@@ -16,7 +16,7 @@ public class QualificationDto {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @NotBlank(message = "Name is required")
-    @Column(name = "name", columnDefinition = "varchar(25)")
+    @Column(name = "name", columnDefinition = "varchar(25)", unique = true)
     private String name;
     @Column(name = "description", columnDefinition = "varchar(100)")
     private String description;

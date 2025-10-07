@@ -26,4 +26,5 @@ public interface QualificationRepository extends JpaRepository<QualificationDto,
     @Query(nativeQuery = true, value = "SELECT * FROM " + TABLE_NAME + " LIMIT ?1 OFFSET ?2")
     List<QualificationDto> getQualifications(int limit, int offset);
 
+    boolean existsByName(String name);
 }
