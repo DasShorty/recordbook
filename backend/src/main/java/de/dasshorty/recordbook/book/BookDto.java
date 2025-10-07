@@ -1,7 +1,7 @@
 package de.dasshorty.recordbook.book;
 
-import de.dasshorty.recordbook.job.JobDto;
 import de.dasshorty.recordbook.book.week.BookWeekDto;
+import de.dasshorty.recordbook.job.JobDto;
 import de.dasshorty.recordbook.user.UserDto;
 import jakarta.persistence.*;
 
@@ -15,18 +15,24 @@ public class BookDto {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-
     @ManyToOne
     private UserDto trainee;
-
     @ManyToMany
     private List<UserDto> trainers;
-
     @ManyToOne
     private JobDto qualifiedJob;
-
     @ManyToMany
     private List<BookWeekDto> weeks;
+
+    public BookDto(UserDto trainee, List<UserDto> trainers, JobDto qualifiedJob) {
+        this.trainee = trainee;
+        this.trainers = trainers;
+        this.qualifiedJob = qualifiedJob;
+    }
+
+    public UUID getId() {
+        return id;
+    }
 
     public UserDto getTrainee() {
         return trainee;

@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
-public record SimpleUserBody(
+public record PasswordUserBody(
         @NotBlank(message = "Forename is required")
         String forename,
         @NotBlank(message = "Surname is required")

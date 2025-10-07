@@ -11,12 +11,12 @@ import java.util.UUID;
 @Table(name = "weeks")
 public class BookWeekDto {
 
+
     @ManyToMany(fetch = FetchType.EAGER)
     List<BookDayDto> days;
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-
     @ManyToOne
     private UserDto signedFromTrainer;
 

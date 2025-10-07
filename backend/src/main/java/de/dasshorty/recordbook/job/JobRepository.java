@@ -13,7 +13,7 @@ import java.util.UUID;
 @Repository
 public interface JobRepository extends JpaRepository<JobDto, UUID> {
 
-        String TABLE_NAME = "jobs";
+    String TABLE_NAME = "jobs";
 
     @Modifying
     @Transactional
