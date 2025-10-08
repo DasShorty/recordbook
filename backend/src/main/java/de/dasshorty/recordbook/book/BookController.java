@@ -8,7 +8,7 @@ import de.dasshorty.recordbook.job.JobDto;
 import de.dasshorty.recordbook.job.JobService;
 import de.dasshorty.recordbook.user.UserDto;
 import de.dasshorty.recordbook.user.UserService;
-import de.dasshorty.recordbook.user.httpbodies.SafeUserBody;
+import de.dasshorty.recordbook.user.httpbodies.UserBody;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,7 +56,7 @@ public class BookController {
     @GetMapping("/{bookId}/weeks")
     public ResponseEntity<?> getWeeks(@PathVariable("bookId") String bookId) {
         return ResponseEntity.ok(bookService.getBookWeeks(UUID.fromString(bookId)).stream()
-                .map(week -> new BookWeekBody(week.getId(), SafeUserBody.fromUser(week.getSignedFromTrainer()), week.getDays())).toList());
+                .map(week -> new BookWeekBody(week.getId(), UserBody.fromUser(week.getSignedFromTrainer()), week.getDays())).toList());
     }
 
     @PostMapping
