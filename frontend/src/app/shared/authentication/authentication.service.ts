@@ -27,4 +27,9 @@ export class AuthenticationService {
     return firstValueFrom(this.httpClient.get<void>(httpConfig.baseUrl + 'authentication/refresh', {withCredentials: true}));
   }
 
+  public async checkAuthentication() {
+    const response = await firstValueFrom(this.httpClient.get<void>(httpConfig.baseUrl, {withCredentials: true, observe: 'response'}));
+    return response.status === 200;
+  }
+
 }

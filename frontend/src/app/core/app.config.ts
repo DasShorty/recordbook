@@ -10,6 +10,11 @@ import {OptionalResponseInterceptor} from '@shared/http/optional.response.interc
 import {definePreset} from '@primeuix/themes';
 
 const MyPreset = definePreset(Aura, {
+  semantic: {
+    colorScheme: {
+
+    }
+  },
   components: {
     breadcrumb: {
       root: {
