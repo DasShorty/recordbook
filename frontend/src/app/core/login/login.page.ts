@@ -3,9 +3,18 @@ import {Component} from '@angular/core';
 @Component({
   selector: 'login-page',
   template: `
-    <div class="flex items-center justify-center h-full w-full">
+    <form>
       <p>Test</p>
-    </div>
+    </form>
+  `,
+  styles: `
+    form {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100dvh;
+      width: 100dvw;
+    }
   `
 })
 export class LoginPage {
