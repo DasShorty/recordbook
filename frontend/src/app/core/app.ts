@@ -1,16 +1,11 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import {Button} from 'primeng/button';
+import {Component} from '@angular/core';
+import {ReactiveFormsModule} from '@angular/forms';
+import {RouterOutlet} from '@angular/router';
 
 @Component({
-  selector: 'app-root',
-  imports: [RouterOutlet, Button],
-  template: `
-    <p>Test</p>
-
-    <p-button label="Check"/>
-  `
+  selector: 'app-root', imports: [ReactiveFormsModule, RouterOutlet], template: `
+    <router-outlet></router-outlet>
+  `,
 })
 export class App {
-  protected readonly title = signal('frontend');
 }

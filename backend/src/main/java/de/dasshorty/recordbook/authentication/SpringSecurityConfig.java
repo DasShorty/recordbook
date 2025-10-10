@@ -54,9 +54,11 @@ public class SpringSecurityConfig implements WebMvcConfigurer {
 
                 config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost"));
                 config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                config.setAllowCredentials(true);
                 config.setExposedHeaders(List.of("Authorization"));
-                config.setAllowedHeaders(List.of("Access-Control-Allow-Headers", "Access-Control-Allow-Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", "Origin", "Cache-Control", "Content-Type", "Authorization"));
+                config.setAllowedHeaders(List.of("Access-Control-Allow-Credentials","Access-Control-Allow-Headers",
+                        "Access-Control-Allow-Origin",
+                        "Access-Control-Request-Method", "Access-Control-Request-Headers", "Origin", "Cache-Control", "Content-Type", "Authorization"));
+                config.setAllowCredentials(true);
 
                 config.setMaxAge(3600L);
 

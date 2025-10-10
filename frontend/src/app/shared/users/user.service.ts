@@ -1,56 +1,62 @@
 import {inject, Injectable, resource, Resource, ResourceRef} from '@angular/core';
-import {HttpParams} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {AdvancedUserBody, PasswordUserBody} from '@shared/users/users.model';
-import {HttpService} from '@shared/http/http.service';
+import {firstValueFrom} from 'rxjs';
+import {QueryResult} from '@shared/http/http.model';
 
 @Injectable({providedIn: 'root'})
 export class UserService {
-  private readonly http = inject(HttpService);
+  private readonly httpClient = inject(HttpClient);
 
   getUsers = (
     offset: number,
     limit: number,
     companyId?: string
-  ): ResourceRef<Response | undefined> => {
-
-    let params = new HttpParams().set('offset', offset).set('limit', limit);
-
-    if (companyId)
-      params = params.set('company', companyId);
-
+  ): ResourceRef<QueryResult<AdvancedUserBody[]> | undefined> => {
     return resource({
-      params: () => (params),
-      loader: ({params}) => {
+      loader: () => {
 
-        let url = 'users?offset=' + params.get("offset") + '&limit=' + params.get("limit");
+        let url = 'users?offset=' + offset + '&limit=' + limit;
 
-        if (params.has("companyId"))
-          url += '&companyId=' + params.get("companyId");
+        if (companyId)
+          url += '&companyId=' + companyId;
 
-        return this.http.fetch(url, {
-          headers: {
-            accept: "application/json"
-          }
-        });
+        return firstValueFrom(this.httpClient.get<QueryResult<AdvancedUserBody[]>>(url, {
+          withCredentials: true
+        }));
       }
     });
   };
 
-  getUser = (id: string): Resource<AdvancedUserBody> => {
+  getUser = (id: string): Resource<AdvancedUserBody | undefined> => {
     return resource({
-      load: () => this.http.get<AdvancedUserBody>(`/users/${id}`)
+      loader: () => {
+
+        return firstValueFrom(this.httpClient.get<AdvancedUserBody>('users?id' + id, {
+          withCredentials: true
+        }));
+
+      }
     });
   };
 
-  createUser = (body: PasswordUserBody): Resource<AdvancedUserBody> => {
+  createUser = (body: PasswordUserBody): Resource<AdvancedUserBody | undefined> => {
     return resource({
-      load: () => this.http.post<AdvancedUserBody>('/users', body)
+      loader: () => {
+        return firstValueFrom(this.httpClient.post<AdvancedUserBody>('users', body, {
+          withCredentials: true
+        }));
+      }
     });
   };
 
   deleteUser = (id: string): Resource<void> => {
     return resource({
-      load: () => this.http.delete<void>(`/users/${id}`)
+      loader: () => {
+        return firstValueFrom(this.httpClient.delete<void>(`users/${id}`, {
+          withCredentials: true
+        }))
+      }
     });
   };
 }
