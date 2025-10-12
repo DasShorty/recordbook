@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -74,6 +75,7 @@ public class SpringSecurityConfig implements WebMvcConfigurer {
                                 .anyRequest().authenticated())
                 .authenticationProvider(this.jwtAuthenticationProvider)
                 .addFilter(authenticationFilter)
+                .addFilterBefore(new JwtCookieAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
 
         // @formatter:on

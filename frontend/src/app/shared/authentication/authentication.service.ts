@@ -28,8 +28,12 @@ export class AuthenticationService {
   }
 
   public async checkAuthentication() {
-    const response = await firstValueFrom(this.httpClient.get<void>(httpConfig.baseUrl, {withCredentials: true, observe: 'response'}));
-    return response.status === 200;
+        try {
+      const response = await firstValueFrom(this.httpClient.get<void>(httpConfig.baseUrl + 'authentication', {withCredentials: true, observe: 'response'}));
+      return response.status === 200;
+    } catch (error) {
+      return false;
+    }
   }
 
 }

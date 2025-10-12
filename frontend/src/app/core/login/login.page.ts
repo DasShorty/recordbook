@@ -80,12 +80,13 @@ export class LoginPage {
     }
 
     this.authenticationService.login(value.email, value.password).then(res => {
-
-      if (res.status != 200) {
-        return;
+            if (res && res.ok) { // assuming res.success indicates successful login
+        this.router.navigate(['/']).then();
+      } else {
+        // Optionally, show an error message to the user here
       }
-
-      this.router.navigate(['/']).then();
+    }).catch(err => {
+      // Optionally, handle error (e.g., show error message)
     });
   }
 
