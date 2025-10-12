@@ -1,14 +1,15 @@
-import {Component} from '@angular/core';
-import {AppFloatingConfigurator} from '@core/layout/component/app.floatingconfigurator';
+import {Component, computed, inject} from '@angular/core';
 import {Password} from 'primeng/password';
-import {Checkbox} from 'primeng/checkbox';
-import {Button} from 'primeng/button';
 import {InputText} from 'primeng/inputtext';
+import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {Button} from 'primeng/button';
+import {AuthenticationService} from '@shared/authentication/authentication.service';
+import {Router} from '@angular/router';
+
 
 @Component({
   selector: 'login-page',
   template: `
-    <app-floating-configurator/>
     <div
       class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-screen overflow-hidden">
       <div class="flex flex-col items-center justify-center">
@@ -21,38 +22,71 @@ import {InputText} from 'primeng/inputtext';
               <span class="text-muted-color font-medium">Sign in to continue</span>
             </div>
 
-            <div>
+            <form [formGroup]="this.formGroup()" (submit)="login()">
               <label for="email1"
                      class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-              <input pInputText id="email1" type="text" placeholder="Email address" class="w-full md:w-120 mb-8"/>
+              <input class="w-full md:w-120 mb-8" formControlName="email" id="email1" pInputText placeholder="Email address" type="text"/>
 
-              <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
-              <p-password id="password1" placeholder="Password" [toggleMask]="true" styleClass="mb-4" [fluid]="true"
-                          [feedback]="false"></p-password>
+              <label class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2" for="password1">Password</label>
+              <p-password [feedback]="false"
+                          [fluid]="true"
+                          [toggleMask]="true"
+                          formControlName="password"
+                          id="password1"
+                          placeholder="Password"
+                          styleClass="mb-4"></p-password>
 
               <div class="flex items-center justify-end mt-2 mb-8 gap-8">
                 <span
                   class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
               </div>
-              <p-button label="Sign In" styleClass="w-full" routerLink="/"></p-button>
-            </div>
+              <p-button type="submit" label="Sign In" [disabled]="!this.formGroup().valid" styleClass="w-full" routerLink="/"></p-button>
+            </form>
           </div>
         </div>
       </div>
     </div>
   `,
   imports: [
-    AppFloatingConfigurator,
     Password,
-    Checkbox,
-    Button,
-    InputText
-  ],
-  styles: `
-
-
-  `
+    InputText,
+    ReactiveFormsModule,
+    Button
+  ]
 })
 export class LoginPage {
+
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly router = inject(Router);
+
+  protected formGroup = computed(() => {
+    return new FormGroup({
+      email: new FormControl<string | null>(null, Validators.compose([
+        Validators.required,
+        Validators.email
+      ])),
+      password: new FormControl<string | null>(null, Validators.compose([
+        Validators.required
+      ]))
+    });
+  });
+
+  protected login() {
+
+    let value = this.formGroup().value;
+
+    if (!value.email || !value.password) {
+      return;
+    }
+
+    this.authenticationService.login(value.email, value.password).then(res => {
+
+      if (res.status != 200) {
+        return;
+      }
+
+      this.router.navigate(['/']).then();
+    });
+  }
 
 }
