@@ -1,4 +1,4 @@
-import {inject, Injectable, resource} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
 import {httpConfig} from '@environment/environment';
@@ -8,8 +8,23 @@ export class AuthenticationService {
 
   private readonly httpClient = inject(HttpClient);
 
-  public login(email: string, password: string) {
+  public logout() {
+    let httpHeaders = new HttpHeaders().set('Access-Control-Allow-Credentials', 'true')
+      .set("Access-Control-Allow-Origin", "*");
 
+    return firstValueFrom(this.httpClient.post(httpConfig.baseUrl + 'authentication/logout', {}, {
+      withCredentials: true,
+      observe: 'response',
+      headers: httpHeaders
+    }))
+  }
+
+  public async login(email: string, password: string) {
+    try {
+      await this.logout();
+    } catch (error) {
+      console.error('Logout failed before login:', error);
+    }
     let httpHeaders = new HttpHeaders().set('Access-Control-Allow-Credentials', 'true')
       .set("Access-Control-Allow-Origin", "*");
 
@@ -28,10 +43,20 @@ export class AuthenticationService {
   }
 
   public async checkAuthentication() {
-        try {
-      const response = await firstValueFrom(this.httpClient.get<void>(httpConfig.baseUrl + 'authentication', {withCredentials: true, observe: 'response'}));
+
+    let httpHeaders = new HttpHeaders().set('Access-Control-Allow-Credentials', 'true')
+      .set("Content-Type", "text/plain")
+      .set("Access-Control-Allow-Origin", "*");
+
+    try {
+      const response = await firstValueFrom(this.httpClient.get<void>(httpConfig.baseUrl, {
+        withCredentials: true,
+        observe: 'response',
+        headers: httpHeaders
+      }));
       return response.status === 200;
     } catch (error) {
+      console.error(error);
       return false;
     }
   }

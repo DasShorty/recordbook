@@ -25,7 +25,8 @@ import {Router} from '@angular/router';
             <form [formGroup]="this.formGroup()" (submit)="login()">
               <label for="email1"
                      class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-              <input class="w-full md:w-120 mb-8" formControlName="email" id="email1" pInputText placeholder="Email address" type="text"/>
+              <input class="w-full md:w-120 mb-8" formControlName="email" id="email1" pInputText
+                     placeholder="Email address" type="text"/>
 
               <label class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2" for="password1">Password</label>
               <p-password [feedback]="false"
@@ -40,7 +41,8 @@ import {Router} from '@angular/router';
                 <span
                   class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
               </div>
-              <p-button type="submit" label="Sign In" [disabled]="!this.formGroup().valid" styleClass="w-full" routerLink="/"></p-button>
+              <p-button type="submit" label="Sign In" [disabled]="!this.formGroup().valid" styleClass="w-full"
+                        routerLink="/"></p-button>
             </form>
           </div>
         </div>
@@ -71,7 +73,7 @@ export class LoginPage {
     });
   });
 
-  protected login() {
+  protected async login() {
 
     let value = this.formGroup().value;
 
@@ -79,15 +81,18 @@ export class LoginPage {
       return;
     }
 
-    this.authenticationService.login(value.email, value.password).then(res => {
-            if (res && res.ok) { // assuming res.success indicates successful login
-        this.router.navigate(['/']).then();
+    try {
+      const response = await this.authenticationService.login(value.email, value.password);
+
+      if (response && response.ok) {
+        this.router.navigate(['']).then();
       } else {
-        // Optionally, show an error message to the user here
+        console.log("Not logged in");
       }
-    }).catch(err => {
-      // Optionally, handle error (e.g., show error message)
-    });
+    } catch (e) {
+      console.error(e);
+    }
+
   }
 
 }

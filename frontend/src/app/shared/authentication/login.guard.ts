@@ -9,6 +9,7 @@ export const loginGuard: CanActivateFn = async (route, state) => {
 
   const response = await authenticationService.checkAuthentication();
 
+
   if (!response) {
     router.navigate(["/login"]).then();
     return false;
