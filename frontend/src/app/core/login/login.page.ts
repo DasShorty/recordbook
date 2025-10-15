@@ -93,7 +93,7 @@ export class LoginPage {
     try {
       const response = await this.authenticationService.login(value.email, value.password);
 
-      if (response && response.ok) {
+      if (response) {
         this.router.navigate(['']).then();
       } else {
         this.messageService.add({severity: 'error', summary: 'Invalid Credentials'});

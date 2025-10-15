@@ -2,11 +2,14 @@ import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
 import {httpConfig} from '@environment/environment';
+import {UserStore} from '@shared/users/user.store';
+import {AdvancedUserBody} from '@shared/users/users.model';
 
 @Injectable({providedIn: 'root'})
 export class AuthenticationService {
 
   private readonly httpClient = inject(HttpClient);
+  private readonly userStore = inject(UserStore);
 
   public logout() {
     let httpHeaders = new HttpHeaders().set('Access-Control-Allow-Credentials', 'true')
@@ -28,7 +31,7 @@ export class AuthenticationService {
     let httpHeaders = new HttpHeaders().set('Access-Control-Allow-Credentials', 'true')
       .set("Access-Control-Allow-Origin", "*");
 
-    return firstValueFrom(this.httpClient.post<void>(httpConfig.baseUrl + 'authentication/login', {
+    const response = await firstValueFrom(this.httpClient.post<AdvancedUserBody>(httpConfig.baseUrl + 'authentication/login', {
       email: email,
       password: password
     }, {
@@ -36,10 +39,30 @@ export class AuthenticationService {
       observe: 'response',
       withCredentials: true
     }));
+
+    const body = response.body;
+
+    if (body == null) {
+      return false;
+    }
+
+    this.userStore.setActiveUser(body);
+
+    return response.ok;
   }
 
-  public refreshToken() {
-    return firstValueFrom(this.httpClient.get<void>(httpConfig.baseUrl + 'authentication/refresh', {withCredentials: true}));
+  public async refreshToken() {
+    const response = await firstValueFrom(this.httpClient.get<AdvancedUserBody>(httpConfig.baseUrl + 'authentication/refresh', {withCredentials: true, observe: "response"}));
+
+    const body = response.body;
+
+    if (body === null) {
+      return false;
+    }
+
+    this.userStore.setActiveUser(body);
+
+    return response.ok;
   }
 
   public async checkAuthentication() {

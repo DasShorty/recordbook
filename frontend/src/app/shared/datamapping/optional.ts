@@ -20,6 +20,10 @@ export class Optional<T> {
     return this.value !== null && this.value !== undefined;
   }
 
+  isEmpty(): boolean {
+    return this.value === null || this.value === undefined;
+  }
+
   get(): T {
     if (this.value === null || this.value === undefined) {
       throw new Error('No value present');

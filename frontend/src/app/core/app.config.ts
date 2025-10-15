@@ -30,14 +30,14 @@ const MyPreset = definePreset(Aura, {
   components: {
     breadcrumb: {
       root: {
-        background: '#f5f5f5'
+        background: '#e5e5e5'
       }
     }
   },
   css: options => {
     return `
             body {
-                background-color: #f5f5f5;;
+                background-color: #e5e5e5;
                 color: black;
             }
         `;
