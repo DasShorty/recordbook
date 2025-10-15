@@ -37,18 +37,20 @@ public class AuthenticationController {
         this.authenticationService = authenticationService;
     }
 
-    @GetMapping
-    public ResponseEntity<String> test() {
-        return ResponseEntity.ok("test");
-    }
-
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthenticationBody body, HttpServletResponse response) {
 
         try {
             Pair<String, String> tokenPair = this.authenticationService.authenticate(body.email(), body.password());
             this.setTokenCookies(response, tokenPair.getFirst(), tokenPair.getSecond());
-            return ResponseEntity.ok().build();
+
+            Optional<UserDto> optional = this.authenticationService.obtainUserByToken(tokenPair.getSecond());
+
+            if (optional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("account no found", "no matching id in refreshToken"));
+            }
+
+            return ResponseEntity.ok().body(optional.get().transformToBody());
         } catch (BadCredentialsException e) {
             return ResponseEntity.badRequest().body(new ErrorResult("bad credentials", "req-body"));
         } catch (AccountNotFoundException e) {
@@ -74,7 +76,7 @@ public class AuthenticationController {
         String accessToken = this.authenticationService.obtainAccessToken(userDto);
 
         this.setTokenCookies(response, accessToken, refreshToken);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(userDto.transformToBody());
     }
 
     @PostMapping("/logout")
