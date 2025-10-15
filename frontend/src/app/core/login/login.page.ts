@@ -4,7 +4,9 @@ import {InputText} from 'primeng/inputtext';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Button} from 'primeng/button';
 import {AuthenticationService} from '@shared/authentication/authentication.service';
-import {Router} from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
+import {Toast} from 'primeng/toast';
+import {MessageService} from 'primeng/api';
 
 
 @Component({
@@ -48,18 +50,25 @@ import {Router} from '@angular/router';
         </div>
       </div>
     </div>
+
+    <div class="card flex justify-center gap-2">
+      <p-toast/>
+    </div>
   `,
   imports: [
     Password,
     InputText,
     ReactiveFormsModule,
-    Button
+    Button,
+    Toast,
+    RouterLink
   ]
 })
 export class LoginPage {
 
   private readonly authenticationService = inject(AuthenticationService);
   private readonly router = inject(Router);
+  private readonly messageService = inject(MessageService);
 
   protected formGroup = computed(() => {
     return new FormGroup({
@@ -87,10 +96,10 @@ export class LoginPage {
       if (response && response.ok) {
         this.router.navigate(['']).then();
       } else {
-        console.log("Not logged in");
+        this.messageService.add({severity: 'error', summary: 'Invalid Credentials'});
       }
     } catch (e) {
-      console.error(e);
+      this.messageService.add({severity: 'error', summary: 'Invalid Credentials'});
     }
 
   }

@@ -8,6 +8,7 @@ import Aura from '@primeuix/themes/aura';
 import {HTTP_INTERCEPTORS, provideHttpClient, withFetch} from '@angular/common/http';
 import {OptionalResponseInterceptor} from '@shared/http/optional.response.interceptor';
 import {definePreset} from '@primeuix/themes';
+import {MessageService} from 'primeng/api';
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -49,6 +50,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideHttpClient(withFetch()),
+    MessageService,
     provideRouter(routes),
     {
       provide: HTTP_INTERCEPTORS,
