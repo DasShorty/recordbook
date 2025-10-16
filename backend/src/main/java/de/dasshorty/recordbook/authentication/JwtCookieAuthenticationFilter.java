@@ -34,14 +34,6 @@ public class JwtCookieAuthenticationFilter extends OncePerRequestFilter {
                 jwt = cookie.getValue();
             }
 
-            if ("refresh_token".equals(cookie.getName())) {
-                if (jwt != null) {
-                    continue;
-                }
-
-                jwt = cookie.getValue();
-            }
-
         }
 
         if (jwt == null) {

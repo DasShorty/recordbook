@@ -1,5 +1,6 @@
 package de.dasshorty.recordbook.authentication.jwt;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -22,12 +23,16 @@ public class JwtAuthenticationProvider implements org.springframework.security.a
 
         String token = (String) authentication.getCredentials();
 
-        if (token != null && this.jwtHandler.checkAccessToken(token) && this.jwtHandler.isTokenSigned(token)) {
-            Optional<UUID> optional = this.jwtHandler.extractUserId(token);
+        try {
+            if (token != null && this.jwtHandler.checkAccessToken(token) && this.jwtHandler.isTokenSigned(token)) {
+                Optional<UUID> optional = this.jwtHandler.extractUserId(token);
 
-            return optional.map(uuid -> new UsernamePasswordAuthenticationToken(uuid.toString(), token, this.jwtHandler.extractScopes(token))).orElse(
-                    null);
+                return optional.map(uuid -> new UsernamePasswordAuthenticationToken(uuid.toString(), token, this.jwtHandler.extractScopes(token))).orElse(
+                        null);
 
+            }
+        } catch (ExpiredJwtException e) {
+            return null;
         }
 
         return null;

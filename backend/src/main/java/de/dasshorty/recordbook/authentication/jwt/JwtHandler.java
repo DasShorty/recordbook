@@ -1,10 +1,7 @@
 package de.dasshorty.recordbook.authentication.jwt;
 
 import de.dasshorty.recordbook.user.UserDto;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,8 +63,7 @@ public class JwtHandler {
     public String generateRefreshToken(UserDto user) {
         return Jwts.builder().subject(user.getId().toString()).issuedAt(new Date()).expiration(
                 new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME * 1000L)).claim(
-                "scp", this.mapAuthoritiesToScope(user.getAuthorities())).claim("type", "refresh_token").signWith(
-                this.secretKey).compact();
+                "scp", this.mapAuthoritiesToScope(user.getAuthorities())).claim("type", "refresh_token").signWith(this.secretKey).compact();
     }
 
     public List<SimpleGrantedAuthority> extractScopes(String token) {
@@ -98,7 +94,7 @@ public class JwtHandler {
         return issuedBefore && isNonExpired;
     }
 
-    public Claims retrieveClaimsFromToken(String token) {
+    public Claims retrieveClaimsFromToken(String token) throws ExpiredJwtException {
         return Jwts.parser().verifyWith(this.getSecretKey()).build().parseSignedClaims(token).getPayload();
     }
 
@@ -106,16 +102,14 @@ public class JwtHandler {
         return Jwts.parser().verifyWith(this.getSecretKey()).build().isSigned(token);
     }
 
-    public boolean checkRefreshToken(String token) {
+    public boolean checkRefreshToken(String token) throws ExpiredJwtException {
         Claims payload = this.retrieveClaimsFromToken(token);
-        return Objects.equals(payload.get("type", String.class), "refresh_token")
-                && checkToken(payload);
+        return Objects.equals(payload.get("type", String.class), "refresh_token") && checkToken(payload);
     }
 
-    public boolean checkAccessToken(String token) {
+    public boolean checkAccessToken(String token) throws ExpiredJwtException {
         Claims payload = this.retrieveClaimsFromToken(token);
-        return Objects.equals(payload.get("type", String.class), "access_token")
-                && checkToken(payload);
+        return Objects.equals(payload.get("type", String.class), "access_token") && checkToken(payload);
     }
 
 

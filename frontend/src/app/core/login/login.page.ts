@@ -88,6 +88,8 @@ export class LoginPage {
 
   protected async login() {
 
+    await this.authenticationService.logout();
+
     let value = this.formGroup().value;
 
     if (!value.email || !value.password) {
