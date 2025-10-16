@@ -1,9 +1,9 @@
 import {Component} from '@angular/core';
 
 @Component({
-  selector: 'navigation-component',
+  selector: 'sidebar-menu-component',
   template: `
-    <nav>
+    <nav class="p-4">
       <ul>
         <li>Dashboard</li>
         <li>
@@ -21,6 +21,8 @@ import {Component} from '@angular/core';
     </nav>
   `
 })
-export class NavigationComponent {
+export class SidebarMenuComponent {
+
+
 
 }
