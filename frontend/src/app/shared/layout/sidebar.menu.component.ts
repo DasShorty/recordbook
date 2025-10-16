@@ -3,7 +3,7 @@ import {Component} from '@angular/core';
 @Component({
   selector: 'sidebar-menu-component',
   template: `
-    <nav class="p-4">
+    <nav class="p-4 bg-gray-100 rounded-md box-border h-full">
       <ul>
         <li>Dashboard</li>
         <li>

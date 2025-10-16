@@ -1,12 +1,12 @@
-import {Component, computed, inject, input} from '@angular/core';
+import {Component, computed, inject, OnInit} from '@angular/core';
 import {Button} from 'primeng/button';
 import {Menu} from 'primeng/menu';
 import {MenuItem} from 'primeng/api';
-import {AdvancedUserBody} from '@shared/users/users.model';
 import {Avatar} from 'primeng/avatar';
 import {Ripple} from 'primeng/ripple';
 import {AuthenticationService} from '@shared/authentication/authentication.service';
 import {Router} from '@angular/router';
+import {UserStore} from '@shared/users/user.store';
 
 @Component({
   selector: 'header-component',
@@ -63,10 +63,11 @@ import {Router} from '@angular/router';
     }
   `
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
 
   protected readonly authenticationService = inject(AuthenticationService);
   private readonly router = inject(Router);
+  private readonly userStore = inject(UserStore);
 
   protected items: MenuItem[] = [
     {
@@ -92,12 +93,16 @@ export class HeaderComponent {
     }
   ];
 
-  public user = input.required<AdvancedUserBody>();
+  public user = computed(() => this.userStore.getActiveUser());
   protected userName = computed(() => this.user().forename + " " + this.user().surname);
   protected userType = computed(() => this.user().userType);
 
   protected toggleAccountMenu(menu: Menu, event: Event) {
     menu.toggle(event);
+  }
+
+  ngOnInit() {
+
   }
 
 }

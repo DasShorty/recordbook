@@ -1,4 +1,4 @@
-import {Component, computed, inject} from '@angular/core';
+import {Component, computed, effect, inject} from '@angular/core';
 import {HeaderComponent} from '@shared/layout/header.component';
 import {UserStore} from '@shared/users/user.store';
 import {SidebarMenuComponent} from '@shared/layout/sidebar.menu.component';
@@ -11,22 +11,49 @@ import {SidebarMenuComponent} from '@shared/layout/sidebar.menu.component';
   ],
   template: `
     <div class="layout">
-      <header-component [user]="activeUser()"/>
-      <div class="flex flex-2 gap-4 flex-row h-full mt-4">
-        <sidebar-menu-component class="bg-gray-100 rounded-br-md rounded-tr-md h-full"/>
-        <ng-content class="bg-gray-100"></ng-content>
+      <header-component/>
+      <div class="content">
+        <sidebar-menu-component class="sidebar box-border h-full"></sidebar-menu-component>
+        <main class="main">
+          <ng-content></ng-content>
+        </main>
       </div>
     </div>
   `,
   styles: `
+    :host {
+      display: block;
+    }
+
     .layout {
-      height: 100vh;
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 20% 1fr;
+      gap: 1rem;
+      align-items: stretch;
+      min-height: 0;
+      margin: 1rem;
+    }
+
+    .sidebar {
+      height: 100%;
+    }
+
+    .main {
+      height: 100%;
+      overflow: auto;
+      padding: 1rem;
+      box-sizing: border-box;
+      min-height: 0;
     }
   `
 })
 export class LayoutComponent {
 
   private readonly userStore = inject(UserStore);
-  protected readonly activeUser = computed(() => this.userStore.getActiveUser());
-
 }
