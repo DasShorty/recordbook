@@ -7,6 +7,7 @@ import {AuthenticationService} from '@shared/authentication/authentication.servi
 import {Router, RouterLink} from '@angular/router';
 import {Toast} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
+import {UserStore} from '@shared/users/user.store';
 
 
 // @ts-ignore
@@ -71,6 +72,7 @@ export class LoginPage {
   private readonly authenticationService = inject(AuthenticationService);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
+  private readonly userStore = inject(UserStore);
 
   protected formGroup = computed(() => {
     return new FormGroup({
@@ -96,6 +98,13 @@ export class LoginPage {
 
       if (success) {
         this.router.navigate(['/']).then();
+        this.userStore.retrieveActiveUser().then(activeUser => {
+
+          if (activeUser != null) {
+            this.userStore.setActiveUser(activeUser);
+          }
+
+        })
       } else {
 
       }

@@ -22,9 +22,11 @@ export const UserStore = signalStore(
 
         const response = await firstValueFrom(httpClient.get<AdvancedUserBody>(httpConfig.baseUrl + 'authentication/me', {withCredentials: true, observe: 'response'}));
 
+        if (!response.ok) {
+          return null;
+        }
 
-
-
+        return response.body;
       },
 
       setActiveUser(user: AdvancedUserBody) {
