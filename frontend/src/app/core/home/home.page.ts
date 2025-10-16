@@ -12,18 +12,7 @@ import {BoxComponent} from '@shared/layout/box.component';
   ],
   template: `
     <layout-component>
-      <box-component>
-        <h1>Layout</h1>
-      </box-component>
-      <box-component>
-        <h1>Layout</h1>
-      </box-component>
-      <box-component>
-        <h1>Layout</h1>
-      </box-component>
-      <box-component>
-        <h1>Layout</h1>
-      </box-component>
+
     </layout-component>
   `
 })

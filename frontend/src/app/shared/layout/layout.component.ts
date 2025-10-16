@@ -1,7 +1,7 @@
 import {Component, computed, effect, inject} from '@angular/core';
 import {HeaderComponent} from '@shared/layout/header.component';
 import {UserStore} from '@shared/users/user.store';
-import {SidebarMenuComponent} from '@shared/layout/sidebar.menu.component';
+import {SidebarMenuComponent} from '@shared/layout/sidebar/sidebar.menu.component';
 
 @Component({
   selector: 'layout-component',

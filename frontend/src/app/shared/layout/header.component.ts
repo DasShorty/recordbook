@@ -17,7 +17,7 @@ import {UserStore} from '@shared/users/user.store';
     Ripple,
   ],
   template: `
-    <header class="flex flex-2 justify-between align-center p-4 bg-gray-100">
+    <header class="flex flex-2 justify-between align-center p-4 bg-white">
       <div>
         <p>LOGO</p>
       </div>
@@ -28,12 +28,12 @@ import {UserStore} from '@shared/users/user.store';
         <p-menu #menu appendTo="body" [model]="this.items" [popup]="true">
           <ng-template #item let-item>
             @if (item.delete) {
-              <a pRipple class="flex items-center p-menu-item-link bg-red-100">
+              <a pRipple class="flex items-center p-menu-item-link bg-red-50">
                 <span [class]="item.icon" class="text-red-400"></span>
                 <span class="ml-2 text-red-400">{{ item.label }}</span>
               </a>
             } @else {
-              <a pRipple class="flex items-center p-menu-item-link">
+              <a pRipple class="flex items-center p-menu-item-link bg-white">
                 <span [class]="item.icon"></span>
                 <span class="ml-2">{{ item.label }}</span>
               </a>
