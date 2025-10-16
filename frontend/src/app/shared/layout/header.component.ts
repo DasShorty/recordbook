@@ -70,7 +70,7 @@ export class HeaderComponent {
 
   protected items: MenuItem[] = [
     {
-      icon: 'pi ',
+      icon: 'pi pi-id-card',
       label: 'Account Details'
     },
     {
