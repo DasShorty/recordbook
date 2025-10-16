@@ -32,12 +32,11 @@ export class AuthenticationService {
     return response.ok;
   }
 
-  public async refreshToken() {
-    const response = await firstValueFrom(this.httpClient.get<void>(httpConfig.baseUrl + 'authentication/refresh', {
+  public refreshToken() {
+    return this.httpClient.get<void>(httpConfig.baseUrl + 'authentication/refresh', {
       withCredentials: true,
       observe: "response"
-    }));
-    return response.ok;
+    });
   }
 
   public checkAuthenticationSubject() {
@@ -51,37 +50,6 @@ export class AuthenticationService {
       observe: 'response',
       headers: httpHeaders
     });
-  }
-
-  public async checkAuthentication() {
-
-    let httpHeaders = new HttpHeaders().set('Access-Control-Allow-Credentials', 'true')
-      .set("Content-Type", "text/plain")
-      .set("Access-Control-Allow-Origin", "*");
-
-    let response;
-
-    try {
-      response = (await firstValueFrom(this.httpClient.get<void>(httpConfig.baseUrl, {
-        withCredentials: true,
-        observe: 'response',
-        headers: httpHeaders
-      }))).ok;
-    } catch (error) {
-      response = false;
-    }
-
-    if (!response) {
-      response = await this.refreshToken();
-
-      if (!response) {
-        await this.logout();
-
-      }
-
-    }
-
-    return response;
   }
 
 }
