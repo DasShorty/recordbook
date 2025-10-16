@@ -18,6 +18,15 @@ export const UserStore = signalStore(
 
     return {
 
+      async retrieveActiveUser() {
+
+        const response = await firstValueFrom(httpClient.get<AdvancedUserBody>(httpConfig.baseUrl + 'authentication/me', {withCredentials: true, observe: 'response'}));
+
+
+
+
+      },
+
       setActiveUser(user: AdvancedUserBody) {
         patchState(store, {
           activeUser: user

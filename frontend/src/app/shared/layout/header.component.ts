@@ -1,10 +1,11 @@
-import {Component, computed, input} from '@angular/core';
+import {Component, computed, inject, input} from '@angular/core';
 import {Button} from 'primeng/button';
 import {Menu} from 'primeng/menu';
 import {MenuItem} from 'primeng/api';
 import {AdvancedUserBody} from '@shared/users/users.model';
 import {Avatar} from 'primeng/avatar';
 import {Ripple} from 'primeng/ripple';
+import {AuthenticationService} from '@shared/authentication/authentication.service';
 
 @Component({
   selector: 'header-component',
@@ -41,6 +42,8 @@ import {Ripple} from 'primeng/ripple';
 })
 export class HeaderComponent {
 
+  protected readonly authenticationService = inject(AuthenticationService);
+
   protected items: MenuItem[] = [
     {
       label: 'Account Details'
@@ -50,7 +53,12 @@ export class HeaderComponent {
     },
     {
       label: 'Logout',
-
+      command: () => {
+        this.authenticationService.logout().then();
+      }
+    },
+    {
+      separator: true
     }
   ];
 

@@ -9,6 +9,8 @@ import {Toast} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
 
 
+// @ts-ignore
+// @ts-ignore
 @Component({
   selector: 'login-page',
   template: `
@@ -90,17 +92,15 @@ export class LoginPage {
       return;
     }
 
-    try {
-      const response = await this.authenticationService.login(value.email, value.password);
+    this.authenticationService.login(value.email, value.password).then(success => {
 
-      if (response) {
-        this.router.navigate(['']).then();
+      if (success) {
+        this.router.navigate(['/']).then();
       } else {
-        this.messageService.add({severity: 'error', summary: 'Invalid Credentials'});
+
       }
-    } catch (e) {
-      this.messageService.add({severity: 'error', summary: 'Invalid Credentials'});
-    }
+
+    });
 
   }
 
