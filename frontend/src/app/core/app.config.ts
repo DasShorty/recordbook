@@ -33,6 +33,15 @@ const MyPreset = definePreset(Aura, {
       root: {
         background: '#e5e5e5'
       }
+    },
+    menu: {
+      css: options => {
+        return `
+          .p-menu-list {
+            margin: 0.25rem;
+          }
+        `
+      }
     }
   },
   css: options => {

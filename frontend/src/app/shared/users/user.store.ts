@@ -2,7 +2,7 @@ import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
 import {AdvancedUserBody} from '@shared/users/users.model';
 import {inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {first, firstValueFrom} from 'rxjs';
+import {firstValueFrom} from 'rxjs';
 import {httpConfig} from '@environment/environment';
 import {QueryResult} from '@shared/http/http.model';
 
@@ -20,7 +20,10 @@ export const UserStore = signalStore(
 
       async retrieveActiveUser() {
 
-        const response = await firstValueFrom(httpClient.get<AdvancedUserBody>(httpConfig.baseUrl + 'authentication/me', {withCredentials: true, observe: 'response'}));
+        const response = await firstValueFrom(httpClient.get<AdvancedUserBody>(httpConfig.baseUrl + 'authentication/me', {
+          withCredentials: true,
+          observe: 'response'
+        }));
 
         if (!response.ok) {
           return null;

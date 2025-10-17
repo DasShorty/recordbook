@@ -7,6 +7,10 @@ export const routes: Routes = [
     loadComponent: () => import('@core/login/login.page').then(m => m.LoginPage),
   },
   {
+    path: 'record-book',
+    loadComponent: () => import('@core/record-book/record.book.page').then(m => m.RecordBookPage),
+  },
+  {
     path: '',
     loadComponent: () => import('@core/home/home.page').then(m => m.HomePage),
     canActivate: [AuthGuard]
