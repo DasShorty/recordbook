@@ -30,6 +30,9 @@ public class BookDto {
         this.qualifiedJob = qualifiedJob;
     }
 
+    public BookDto() {
+    }
+
     public UUID getId() {
         return id;
     }

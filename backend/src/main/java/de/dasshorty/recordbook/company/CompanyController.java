@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -35,9 +36,10 @@ public class CompanyController {
         int convertedLimit = UserInputHandler.validInteger(limit) ? limit : defaultLimit;
         int convertedOffset = UserInputHandler.validInteger(offset) ? offset : defaultOffset;
 
+        List<CompanyDto> companyDtos = this.companyService.retrieveComputers(convertedLimit, convertedOffset);
+
         return ResponseEntity.ok(new QueryResult<>(
-                this.companyService.count(), convertedLimit, convertedOffset,
-                this.companyService.retrieveComputers(convertedLimit, convertedOffset)
+                this.companyService.count(), convertedLimit, convertedOffset, companyDtos
         ));
 
     }

@@ -1,5 +1,7 @@
 package de.dasshorty.recordbook.book;
 
+import com.fasterxml.jackson.annotation.OptBoolean;
+import de.dasshorty.recordbook.user.UserDto;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -7,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -28,5 +31,7 @@ public interface BookRepository extends JpaRepository<BookDto, UUID> {
 
     @Query(nativeQuery = true, value = "SELECT weeks_id FROM books_weeks WHERE book_dto_id = ?1")
     List<String> getWeeks(UUID bookId);
+
+    Optional<BookDto> getBookByTrainee(UserDto trainee);
 
 }

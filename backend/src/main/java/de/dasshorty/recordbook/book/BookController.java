@@ -1,5 +1,6 @@
 package de.dasshorty.recordbook.book;
 
+import de.dasshorty.recordbook.authentication.jwt.JwtHandler;
 import de.dasshorty.recordbook.book.httpbodies.BookBody;
 import de.dasshorty.recordbook.book.httpbodies.CreateBookBody;
 import de.dasshorty.recordbook.book.week.httpbodies.BookWeekBody;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +29,7 @@ public class BookController {
     private final BookService bookService;
     private final UserService userService;
     private final JobService jobService;
+    private final JwtHandler jwtHandler;
 
     @Value("${query.limit}")
     private int defaultLimit;
@@ -35,10 +38,35 @@ public class BookController {
     private int defaultOffset;
 
     @Autowired
-    public BookController(BookService bookService, UserService userService, JobService jobService) {
+    public BookController(BookService bookService, UserService userService, JobService jobService, JwtHandler jwtHandler) {
         this.bookService = bookService;
         this.userService = userService;
         this.jobService = jobService;
+        this.jwtHandler = jwtHandler;
+    }
+
+    @GetMapping
+    @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINEE')")
+    public ResponseEntity<?> getOwnBook(@CookieValue("access_token") String accessToken) {
+
+        Optional<UUID> optional = this.jwtHandler.extractUserId(accessToken);
+
+        if (optional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("not found", "access_token"));
+        }
+
+        UUID uuid = optional.get();
+
+        Optional<UserDto> optionalUser = this.userService.retrieveUserById(uuid);
+
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("not found", "user"));
+        }
+
+        UserDto userDto = optionalUser.get();
+        Optional<BookDto> book = this.bookService.getBookByTrainee(userDto);
+
+        return ResponseEntity.of(book);
     }
 
     @GetMapping("/{bookId}")

@@ -4,6 +4,7 @@ import de.dasshorty.recordbook.book.week.day.BookDayDto;
 import de.dasshorty.recordbook.user.UserDto;
 import jakarta.persistence.*;
 
+import java.sql.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,6 +20,13 @@ public class BookWeekDto {
     private UUID id;
     @ManyToOne
     private UserDto signedFromTrainer;
+
+    @Column
+    private Date startDate;
+
+    public Date getStartDate() {
+        return startDate;
+    }
 
     public UUID getId() {
         return id;

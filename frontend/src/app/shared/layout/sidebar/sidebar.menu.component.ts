@@ -13,7 +13,7 @@ import {NgClass} from '@angular/common';
   template: `
     <nav class="sidebar-navigation" [ngClass]="isMenuOpen() ? '' : 'menu-invisible'">
       <ul>
-        @for (item of model; track item.automationId) {
+        @for (item of model; track item) {
           <sidebar-group-component [menuItem]="item"></sidebar-group-component>
         }
       </ul>
@@ -61,7 +61,8 @@ export class SidebarMenuComponent {
       label: 'Administration', items: [
         {label: 'Azubis', icon: 'pi pi-file-arrow-up', routerLink: ['/trainees']},
         {label: 'Ausbildungskraft', icon: 'pi pi-file-arrow-up', routerLink: ['/trainers']},
-        {label: 'Unternehmen', icon: 'pi pi-file-arrow-up', routerLink: ['/company']}
+        {label: 'Unternehmen', icon: 'pi pi-file-arrow-up', routerLink: ['/company']},
+        {label: 'Admin', icon: 'pi pi-file-arrow-up', routerLink: ['/admin']}
       ]
     },
   ];

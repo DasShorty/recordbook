@@ -1,6 +1,7 @@
 package de.dasshorty.recordbook.exception;
 
 import de.dasshorty.recordbook.http.result.ErrorResult;
+import io.jsonwebtoken.JwtException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -29,6 +30,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotExistingException.class)
     public ResponseEntity<ErrorResult> handleNotExistingException(NotExistingException ex) {
         return ResponseEntity.badRequest().body(new ErrorResult(ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ErrorResult> handleJwtException(JwtException ex) {
+        return ResponseEntity.badRequest().body(new ErrorResult(ex.getMessage(), "access_token"));
     }
 
 }

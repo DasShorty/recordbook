@@ -5,9 +5,7 @@ import de.dasshorty.recordbook.user.UserDto;
 import de.dasshorty.recordbook.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,14 +18,12 @@ public class AuthenticationService {
 
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
     private final JwtHandler jwtHandler;
 
     @Autowired
-    public AuthenticationService(UserService userService, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtHandler jwtHandler) {
+    public AuthenticationService(UserService userService, PasswordEncoder passwordEncoder, JwtHandler jwtHandler) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
         this.jwtHandler = jwtHandler;
     }
 
