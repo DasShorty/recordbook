@@ -36,7 +36,7 @@ public class CompanyService {
     }
 
     public List<CompanyDto> retrieveComputers(int limit, int offset) {
-        return this.companyRepository.findCompanies(limit, offset);
+        return this.companyRepository.findCompanies(offset, limit);
     }
 
     public Optional<CompanyDto> retrieveComputerById(UUID id) {

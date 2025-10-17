@@ -19,8 +19,8 @@ import {CompanyStore} from '@shared/company/company.store';
       <ng-template #body let-company>
         <tr>
           <td>{{company.name}}</td>
-          <td>0</td>
-          <td>0</td>
+          <td class="text-right">0</td>
+          <td class="text-right">0</td>
         </tr>
       </ng-template>
     </p-table>

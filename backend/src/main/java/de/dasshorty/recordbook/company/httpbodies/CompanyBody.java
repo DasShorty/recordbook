@@ -3,9 +3,7 @@ package de.dasshorty.recordbook.company.httpbodies;
 import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
+import java.util.UUID;
 
-public record CompanyBody(
-        @NotBlank(message = "name of the company is required")
-        String name,
-        List<String> users) {
+public record CompanyBody(UUID id, @NotBlank(message = "name of the company is required") String name, List<String> users) {
 }

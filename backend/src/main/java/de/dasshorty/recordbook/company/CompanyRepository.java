@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface CompanyRepository extends CrudRepository<CompanyDto, UUID> {
+public interface CompanyRepository extends JpaRepository<CompanyDto, UUID> {
 
     @Query(nativeQuery = true, value = "SELECT * FROM companies OFFSET ?1 LIMIT ?2")
     List<CompanyDto> findCompanies(int offset, int limit);

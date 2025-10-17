@@ -1,9 +1,11 @@
 package de.dasshorty.recordbook.company;
 
+import de.dasshorty.recordbook.company.httpbodies.CompanyBody;
 import de.dasshorty.recordbook.user.UserDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,7 +21,7 @@ public class CompanyDto {
     private String companyName;
 
     @ManyToMany
-    private List<UserDto> users;
+    private List<UserDto> users = new ArrayList<>();
 
     public UUID getId() {
         return id;
@@ -27,5 +29,9 @@ public class CompanyDto {
 
     public String getCompanyName() {
         return companyName;
+    }
+
+    public CompanyBody toBody() {
+        return new CompanyBody(this.id, this.companyName, this.users.stream().map(UserDto::getId).map(UUID::toString).toList());
     }
 }

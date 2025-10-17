@@ -9,7 +9,6 @@ import {HTTP_INTERCEPTORS, provideHttpClient, withFetch} from '@angular/common/h
 import {OptionalResponseInterceptor} from '@shared/http/optional.response.interceptor';
 import {definePreset} from '@primeuix/themes';
 import {MessageService} from 'primeng/api';
-import {AuthGuard} from '@shared/authentication/auth.guard';
 
 const MyPreset = definePreset(Aura, {
   semantic: {

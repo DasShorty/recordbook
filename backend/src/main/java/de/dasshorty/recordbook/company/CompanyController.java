@@ -1,8 +1,11 @@
 package de.dasshorty.recordbook.company;
 
+import de.dasshorty.recordbook.company.httpbodies.CompanyBody;
 import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.QueryResult;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,7 @@ import java.util.UUID;
 @RequestMapping("/companies")
 public class CompanyController {
 
+    private static final Logger log = LoggerFactory.getLogger(CompanyController.class);
     private final CompanyService companyService;
 
     @Value("${query.limit}")
@@ -36,11 +40,12 @@ public class CompanyController {
         int convertedLimit = UserInputHandler.validInteger(limit) ? limit : defaultLimit;
         int convertedOffset = UserInputHandler.validInteger(offset) ? offset : defaultOffset;
 
-        List<CompanyDto> companyDtos = this.companyService.retrieveComputers(convertedLimit, convertedOffset);
+        List<CompanyBody> companyDtos = this.companyService.retrieveComputers(convertedLimit, convertedOffset).stream().map(
+                CompanyDto::toBody).toList();
 
-        return ResponseEntity.ok(new QueryResult<>(
-                this.companyService.count(), convertedLimit, convertedOffset, companyDtos
-        ));
+        log.debug("Length of List " + companyDtos.size());
+
+        return ResponseEntity.ok(new QueryResult<>(this.companyService.count(), convertedLimit, convertedOffset, companyDtos));
 
     }
 
