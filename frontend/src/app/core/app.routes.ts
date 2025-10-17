@@ -9,10 +9,16 @@ export const routes: Routes = [
   {
     path: 'record-book',
     loadComponent: () => import('@core/record-book/record.book.page').then(m => m.RecordBookPage),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'dashboard',
+    loadComponent: () => import('@core/home/home.page').then(m => m.HomePage),
+    canActivate: [AuthGuard]
   },
   {
     path: '',
-    loadComponent: () => import('@core/home/home.page').then(m => m.HomePage),
-    canActivate: [AuthGuard]
-  }
+    redirectTo: '/dashboard',
+    pathMatch: 'full'
+  },
 ];

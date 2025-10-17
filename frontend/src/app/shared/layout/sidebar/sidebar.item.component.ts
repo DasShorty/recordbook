@@ -38,7 +38,7 @@ import {RouterLink, RouterLinkActive} from '@angular/router';
       color: var(--text-color);
 
       &:hover {
-        background-color: var(--surface-hover);
+        background-color: var(--color-gray-100);
       }
 
       &:has(> a.nav-active) {

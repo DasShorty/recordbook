@@ -22,14 +22,23 @@ import {NgClass} from '@angular/common';
   styles: `
     .sidebar-navigation {
 
+      position: fixed;
+      width: 20rem;
+      overflow: hidden !important;
       opacity: 1;
       transition: transform 0.3s, left 0.3s;
+      background-color: white;
+      padding: 1rem;
+      box-sizing: border-box;
+      height: 100dvh;
+      border-radius: 5px;
 
     }
 
     .menu-invisible {
       transform: translateX(-20rem) !important;
       opacity: 0 !important;
+      display: none;
     }
   `
 })
@@ -38,7 +47,7 @@ export class SidebarMenuComponent {
   model: MenuItem[] = [
     {
       label: 'Home', items: [
-        {label: 'Dashboard', icon: 'pi pi-home', routerLink: ['/']}
+        {label: 'Dashboard', icon: 'pi pi-home', routerLink: ['/dashboard']}
       ]
     },
     {
@@ -50,9 +59,9 @@ export class SidebarMenuComponent {
     },
     {
       label: 'Administration', items: [
-        {label: 'Azubis', icon: 'pi pi-file-arrow-up', routerLink: ['/']},
-        {label: 'Ausbildungskraft', icon: 'pi pi-file-arrow-up', routerLink: ['/']},
-        {label: 'Unternehmen', icon: 'pi pi-file-arrow-up', routerLink: ['/']}
+        {label: 'Azubis', icon: 'pi pi-file-arrow-up', routerLink: ['/trainees']},
+        {label: 'Ausbildungskraft', icon: 'pi pi-file-arrow-up', routerLink: ['/trainers']},
+        {label: 'Unternehmen', icon: 'pi pi-file-arrow-up', routerLink: ['/company']}
       ]
     },
   ];
