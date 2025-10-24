@@ -1,5 +1,5 @@
 import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
-import {Company} from '@shared/company/company.model';
+import {Company, CompanyNameCheckResult} from '@shared/company/company.model';
 import {inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
@@ -20,6 +20,43 @@ export const CompanyStore = signalStore(
     const httpClient = inject(HttpClient);
 
     return {
+
+      async createCompany(companyName: string): Promise<number> {
+
+        const response = await firstValueFrom(httpClient.post<Company>(httpConfig.baseUrl + "companies", {
+          name: companyName,
+          users: []
+        }, {
+          withCredentials: true,
+          observe: 'response'
+        }));
+
+        if (!response.ok || response.body === null) {
+          return response.status;
+        }
+
+        patchState(store, {
+          companies: [...store.companies(), response.body]
+        });
+
+        return response.status;
+      },
+
+      checkCompanyName(companyName: string) {
+        return httpClient.get<CompanyNameCheckResult>(httpConfig.baseUrl + "companies/name/" + companyName + "/exists", {
+          withCredentials: true,
+          observe: "response"
+        });
+      },
+
+      async deleteCompany(companyId: string) {
+        const response = await firstValueFrom(httpClient.delete(httpConfig.baseUrl + "companies/" + companyId, {
+          withCredentials: true,
+          observe: "response"
+        }));
+
+        return response.ok;
+      },
 
       async retrieveCompanies(offset: number, limit: number) {
 

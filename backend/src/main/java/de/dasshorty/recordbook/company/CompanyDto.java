@@ -34,4 +34,12 @@ public class CompanyDto {
     public CompanyBody toBody() {
         return new CompanyBody(this.id, this.companyName, this.users.stream().map(UserDto::getId).map(UUID::toString).toList());
     }
+
+    public CompanyDto(String companyName, List<UserDto> users) {
+        this.companyName = companyName;
+        this.users = users;
+    }
+
+    public CompanyDto() {
+    }
 }

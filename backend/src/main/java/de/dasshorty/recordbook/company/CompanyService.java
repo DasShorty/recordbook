@@ -20,7 +20,7 @@ public class CompanyService {
 
     public CompanyDto createCompany(CompanyDto companyDto) throws AlreadyExistingException {
 
-        boolean existsCompanyName = this.companyRepository.existsByCompanyName(companyDto.getCompanyName());
+        boolean existsCompanyName = this.existsCompanyName(companyDto.getCompanyName());
 
         if (existsCompanyName) {
             throw new AlreadyExistingException("companyName", companyDto.getCompanyName());
@@ -29,6 +29,10 @@ public class CompanyService {
         CompanyDto save = this.companyRepository.save(companyDto);
         this.companyRepository.analyse();
         return save;
+    }
+
+    public boolean existsCompanyName(String companyName) {
+        return this.companyRepository.existsByCompanyName(companyName);
     }
 
     public void deleteCompany(UUID companyId) {

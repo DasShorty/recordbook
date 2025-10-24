@@ -7,6 +7,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.NoSuchElementException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -35,6 +37,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<ErrorResult> handleJwtException(JwtException ex) {
         return ResponseEntity.badRequest().body(new ErrorResult(ex.getMessage(), "access_token"));
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<ErrorResult> handleNoSuchElementException(NoSuchElementException ex) {
+        return ResponseEntity.badRequest().body(new ErrorResult(ex.getMessage(), null));
     }
 
 }

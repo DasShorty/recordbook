@@ -5,3 +5,8 @@ export type Company = {
   users: string[]
 
 }
+
+export type CompanyNameCheckResult = {
+  searchedName: string,
+  successful: boolean
+}
