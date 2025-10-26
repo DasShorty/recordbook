@@ -1,5 +1,5 @@
 import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
-import {AdvancedUserBody} from '@shared/users/users.model';
+import {AdvancedUser} from '@shared/users/users.model';
 import {inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
@@ -9,7 +9,13 @@ import {QueryResult} from '@shared/http/http.model';
 export const UserStore = signalStore(
   {providedIn: 'root'},
   withState({
-    activeUser: {} as AdvancedUserBody
+    activeUser: {} as AdvancedUser,
+    users: [] as AdvancedUser[],
+    limit: 10,
+    offset: 0,
+    totalCount: 0,
+    loading: false,
+    error: false
   }),
 
   withMethods((store) => {
@@ -20,7 +26,7 @@ export const UserStore = signalStore(
 
       async retrieveActiveUser() {
 
-        const response = await firstValueFrom(httpClient.get<AdvancedUserBody>(httpConfig.baseUrl + 'authentication/me', {
+        const response = await firstValueFrom(httpClient.get<AdvancedUser>(httpConfig.baseUrl + 'authentication/me', {
           withCredentials: true,
           observe: 'response'
         }));
@@ -32,7 +38,7 @@ export const UserStore = signalStore(
         return response.body;
       },
 
-      setActiveUser(user: AdvancedUserBody) {
+      setActiveUser(user: AdvancedUser) {
         patchState(store, {
           activeUser: user
         });
@@ -43,18 +49,38 @@ export const UserStore = signalStore(
       },
 
       async getUsersByCompany(companyId: string, offset: number, limit: number) {
-        const response = await firstValueFrom(httpClient.get<QueryResult<AdvancedUserBody[]>>(httpConfig.baseUrl + "users?companyId" + companyId + "&offset=" + offset + "&limit" + limit, {
+
+        patchState(store, {
+          error: false,
+          loading: true,
+        })
+
+        const response = await firstValueFrom(httpClient.get<QueryResult<AdvancedUser[]>>(httpConfig.baseUrl + "users?companyId" + companyId + "&offset=" + offset + "&limit" + limit, {
           withCredentials: true,
           observe: "response"
         }));
 
-        const body = response.body;
-
-        if (body == null) {
+        if (!response.ok || response.body === null) {
+          patchState(store, {
+            loading: false,
+            error: true
+          });
           return;
         }
 
-        return body;
+        patchState(store, {
+          users: response.body.data,
+          limit: response.body.limit,
+          offset: response.body.offset,
+          totalCount: response.body.total,
+          loading: false,
+          error: false
+        });
+
+      },
+
+      async createUser(forename: string, surname: string, email: string, userType: string) {
+
       }
 
     }

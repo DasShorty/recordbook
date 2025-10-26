@@ -1,19 +1,5 @@
 import {Optional} from '@shared/datamapping/optional';
-
-export type User = {
-  id: string,
-  forename: string,
-  surname: string,
-  email: string,
-  password: string,
-  authorities: Authority[],
-  expired: boolean,
-  locked: boolean,
-  credentialsExpired: boolean,
-  enabled: boolean,
-  userType: UserType,
-  assignedCompany: Optional<any>
-}
+import {Company} from '@shared/company/company.model';
 
 export type UserBody = {
   id: string,
@@ -22,13 +8,9 @@ export type UserBody = {
   userType: UserType
 }
 
-export type AdvancedUserBody = UserBody & {
-  assignedCompany: Optional<any>,
+export type AdvancedUser = UserBody & {
+  assignedCompany: Optional<Company>,
   authorities: Authority[],
-}
-
-export type PasswordUserBody = AdvancedUserBody & {
-  password: string
 }
 
 export enum UserType {

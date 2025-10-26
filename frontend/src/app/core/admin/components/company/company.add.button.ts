@@ -64,7 +64,7 @@ export class CompanyAddButton {
         this.companyNameValidator.validate.bind(this.companyNameValidator)
       ],
       updateOn: "change"
-    }),
+    })
   }));
 
   submitForm() {

@@ -4,7 +4,7 @@ import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.ErrorResult;
 import de.dasshorty.recordbook.http.result.QueryResult;
 import de.dasshorty.recordbook.user.httpbodies.AdvancedUserBody;
-import de.dasshorty.recordbook.user.httpbodies.PasswordUserBody;
+import de.dasshorty.recordbook.user.httpbodies.CreateUserBody;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +31,18 @@ public class UserController {
     @Value("${query.offset}")
     private int defaultOffset;
 
+    @Value("${administrator.user.email}")
+    private String administratorUserEmail;
+
+    @Value("${administrator.user.forename}")
+    private String administratorUserForename;
+
+    @Value("${administrator.user.surname}")
+    private String administratorUserSurname;
+
+    @Value("${administrator.password}")
+    private String administratorUserPassword;
+
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
@@ -38,15 +50,15 @@ public class UserController {
 
     @PostConstruct
     private void initFirstUser() {
-        this.userService.createFirstUser(new PasswordUserBody(
-                "Anthony", "Timmel", "anthony@eno-intern.de", "test", UserType.COMPANY,
-                List.of(Authority.ADMINISTRATOR)
+        this.userService.createFirstUser(new UserDto(
+                administratorUserForename, administratorUserSurname, administratorUserEmail, administratorUserPassword,
+                List.of(Authority.ADMINISTRATOR), UserType.COMPANY
         ));
     }
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('COMPANY', 'ADMINISTRATOR')")
-    public ResponseEntity<?> create(@RequestBody @Valid PasswordUserBody body) {
+    public ResponseEntity<?> create(@RequestBody @Valid CreateUserBody body) {
         return ResponseEntity.ok(this.userService.createUser(body).transformToBody());
     }
 

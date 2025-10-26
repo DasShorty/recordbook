@@ -55,6 +55,10 @@ public class UserDto implements UserDetails {
     public UserDto() {
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public UserType getUserType() {
         return userType;
     }

@@ -1,7 +1,7 @@
 export type Company = {
 
   id: string,
-  name: string,
+  companyName: string,
   users: string[]
 
 }

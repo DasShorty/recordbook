@@ -78,7 +78,7 @@ public class CompanyController {
             }
         }).map(uuid -> this.userService.retrieveUserById(uuid).orElseThrow()).toList();
 
-        CompanyDto serviceCompany = this.companyService.createCompany(new CompanyDto(company.name(), users));
+        CompanyDto serviceCompany = this.companyService.createCompany(new CompanyDto(company.companyName(), users));
         return ResponseEntity.created(URI.create(this.applicationUrl + "/companies/" + serviceCompany.getId().toString())).body(
                 serviceCompany);
     }

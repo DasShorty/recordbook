@@ -3,6 +3,8 @@ import {LayoutComponent} from '@shared/layout/layout.component';
 import {BoxComponent} from '@shared/layout/box.component';
 import {CompanyListComponent} from '@core/admin/components/company/company.list.component';
 import {CompanyAddButton} from '@core/admin/components/company/company.add.button';
+import {UsersListComponent} from '@shared/users/users.list.component';
+import {UserAddButton} from '@shared/users/user.add.button';
 
 @Component({
   selector: 'admin-page',
@@ -10,7 +12,9 @@ import {CompanyAddButton} from '@core/admin/components/company/company.add.butto
     LayoutComponent,
     BoxComponent,
     CompanyListComponent,
-    CompanyAddButton
+    CompanyAddButton,
+    UsersListComponent,
+    UserAddButton
   ],
   template: `
     <layout-component>
@@ -23,10 +27,11 @@ import {CompanyAddButton} from '@core/admin/components/company/company.add.butto
           <company-list-component></company-list-component>
         </box-component>
         <box-component>
-          <h2>Ausbildungskräfte Verwalten</h2>
-        </box-component>
-        <box-component>
-          <h2>Azubis Verwalten</h2>
+          <div class="flex justify-between">
+            <h2>Benutzer Verwalten</h2>
+            <user-add-button></user-add-button>
+          </div>
+          <users-list-component></users-list-component>
         </box-component>
       </div>
     </layout-component>

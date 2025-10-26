@@ -24,7 +24,7 @@ export const CompanyStore = signalStore(
       async createCompany(companyName: string): Promise<number> {
 
         const response = await firstValueFrom(httpClient.post<Company>(httpConfig.baseUrl + "companies", {
-          name: companyName,
+          companyName: companyName,
           users: []
         }, {
           withCredentials: true,

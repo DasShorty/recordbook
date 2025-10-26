@@ -29,7 +29,7 @@ import {ConfirmDialog} from 'primeng/confirmdialog';
       </ng-template>
       <ng-template #body let-company>
         <tr>
-          <td>{{ company.name }}</td>
+          <td>{{ company.companyName }}</td>
           <td class="text-right">0</td>
           <td class="text-right">0</td>
           <td><p-button severity="danger" outlined icon="pi pi-trash" (onClick)="deleteItem(company, $event)"></p-button></td>
