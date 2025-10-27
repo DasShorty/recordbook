@@ -19,13 +19,13 @@ public class QualificationService {
         this.qualificationRepository = qualificationRepository;
     }
 
-    public QualificationDto addQualification(@Valid QualificationDto qualification) {
+    public Qualification addQualification(@Valid Qualification qualification) {
 
         if (this.qualificationRepository.existsByName(qualification.getName())) {
             throw new AlreadyExistingException("name", qualification.getName());
         }
 
-        QualificationDto savedQualification = this.qualificationRepository.save(qualification);
+        Qualification savedQualification = this.qualificationRepository.save(qualification);
         this.qualificationRepository.analyze();
         return savedQualification;
     }
@@ -35,11 +35,11 @@ public class QualificationService {
         this.qualificationRepository.analyze();
     }
 
-    public List<QualificationDto> getQualifications(int limit, int offset) {
+    public List<Qualification> getQualifications(int limit, int offset) {
         return this.qualificationRepository.getQualifications(limit, offset);
     }
 
-    public Optional<QualificationDto> getQualification(UUID qualificationId) {
+    public Optional<Qualification> getQualification(UUID qualificationId) {
         return this.qualificationRepository.findById(qualificationId);
     }
 

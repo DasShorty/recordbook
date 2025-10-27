@@ -11,15 +11,15 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UserRepository extends CrudRepository<UserDto, UUID> {
+public interface UserRepository extends CrudRepository<User, UUID> {
 
-    Optional<UserDto> findByEmail(String email);
+    Optional<User> findByEmail(String email);
 
     @Query(nativeQuery = true, value = "SELECT * FROM users OFFSET ?1 LIMIT ?2")
-    List<UserDto> findUsers(int offset, int limit);
+    List<User> findUsers(int offset, int limit);
 
     @Query(nativeQuery = true, value = "SELECT * FROM users WHERE assigned_company_id == ?1 OFFSET ?2 LIMIT ?3")
-    List<UserDto> findUsersByCompany(UUID companyId, int offset, int limit);
+    List<User> findUsersByCompany(UUID companyId, int offset, int limit);
 
     long countByAssignedCompany_Id(UUID companyId);
 

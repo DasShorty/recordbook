@@ -1,7 +1,7 @@
 package de.dasshorty.recordbook.user;
 
-import de.dasshorty.recordbook.company.CompanyDto;
-import de.dasshorty.recordbook.user.httpbodies.AdvancedUserBody;
+import de.dasshorty.recordbook.company.Company;
+import de.dasshorty.recordbook.user.httpbodies.AdvancedUserDto;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "users")
-public class UserDto implements UserDetails {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -41,9 +41,9 @@ public class UserDto implements UserDetails {
     private UserType userType;
     @ManyToOne
     @JoinColumn
-    private CompanyDto assignedCompany;
+    private Company assignedCompany;
 
-    public UserDto(String forename, String surname, String email, String password, List<Authority> authorities, UserType userType) {
+    public User(String forename, String surname, String email, String password, List<Authority> authorities, UserType userType) {
         this.forename = forename;
         this.surname = surname;
         this.email = email;
@@ -52,7 +52,7 @@ public class UserDto implements UserDetails {
         this.userType = userType;
     }
 
-    public UserDto() {
+    public User() {
     }
 
     public void setPassword(String password) {
@@ -63,7 +63,7 @@ public class UserDto implements UserDetails {
         return userType;
     }
 
-    public CompanyDto getAssignedCompany() {
+    public Company getAssignedCompany() {
         return assignedCompany;
     }
 
@@ -118,7 +118,7 @@ public class UserDto implements UserDetails {
         return this.authorities.contains(Authority.ADMINISTRATOR);
     }
 
-    public AdvancedUserBody transformToBody() {
-        return new AdvancedUserBody(this.forename, this.surname, this.email, this.userType, this.assignedCompany, this.authorities);
+    public AdvancedUserDto transformToBody() {
+        return new AdvancedUserDto(this.forename, this.surname, this.email, this.userType, this.assignedCompany, this.authorities);
     }
 }

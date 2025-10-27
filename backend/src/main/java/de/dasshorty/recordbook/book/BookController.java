@@ -1,15 +1,15 @@
 package de.dasshorty.recordbook.book;
 
 import de.dasshorty.recordbook.authentication.jwt.JwtHandler;
-import de.dasshorty.recordbook.book.httpbodies.BookBody;
-import de.dasshorty.recordbook.book.httpbodies.CreateBookBody;
-import de.dasshorty.recordbook.book.week.httpbodies.BookWeekBody;
+import de.dasshorty.recordbook.book.httpbodies.BookDto;
+import de.dasshorty.recordbook.book.httpbodies.CreateBookDto;
+import de.dasshorty.recordbook.book.week.httpbodies.BookWeekDto;
 import de.dasshorty.recordbook.http.result.ErrorResult;
-import de.dasshorty.recordbook.job.JobDto;
+import de.dasshorty.recordbook.job.Job;
 import de.dasshorty.recordbook.job.JobService;
-import de.dasshorty.recordbook.user.UserDto;
+import de.dasshorty.recordbook.user.User;
 import de.dasshorty.recordbook.user.UserService;
-import de.dasshorty.recordbook.user.httpbodies.UserBody;
+import de.dasshorty.recordbook.user.httpbodies.UserDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -57,14 +57,14 @@ public class BookController {
 
         UUID uuid = optional.get();
 
-        Optional<UserDto> optionalUser = this.userService.retrieveUserById(uuid);
+        Optional<User> optionalUser = this.userService.retrieveUserById(uuid);
 
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("not found", "user"));
         }
 
-        UserDto userDto = optionalUser.get();
-        Optional<BookDto> book = this.bookService.getBookByTrainee(userDto);
+        User user = optionalUser.get();
+        Optional<Book> book = this.bookService.getBookByTrainee(user);
 
         return ResponseEntity.of(book);
     }
@@ -72,45 +72,45 @@ public class BookController {
     @GetMapping("/{bookId}")
     public ResponseEntity<?> getBookById(@PathVariable("bookId") String bookId) {
 
-        Optional<BookDto> optional = this.bookService.getBookById(UUID.fromString(bookId));
+        Optional<Book> optional = this.bookService.getBookById(UUID.fromString(bookId));
 
         if (optional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("data not found", "bookId"));
         }
 
-        return ResponseEntity.ok(BookBody.fromBook(optional.get()));
+        return ResponseEntity.ok(BookDto.fromBook(optional.get()));
     }
 
     @GetMapping("/{bookId}/weeks")
     public ResponseEntity<?> getWeeks(@PathVariable("bookId") String bookId) {
         return ResponseEntity.ok(bookService.getBookWeeks(UUID.fromString(bookId)).stream()
-                .map(week -> new BookWeekBody(week.getId(), UserBody.fromUser(week.getSignedFromTrainer()), week.getDays())).toList());
+                .map(week -> new BookWeekDto(week.getId(), UserDto.fromUser(week.getSignedFromTrainer()), week.getDays())).toList());
     }
 
     @PostMapping
-    public ResponseEntity<?> createBook(@RequestBody @Valid CreateBookBody bookBody) {
+    public ResponseEntity<?> createBook(@RequestBody @Valid CreateBookDto bookBody) {
 
-        Optional<UserDto> traineeOptional = this.userService.retrieveUserById(bookBody.trainee());
+        Optional<User> traineeOptional = this.userService.retrieveUserById(bookBody.trainee());
 
         if (traineeOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("data not found", "trainee"));
         }
 
-        List<Optional<UserDto>> optionalTrainers = bookBody.trainers().stream().map(this.userService::retrieveUserById).toList();
+        List<Optional<User>> optionalTrainers = bookBody.trainers().stream().map(this.userService::retrieveUserById).toList();
 
         if (optionalTrainers.stream().anyMatch(Optional::isEmpty)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("one data not found", "trainers"));
         }
 
-        List<UserDto> list = optionalTrainers.stream().filter(Optional::isPresent).map(Optional::get).toList();
+        List<User> list = optionalTrainers.stream().filter(Optional::isPresent).map(Optional::get).toList();
 
-        Optional<JobDto> optionalJob = this.jobService.getJobById(bookBody.job());
+        Optional<Job> optionalJob = this.jobService.getJobById(bookBody.job());
 
         if (optionalJob.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("data not found", "job"));
         }
 
-        return ResponseEntity.ok(this.bookService.createBook(new BookDto(traineeOptional.get(), list, optionalJob.get())));
+        return ResponseEntity.ok(this.bookService.createBook(new Book(traineeOptional.get(), list, optionalJob.get())));
     }
 
 }

@@ -1,6 +1,6 @@
 package de.dasshorty.recordbook.book.week.day;
 
-import de.dasshorty.recordbook.job.qualifications.QualificationDto;
+import de.dasshorty.recordbook.job.qualifications.Qualification;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "days")
-public class BookDayDto {
+public class BookDay {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -28,7 +28,7 @@ public class BookDayDto {
     private PresenceLocation presenceLocation;
 
     @ManyToMany
-    private List<QualificationDto> qualifications;
+    private List<Qualification> qualifications;
 
     public UUID getId() {
         return id;
@@ -50,7 +50,7 @@ public class BookDayDto {
         return presenceLocation;
     }
 
-    public List<QualificationDto> getQualifications() {
+    public List<Qualification> getQualifications() {
         return qualifications;
     }
 }

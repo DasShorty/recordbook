@@ -15,15 +15,15 @@ public class BookWeekService {
         this.bookWeekRepository = bookWeekRepository;
     }
 
-    public List<BookWeekDto> getBookWeeks(int limit, int offset) {
+    public List<BookWeek> getBookWeeks(int limit, int offset) {
         return this.bookWeekRepository.getWeeks(limit, offset);
     }
 
-    public Optional<BookWeekDto> getWeekById(UUID id) {
+    public Optional<BookWeek> getWeekById(UUID id) {
         return this.bookWeekRepository.findById(id);
     }
 
-    public List<BookWeekDto> getWeeksByBookId(UUID bookId) {
+    public List<BookWeek> getWeeksByBookId(UUID bookId) {
         return bookWeekRepository.findWeeksByBookId(bookId);
     }
 }

@@ -1,7 +1,7 @@
 package de.dasshorty.recordbook.book.week;
 
-import de.dasshorty.recordbook.book.week.day.BookDayDto;
-import de.dasshorty.recordbook.user.UserDto;
+import de.dasshorty.recordbook.book.week.day.BookDay;
+import de.dasshorty.recordbook.user.User;
 import jakarta.persistence.*;
 
 import java.sql.Date;
@@ -10,16 +10,16 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "weeks")
-public class BookWeekDto {
+public class BookWeek {
 
 
     @ManyToMany(fetch = FetchType.EAGER)
-    List<BookDayDto> days;
+    List<BookDay> days;
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @ManyToOne
-    private UserDto signedFromTrainer;
+    private User signedFromTrainer;
 
     @Column
     private Date startDate;
@@ -32,11 +32,11 @@ public class BookWeekDto {
         return id;
     }
 
-    public List<BookDayDto> getDays() {
+    public List<BookDay> getDays() {
         return days;
     }
 
-    public UserDto getSignedFromTrainer() {
+    public User getSignedFromTrainer() {
         return signedFromTrainer;
     }
 }

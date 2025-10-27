@@ -3,7 +3,7 @@ package de.dasshorty.recordbook.job;
 import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.ErrorResult;
 import de.dasshorty.recordbook.http.result.QueryResult;
-import de.dasshorty.recordbook.job.qualifications.QualificationDto;
+import de.dasshorty.recordbook.job.qualifications.Qualification;
 import de.dasshorty.recordbook.job.qualifications.QualificationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +42,7 @@ public class JobController {
         int convertedLimit = UserInputHandler.validInteger(limit) ? limit : defaultLimit;
         int convertedOffset = UserInputHandler.validInteger(offset) ? offset : defaultOffset;
 
-        List<JobDto> jobs = this.jobService.getJobs(convertedLimit, convertedOffset);
+        List<Job> jobs = this.jobService.getJobs(convertedLimit, convertedOffset);
 
         return ResponseEntity.ok(new QueryResult<>(this.jobService.count(), convertedLimit, convertedOffset, jobs));
     }
@@ -53,8 +53,8 @@ public class JobController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createJob(@RequestBody @Valid JobDto jobDto) {
-        return ResponseEntity.ok(this.jobService.createJob(jobDto));
+    public ResponseEntity<?> createJob(@RequestBody @Valid Job job) {
+        return ResponseEntity.ok(this.jobService.createJob(job));
     }
 
     @DeleteMapping("/{id}")
@@ -69,13 +69,13 @@ public class JobController {
 
         UUID uid = UUID.fromString(id);
 
-        Optional<JobDto> optional = this.jobService.getJobById(uid);
+        Optional<Job> optional = this.jobService.getJobById(uid);
 
         if (optional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("job not found", "id"));
         }
 
-        List<Optional<QualificationDto>> list = qualificationIds.stream()
+        List<Optional<Qualification>> list = qualificationIds.stream()
                 .map(UUID::fromString)
                 .map(this.qualificationService::getQualification)
                 .toList();
@@ -85,11 +85,11 @@ public class JobController {
                     "found", "qualifications"));
         }
 
-        List<QualificationDto> qualificationDtos = list.stream().filter(Optional::isPresent)
+        List<Qualification> qualifications = list.stream().filter(Optional::isPresent)
                 .map(Optional::get)
                 .toList();
 
-        JobDto updatedJob = this.jobService.updateAssignedQualifications(uid, qualificationDtos);
+        Job updatedJob = this.jobService.updateAssignedQualifications(uid, qualifications);
 
         return ResponseEntity.ok(updatedJob);
     }

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface QualificationRepository extends JpaRepository<QualificationDto, UUID> {
+public interface QualificationRepository extends JpaRepository<Qualification, UUID> {
 
     String TABLE_NAME = "qualifications";
 
@@ -24,7 +24,7 @@ public interface QualificationRepository extends JpaRepository<QualificationDto,
     long getAnalyzedCount();
 
     @Query(nativeQuery = true, value = "SELECT * FROM " + TABLE_NAME + " LIMIT ?1 OFFSET ?2")
-    List<QualificationDto> getQualifications(int limit, int offset);
+    List<Qualification> getQualifications(int limit, int offset);
 
     boolean existsByName(String name);
 }

@@ -1,7 +1,7 @@
 package de.dasshorty.recordbook.company;
 
-import de.dasshorty.recordbook.company.httpbodies.CompanyBody;
-import de.dasshorty.recordbook.user.UserDto;
+import de.dasshorty.recordbook.company.httpbodies.CompanyDto;
+import de.dasshorty.recordbook.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "companies")
-public class CompanyDto {
+public class Company {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -21,7 +21,7 @@ public class CompanyDto {
     private String companyName;
 
     @ManyToMany
-    private List<UserDto> users = new ArrayList<>();
+    private List<User> users = new ArrayList<>();
 
     public UUID getId() {
         return id;
@@ -31,15 +31,15 @@ public class CompanyDto {
         return companyName;
     }
 
-    public CompanyBody toBody() {
-        return new CompanyBody(this.id, this.companyName, this.users.stream().map(UserDto::getId).map(UUID::toString).toList());
+    public CompanyDto toBody() {
+        return new CompanyDto(this.id, this.companyName, this.users.stream().map(User::getId).map(UUID::toString).toList());
     }
 
-    public CompanyDto(String companyName, List<UserDto> users) {
+    public Company(String companyName, List<User> users) {
         this.companyName = companyName;
         this.users = users;
     }
 
-    public CompanyDto() {
+    public Company() {
     }
 }

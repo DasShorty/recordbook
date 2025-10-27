@@ -4,17 +4,16 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface CompanyRepository extends JpaRepository<CompanyDto, UUID> {
+public interface CompanyRepository extends JpaRepository<Company, UUID> {
 
     @Query(nativeQuery = true, value = "SELECT * FROM companies OFFSET ?1 LIMIT ?2")
-    List<CompanyDto> findCompanies(int offset, int limit);
+    List<Company> findCompanies(int offset, int limit);
 
     @Transactional
     @Modifying

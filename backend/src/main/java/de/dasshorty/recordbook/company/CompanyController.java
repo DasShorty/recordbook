@@ -1,10 +1,10 @@
 package de.dasshorty.recordbook.company;
 
-import de.dasshorty.recordbook.company.httpbodies.CompanyBody;
+import de.dasshorty.recordbook.company.httpbodies.CompanyDto;
 import de.dasshorty.recordbook.company.httpbodies.CompanyNameResult;
 import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.QueryResult;
-import de.dasshorty.recordbook.user.UserDto;
+import de.dasshorty.recordbook.user.User;
 import de.dasshorty.recordbook.user.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -50,8 +50,8 @@ public class CompanyController {
         int convertedLimit = UserInputHandler.validInteger(limit) ? limit : defaultLimit;
         int convertedOffset = UserInputHandler.validInteger(offset) ? offset : defaultOffset;
 
-        List<CompanyBody> companyDtos = this.companyService.retrieveComputers(convertedLimit, convertedOffset).stream().map(
-                CompanyDto::toBody).toList();
+        List<CompanyDto> companyDtos = this.companyService.retrieveComputers(convertedLimit, convertedOffset).stream().map(
+                Company::toBody).toList();
 
         log.debug("Length of List " + companyDtos.size());
 
@@ -66,10 +66,10 @@ public class CompanyController {
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'COMPANY')")
-    public ResponseEntity<?> createCompany(@RequestBody @Valid CompanyBody company) {
+    public ResponseEntity<?> createCompany(@RequestBody @Valid CompanyDto company) {
 
 
-        List<UserDto> users = company.users().stream().map(rawUID -> {
+        List<User> users = company.users().stream().map(rawUID -> {
 
             try {
                 return UUID.fromString(rawUID);
@@ -78,7 +78,7 @@ public class CompanyController {
             }
         }).map(uuid -> this.userService.retrieveUserById(uuid).orElseThrow()).toList();
 
-        CompanyDto serviceCompany = this.companyService.createCompany(new CompanyDto(company.companyName(), users));
+        Company serviceCompany = this.companyService.createCompany(new Company(company.companyName(), users));
         return ResponseEntity.created(URI.create(this.applicationUrl + "/companies/" + serviceCompany.getId().toString())).body(
                 serviceCompany);
     }

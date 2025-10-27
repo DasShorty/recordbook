@@ -34,7 +34,7 @@ public class QualificationController {
         int convertedLimit = UserInputHandler.validInteger(limit) ? limit : defaultLimit;
         int convertedOffset = UserInputHandler.validInteger(offset) ? offset : defaultOffset;
 
-        List<QualificationDto> qualifications = this.qualificationService.getQualifications(convertedLimit, convertedOffset);
+        List<Qualification> qualifications = this.qualificationService.getQualifications(convertedLimit, convertedOffset);
 
         return ResponseEntity.ok(new QueryResult<>(this.qualificationService.count(), convertedLimit, convertedOffset, qualifications));
     }
@@ -45,8 +45,8 @@ public class QualificationController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createQualification(@RequestBody @Valid QualificationDto qualificationDto) {
-        return ResponseEntity.ok(this.qualificationService.addQualification(qualificationDto));
+    public ResponseEntity<?> createQualification(@RequestBody @Valid Qualification qualification) {
+        return ResponseEntity.ok(this.qualificationService.addQualification(qualification));
     }
 
     @DeleteMapping("/{id}")

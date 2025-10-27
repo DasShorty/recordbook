@@ -2,7 +2,7 @@ package de.dasshorty.recordbook.job;
 
 import de.dasshorty.recordbook.exception.AlreadyExistingException;
 import de.dasshorty.recordbook.exception.NotExistingException;
-import de.dasshorty.recordbook.job.qualifications.QualificationDto;
+import de.dasshorty.recordbook.job.qualifications.Qualification;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,17 +21,17 @@ public class JobService {
         this.jobRepository = jobRepository;
     }
 
-    public List<JobDto> getJobs(int limit, int offset) {
+    public List<Job> getJobs(int limit, int offset) {
         return this.jobRepository.getJobs(limit, offset);
     }
 
-    public JobDto createJob(@Valid JobDto jobDto) {
+    public Job createJob(@Valid Job job) {
 
-        if (this.jobRepository.existsByName(jobDto.getName())) {
-            throw new AlreadyExistingException("name", jobDto.getName());
+        if (this.jobRepository.existsByName(job.getName())) {
+            throw new AlreadyExistingException("name", job.getName());
         }
 
-        JobDto savedJob = this.jobRepository.save(jobDto);
+        Job savedJob = this.jobRepository.save(job);
         this.jobRepository.analyze();
         return savedJob;
     }
@@ -45,23 +45,23 @@ public class JobService {
         return this.jobRepository.getAnalyzedCount();
     }
 
-    public Optional<JobDto> getJobById(UUID jobId) {
+    public Optional<Job> getJobById(UUID jobId) {
         return this.jobRepository.findById(jobId);
     }
 
-    public JobDto updateAssignedQualifications(UUID jobId, List<QualificationDto> qualifications) {
+    public Job updateAssignedQualifications(UUID jobId, List<Qualification> qualifications) {
 
-        Optional<JobDto> optional = this.jobRepository.findById(jobId);
+        Optional<Job> optional = this.jobRepository.findById(jobId);
 
         if (optional.isEmpty()) {
             throw new NotExistingException("Job not found");
         }
 
-        JobDto jobDto = optional.get();
+        Job job = optional.get();
 
-        jobDto.setQualifications(qualifications);
+        job.setQualifications(qualifications);
 
-        return this.jobRepository.save(jobDto);
+        return this.jobRepository.save(job);
     }
 
 

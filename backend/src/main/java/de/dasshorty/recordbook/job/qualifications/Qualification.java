@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "qualifications")
-public class QualificationDto {
+public class Qualification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -26,10 +26,10 @@ public class QualificationDto {
     @Column(name = "minimum_duration", columnDefinition = "decimal")
     private double minimumDuration;
 
-    public QualificationDto() {
+    public Qualification() {
     }
 
-    public QualificationDto(String name, String description, double minimumDuration) {
+    public Qualification(String name, String description, double minimumDuration) {
         this.name = name;
         this.description = description;
         this.minimumDuration = minimumDuration;

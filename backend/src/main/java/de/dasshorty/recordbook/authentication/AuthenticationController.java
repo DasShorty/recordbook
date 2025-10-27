@@ -2,7 +2,7 @@ package de.dasshorty.recordbook.authentication;
 
 import de.dasshorty.recordbook.authentication.httpbodies.AuthenticationBody;
 import de.dasshorty.recordbook.http.result.ErrorResult;
-import de.dasshorty.recordbook.user.UserDto;
+import de.dasshorty.recordbook.user.User;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -62,14 +62,14 @@ public class AuthenticationController {
             return ResponseEntity.badRequest().body("Invalid refresh token");
         }
 
-        Optional<UserDto> optionalUserDto = this.authenticationService.obtainUserByToken(refreshToken);
+        Optional<User> optionalUserDto = this.authenticationService.obtainUserByToken(refreshToken);
 
         if (optionalUserDto.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        UserDto userDto = optionalUserDto.get();
-        String accessToken = this.authenticationService.obtainAccessToken(userDto);
+        User user = optionalUserDto.get();
+        String accessToken = this.authenticationService.obtainAccessToken(user);
 
         this.setTokenCookies(response, accessToken, refreshToken);
         return ResponseEntity.ok().build();
@@ -78,7 +78,7 @@ public class AuthenticationController {
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(@CookieValue(name = "access_token") String accessToken) {
 
-        Optional<UserDto> optional = this.authenticationService.obtainUserByToken(accessToken);
+        Optional<User> optional = this.authenticationService.obtainUserByToken(accessToken);
 
         if (optional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("account not found", "access_token cookie"));

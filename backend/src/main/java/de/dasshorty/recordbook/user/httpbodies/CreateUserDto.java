@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-public record CreateUserBody(
+public record CreateUserDto(
         @NotBlank(message = "Forename is required")
         String forename,
         @NotBlank(message = "Surname is required")

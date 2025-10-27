@@ -1,6 +1,5 @@
 package de.dasshorty.recordbook.user;
 
-import de.dasshorty.recordbook.user.httpbodies.CreateUserBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,24 +23,24 @@ public class UserService implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UserDto createUser(UserDto userDto) {
+    public User createUser(User user) {
 
-        String encodedPassword = this.passwordEncoder.encode(userDto.getPassword());
+        String encodedPassword = this.passwordEncoder.encode(user.getPassword());
 
-        userDto.setPassword(encodedPassword);
+        user.setPassword(encodedPassword);
 
-        UserDto save = this.userRepository.save(userDto);
+        User save = this.userRepository.save(user);
         this.userRepository.analyse();
         return save;
     }
 
 
-    public void createFirstUser(UserDto userDto) {
+    public void createFirstUser(User user) {
         if (this.userRepository.count() != 0L) {
             return;
         }
 
-        this.createUser(userDto);
+        this.createUser(user);
     }
 
     public void deleteUser(UUID id) {
@@ -50,7 +49,7 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<UserDto> optional = this.retrieveUserByEmail(username);
+        Optional<User> optional = this.retrieveUserByEmail(username);
 
         if (optional.isEmpty()) {
             throw new UsernameNotFoundException(username);
@@ -59,19 +58,19 @@ public class UserService implements UserDetailsService {
         return optional.get();
     }
 
-    public Optional<UserDto> retrieveUserByEmail(String email) {
+    public Optional<User> retrieveUserByEmail(String email) {
         return this.userRepository.findByEmail(email);
     }
 
-    public Optional<UserDto> retrieveUserById(UUID id) {
+    public Optional<User> retrieveUserById(UUID id) {
         return this.userRepository.findById(id);
     }
 
-    public List<UserDto> retrieveUsers(int limit, int offset) {
+    public List<User> retrieveUsers(int limit, int offset) {
         return this.userRepository.findUsers(offset, limit);
     }
 
-    public List<UserDto> retrieveUsersByCompany(UUID companyId, int limit, int offset) {
+    public List<User> retrieveUsersByCompany(UUID companyId, int limit, int offset) {
         return this.userRepository.findUsersByCompany(companyId, limit, offset);
     }
 

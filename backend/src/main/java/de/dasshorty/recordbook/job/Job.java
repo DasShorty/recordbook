@@ -1,6 +1,6 @@
 package de.dasshorty.recordbook.job;
 
-import de.dasshorty.recordbook.job.qualifications.QualificationDto;
+import de.dasshorty.recordbook.job.qualifications.Qualification;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "jobs")
-public class JobDto {
+public class Job {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -23,7 +23,7 @@ public class JobDto {
     private String description;
     @Size(min = 1, message = "A minimum of one qualification is required for a qualified job")
     @ManyToMany
-    private List<QualificationDto> qualifications;
+    private List<Qualification> qualifications;
 
     public String getName() {
         return name;
@@ -37,11 +37,11 @@ public class JobDto {
         return description;
     }
 
-    public List<QualificationDto> getQualifications() {
+    public List<Qualification> getQualifications() {
         return qualifications;
     }
 
-    public void setQualifications(List<QualificationDto> qualifications) {
+    public void setQualifications(List<Qualification> qualifications) {
         this.qualifications = qualifications;
     }
 }

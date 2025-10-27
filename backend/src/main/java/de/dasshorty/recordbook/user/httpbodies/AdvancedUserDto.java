@@ -1,6 +1,6 @@
 package de.dasshorty.recordbook.user.httpbodies;
 
-import de.dasshorty.recordbook.company.CompanyDto;
+import de.dasshorty.recordbook.company.Company;
 import de.dasshorty.recordbook.user.Authority;
 import de.dasshorty.recordbook.user.UserType;
 import jakarta.validation.constraints.NotBlank;
@@ -10,7 +10,7 @@ import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
-public record AdvancedUserBody(
+public record AdvancedUserDto(
         @NotBlank(message = "Forename is required")
         String forename,
         @NotBlank(message = "Surname is required")
@@ -20,7 +20,7 @@ public record AdvancedUserBody(
         String email,
         @NotNull(message = "user has to have a type")
         UserType userType,
-        CompanyDto assignedCompany,
+        Company assignedCompany,
         @NotNull(message = "user has to have at least one authority")
         @Size(min = 1, message = "user has to have at least one authority")
         List<Authority> authorities) {

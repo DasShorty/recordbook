@@ -1,8 +1,8 @@
 package de.dasshorty.recordbook.book;
 
-import de.dasshorty.recordbook.book.week.BookWeekDto;
-import de.dasshorty.recordbook.job.JobDto;
-import de.dasshorty.recordbook.user.UserDto;
+import de.dasshorty.recordbook.book.week.BookWeek;
+import de.dasshorty.recordbook.job.Job;
+import de.dasshorty.recordbook.user.User;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -10,46 +10,46 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "books")
-public class BookDto {
+public class Book {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @ManyToOne
-    private UserDto trainee;
+    private User trainee;
     @ManyToMany
-    private List<UserDto> trainers;
+    private List<User> trainers;
     @ManyToOne
-    private JobDto qualifiedJob;
+    private Job qualifiedJob;
     @ManyToMany
-    private List<BookWeekDto> weeks;
+    private List<BookWeek> weeks;
 
-    public BookDto(UserDto trainee, List<UserDto> trainers, JobDto qualifiedJob) {
+    public Book(User trainee, List<User> trainers, Job qualifiedJob) {
         this.trainee = trainee;
         this.trainers = trainers;
         this.qualifiedJob = qualifiedJob;
     }
 
-    public BookDto() {
+    public Book() {
     }
 
     public UUID getId() {
         return id;
     }
 
-    public UserDto getTrainee() {
+    public User getTrainee() {
         return trainee;
     }
 
-    public List<UserDto> getTrainers() {
+    public List<User> getTrainers() {
         return trainers;
     }
 
-    public JobDto getQualifiedJob() {
+    public Job getQualifiedJob() {
         return qualifiedJob;
     }
 
-    public List<BookWeekDto> getWeeks() {
+    public List<BookWeek> getWeeks() {
         return weeks;
     }
 }

@@ -1,8 +1,8 @@
 package de.dasshorty.recordbook.book;
 
-import de.dasshorty.recordbook.book.week.BookWeekDto;
+import de.dasshorty.recordbook.book.week.BookWeek;
 import de.dasshorty.recordbook.book.week.BookWeekService;
-import de.dasshorty.recordbook.user.UserDto;
+import de.dasshorty.recordbook.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,22 +22,22 @@ public class BookService {
         this.bookWeekService = bookWeekService;
     }
 
-    public Optional<BookDto> getBookById(UUID bookId) {
+    public Optional<Book> getBookById(UUID bookId) {
         return bookRepository.findById(bookId);
     }
 
-    public List<BookWeekDto> getBookWeeks(UUID bookId) {
+    public List<BookWeek> getBookWeeks(UUID bookId) {
         return this.bookRepository.getWeeks(bookId).stream().map(UUID::fromString).map(this.bookWeekService::getWeekById).filter(
                 Optional::isPresent).map(Optional::get).toList();
     }
 
-    public BookDto createBook(BookDto bookDto) {
-        BookDto save = bookRepository.save(bookDto);
+    public Book createBook(Book book) {
+        Book save = bookRepository.save(book);
         this.bookRepository.analyze();
         return save;
     }
 
-    public Optional<BookDto> getBookByTrainee(UserDto trainee) {
+    public Optional<Book> getBookByTrainee(User trainee) {
         return this.bookRepository.getBookByTrainee(trainee);
     }
 

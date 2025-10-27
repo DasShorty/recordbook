@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface JobRepository extends JpaRepository<JobDto, UUID> {
+public interface JobRepository extends JpaRepository<Job, UUID> {
 
     String TABLE_NAME = "jobs";
 
@@ -25,7 +25,7 @@ public interface JobRepository extends JpaRepository<JobDto, UUID> {
     long getAnalyzedCount();
 
     @Query(nativeQuery = true, value = "SELECT * FROM " + TABLE_NAME + " LIMIT ?1 OFFSET ?2")
-    List<JobDto> getJobs(int limit, int offset);
+    List<Job> getJobs(int limit, int offset);
 
     boolean existsByName(@NotBlank String name);
 

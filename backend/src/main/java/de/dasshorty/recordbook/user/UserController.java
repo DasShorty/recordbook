@@ -3,8 +3,8 @@ package de.dasshorty.recordbook.user;
 import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.ErrorResult;
 import de.dasshorty.recordbook.http.result.QueryResult;
-import de.dasshorty.recordbook.user.httpbodies.AdvancedUserBody;
-import de.dasshorty.recordbook.user.httpbodies.CreateUserBody;
+import de.dasshorty.recordbook.user.httpbodies.AdvancedUserDto;
+import de.dasshorty.recordbook.user.httpbodies.CreateUserDto;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ public class UserController {
 
     @PostConstruct
     private void initFirstUser() {
-        this.userService.createFirstUser(new UserDto(
+        this.userService.createFirstUser(new User(
                 administratorUserForename, administratorUserSurname, administratorUserEmail, administratorUserPassword,
                 List.of(Authority.ADMINISTRATOR), UserType.COMPANY
         ));
@@ -58,7 +58,10 @@ public class UserController {
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('COMPANY', 'ADMINISTRATOR')")
-    public ResponseEntity<?> create(@RequestBody @Valid CreateUserBody body) {
+    public ResponseEntity<?> create(@RequestBody @Valid CreateUserDto body) {
+
+        User user = new User()
+
         return ResponseEntity.ok(this.userService.createUser(body).transformToBody());
     }
 
@@ -72,11 +75,11 @@ public class UserController {
         boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(
                 a -> a.getAuthority().equals("ADMINISTRATOR"));
 
-        List<AdvancedUserBody> users;
+        List<AdvancedUserDto> users;
         long totalCount;
 
         if (isAdmin && companyId == null) {
-            users = this.userService.retrieveUsers(convertedLimit, convertedOffset).stream().map(UserDto::transformToBody).toList();
+            users = this.userService.retrieveUsers(convertedLimit, convertedOffset).stream().map(User::transformToBody).toList();
             totalCount = this.userService.count();
         } else {
             if (companyId == null) {
@@ -89,7 +92,7 @@ public class UserController {
                 return ResponseEntity.badRequest().body(new ErrorResult("companyId isn't a valid id", "companyId"));
             }
             users = this.userService.retrieveUsersByCompany(companyUid, convertedLimit, convertedOffset).stream().map(
-                    UserDto::transformToBody).toList();
+                    User::transformToBody).toList();
             totalCount = this.userService.getUserCountByCompany(companyUid);
         }
 
@@ -134,15 +137,15 @@ public class UserController {
         boolean isAdministrator = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(
                 a -> a.getAuthority().equals(Authority.ADMINISTRATOR.name()));
 
-        Optional<UserDto> optional = this.userService.retrieveUserById(uid);
+        Optional<User> optional = this.userService.retrieveUserById(uid);
 
         if (optional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("User not found", "id"));
         }
 
-        UserDto userDto = optional.get();
+        User user = optional.get();
 
-        if (userDto.isAdministrator() && !isAdministrator) {
+        if (user.isAdministrator() && !isAdministrator) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResult("Administrator can't be deleted", "userId"));
         }
 

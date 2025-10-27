@@ -1,7 +1,7 @@
 package de.dasshorty.recordbook.authentication;
 
 import de.dasshorty.recordbook.authentication.jwt.JwtHandler;
-import de.dasshorty.recordbook.user.UserDto;
+import de.dasshorty.recordbook.user.User;
 import de.dasshorty.recordbook.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
@@ -33,25 +33,25 @@ public class AuthenticationService {
 
     public Pair<String, String> authenticate(String email, String password) throws AccountNotFoundException, BadCredentialsException {
 
-        Optional<UserDto> optionalUserDto = this.userService.retrieveUserByEmail(email);
+        Optional<User> optionalUserDto = this.userService.retrieveUserByEmail(email);
 
         if (optionalUserDto.isEmpty()) {
             throw new AccountNotFoundException("Invalid email");
         }
 
-        UserDto userDto = optionalUserDto.get();
+        User user = optionalUserDto.get();
 
-        if (!passwordEncoder.matches(password, userDto.getPassword())) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new BadCredentialsException("Invalid password");
         }
 
-        String accessToken = this.obtainAccessToken(userDto);
-        String refreshToken = this.obtainRefreshToken(userDto);
+        String accessToken = this.obtainAccessToken(user);
+        String refreshToken = this.obtainRefreshToken(user);
 
         return Pair.of(accessToken, refreshToken);
     }
 
-    protected Optional<UserDto> obtainUserByToken(String token) {
+    protected Optional<User> obtainUserByToken(String token) {
         Optional<UUID> optionalId = this.jwtHandler.extractUserId(token);
 
         if (optionalId.isEmpty()) {
@@ -61,11 +61,11 @@ public class AuthenticationService {
         return this.userService.retrieveUserById(optionalId.get());
     }
 
-    protected String obtainAccessToken(UserDto user) {
+    protected String obtainAccessToken(User user) {
         return this.jwtHandler.generateAccessToken(user);
     }
 
-    protected String obtainRefreshToken(UserDto user) {
+    protected String obtainRefreshToken(User user) {
         return this.jwtHandler.generateRefreshToken(user);
     }
 }

@@ -18,15 +18,15 @@ public class CompanyService {
         this.companyRepository = companyRepository;
     }
 
-    public CompanyDto createCompany(CompanyDto companyDto) throws AlreadyExistingException {
+    public Company createCompany(Company company) throws AlreadyExistingException {
 
-        boolean existsCompanyName = this.existsCompanyName(companyDto.getCompanyName());
+        boolean existsCompanyName = this.existsCompanyName(company.getCompanyName());
 
         if (existsCompanyName) {
-            throw new AlreadyExistingException("companyName", companyDto.getCompanyName());
+            throw new AlreadyExistingException("companyName", company.getCompanyName());
         }
 
-        CompanyDto save = this.companyRepository.save(companyDto);
+        Company save = this.companyRepository.save(company);
         this.companyRepository.analyse();
         return save;
     }
@@ -39,11 +39,11 @@ public class CompanyService {
         this.companyRepository.deleteById(companyId);
     }
 
-    public List<CompanyDto> retrieveComputers(int limit, int offset) {
+    public List<Company> retrieveComputers(int limit, int offset) {
         return this.companyRepository.findCompanies(offset, limit);
     }
 
-    public Optional<CompanyDto> retrieveComputerById(UUID id) {
+    public Optional<Company> retrieveComputerById(UUID id) {
         return this.companyRepository.findById(id);
     }
 

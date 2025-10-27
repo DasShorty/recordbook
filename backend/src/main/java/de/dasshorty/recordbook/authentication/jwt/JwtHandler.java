@@ -1,6 +1,6 @@
 package de.dasshorty.recordbook.authentication.jwt;
 
-import de.dasshorty.recordbook.user.UserDto;
+import de.dasshorty.recordbook.user.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -54,13 +54,13 @@ public class JwtHandler {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateAccessToken(UserDto user) {
+    public String generateAccessToken(User user) {
         return Jwts.builder().subject(user.getId().toString()).issuedAt(new Date()).expiration(
                 new Date(System.currentTimeMillis() + ACCESS_EXPIRATION_TIME * 1000L)).claim(
                 "scp", this.mapAuthoritiesToScope(user.getAuthorities())).claim("type", "access_token").signWith(this.secretKey).compact();
     }
 
-    public String generateRefreshToken(UserDto user) {
+    public String generateRefreshToken(User user) {
         return Jwts.builder().subject(user.getId().toString()).issuedAt(new Date()).expiration(
                 new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME * 1000L)).claim(
                 "scp", this.mapAuthoritiesToScope(user.getAuthorities())).claim("type", "refresh_token").signWith(this.secretKey).compact();
