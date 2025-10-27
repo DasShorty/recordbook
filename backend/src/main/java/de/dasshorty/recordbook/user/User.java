@@ -119,6 +119,6 @@ public class User implements UserDetails {
     }
 
     public AdvancedUserDto transformToBody() {
-        return new AdvancedUserDto(this.forename, this.surname, this.email, this.userType, this.assignedCompany, this.authorities);
+        return new AdvancedUserDto(this.id, this.forename, this.surname, this.email, this.userType, this.assignedCompany, this.authorities);
     }
 }

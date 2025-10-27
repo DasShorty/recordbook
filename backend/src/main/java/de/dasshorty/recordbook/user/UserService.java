@@ -34,7 +34,6 @@ public class UserService implements UserDetailsService {
         return save;
     }
 
-
     public void createFirstUser(User user) {
         if (this.userRepository.count() != 0L) {
             return;

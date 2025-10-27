@@ -1,10 +1,10 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {Button} from 'primeng/button';
 import {ConfirmDialog} from 'primeng/confirmdialog';
 import {TableModule} from 'primeng/table';
 import {Toast} from 'primeng/toast';
-import {UserStore} from '@shared/users/user.store';
 import {AdvancedUser} from '@shared/users/users.model';
+import {AdminUserStore} from '@shared/users/admin.user.store';
 
 @Component({
   selector: 'users-list-component',
@@ -39,9 +39,15 @@ import {AdvancedUser} from '@shared/users/users.model';
     </p-table>
   `
 })
-export class UsersListComponent {
+export class UsersListComponent implements OnInit {
 
-  readonly userStore = inject(UserStore);
+  readonly userStore = inject(AdminUserStore);
+
+  ngOnInit() {
+
+    this.userStore.getUsers(this.userStore.limit(), this.userStore.offset()).then();
+
+  }
 
   deleteItem(user: AdvancedUser, $event: Event) {
 

@@ -15,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -43,6 +44,9 @@ public class UserController {
     @Value("${administrator.password}")
     private String administratorUserPassword;
 
+    @Value("${application.url}")
+    private String applicationUrl;
+
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
@@ -59,10 +63,8 @@ public class UserController {
     @PostMapping
     @PreAuthorize("hasAnyAuthority('COMPANY', 'ADMINISTRATOR')")
     public ResponseEntity<?> create(@RequestBody @Valid CreateUserDto body) {
-
-        User user = new User()
-
-        return ResponseEntity.ok(this.userService.createUser(body).transformToBody());
+        AdvancedUserDto advancedUserDto = this.userService.createUser(body.toNewUserWithRandomPassword()).transformToBody();
+        return ResponseEntity.created(URI.create(applicationUrl + "/users/" + advancedUserDto.id().toString())).body(advancedUserDto);
     }
 
     @GetMapping
@@ -91,8 +93,8 @@ public class UserController {
             } catch (IllegalArgumentException e) {
                 return ResponseEntity.badRequest().body(new ErrorResult("companyId isn't a valid id", "companyId"));
             }
-            users = this.userService.retrieveUsersByCompany(companyUid, convertedLimit, convertedOffset).stream().map(
-                    User::transformToBody).toList();
+            users = this.userService.retrieveUsersByCompany(companyUid, convertedLimit, convertedOffset).stream().map(User::transformToBody)
+                    .toList();
             totalCount = this.userService.getUserCountByCompany(companyUid);
         }
 

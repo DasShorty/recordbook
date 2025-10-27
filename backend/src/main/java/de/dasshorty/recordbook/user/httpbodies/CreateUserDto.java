@@ -1,9 +1,13 @@
 package de.dasshorty.recordbook.user.httpbodies;
 
+import de.dasshorty.recordbook.user.PasswordGenerator;
+import de.dasshorty.recordbook.user.User;
 import de.dasshorty.recordbook.user.UserType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+
+import java.util.List;
 
 public record CreateUserDto(
         @NotBlank(message = "Forename is required")
@@ -15,4 +19,13 @@ public record CreateUserDto(
         String email,
         @NotNull(message = "user has to have a type")
         UserType userType) {
+
+    public User toNewUserWithRandomPassword() {
+        return new User(forename(), surname(), email(), this.generateRandomPassword(), List.of(userType().getAuthority()), userType());
+    }
+
+    private String generateRandomPassword() {
+        return PasswordGenerator.generateRandomPassword(8);
+    }
+
 }

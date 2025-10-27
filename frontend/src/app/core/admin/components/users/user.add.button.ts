@@ -3,9 +3,9 @@ import {Button} from 'primeng/button';
 import {Dialog} from 'primeng/dialog';
 import {InputText} from 'primeng/inputtext';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {UserStore} from '@shared/users/user.store';
 import {Select} from 'primeng/select';
 import {UserType} from '@shared/users/users.model';
+import {AdminUserStore} from '@shared/users/admin.user.store';
 
 @Component({
   selector: 'user-add-button',
@@ -82,19 +82,36 @@ import {UserType} from '@shared/users/users.model';
             }
           }
         </div>
+
+        <div class="flex items-center gap-4 mb-4">
+          <label for="email" class="font-semibold w-24">E-Mail*</label>
+          <input pInputText formControlName="email" id="email" class="flex-auto" autocomplete="off"/>
+        </div>
+        <div class="flex flex-col gap-0.5">
+          @if (httpError()) {
+            <span>Ein Fehler ist bei der Übertragung der Daten aufgetreten. Bitte versuche es erneut!</span>
+          }
+          @if (formGroup().controls['email'].touched) {
+            @if (formGroup().controls['email'].hasError("required")) {
+              <span>Der Benutzer benötigt eine E-Mail</span>
+            }
+            @if (formGroup().controls['email'].hasError("email")) {
+              <span>Keine valide E-Mail Adresse definiert!</span>
+            }
+          }
+        </div>
       </form>
       <ng-template #footer>
         <p-button label="Cancel" severity="secondary" (click)="closeForm()"/>
-        <p-button [disabled]="formGroup().invalid" [loading]="loading()" label="Save" (click)="submitForm()"/>
+        <p-button [disabled]="formGroup().invalid" [loading]="this.userStore.loading()" label="Save" (click)="submitForm()"/>
       </ng-template>
     </p-dialog>
   `
 })
 export class UserAddButton {
 
-  private readonly userStore = inject(UserStore);
+  readonly userStore = inject(AdminUserStore);
   readonly httpError = signal(false);
-  readonly loading = signal(false);
   readonly dialogVisible = signal<boolean>(false);
 
   readonly formGroup = signal(new FormGroup({
@@ -115,34 +132,42 @@ export class UserAddButton {
         Validators.required
       ],
       updateOn: "change"
+    }),
+    email: new FormControl<string | null>(null, {
+      validators: [
+        Validators.required,
+        Validators.email
+      ],
+      updateOn: "change"
     })
   }));
 
   submitForm() {
 
-    this.loading.set(true);
-
     const formContent = this.formGroup().value;
 
-    if (formContent.company === null || formContent.company === undefined) {
+    if (formContent.forename === null || formContent.forename === undefined) {
       return;
     }
 
-    this.userStore.createCompany(formContent.company).then(responseContent => {
+    if (formContent.surname === null || formContent.surname === undefined) {
+      return;
+    }
 
-      this.loading.set(false);
+    if (formContent.userType === null || formContent.userType === undefined) {
+      return;
+    }
 
-      switch (responseContent) {
-        case 201:
+    if (formContent.email === null || formContent.email === undefined) {
+      return;
+    }
 
-          this.httpError.set(false);
-          this.toggleDialog();
+    this.userStore.createUser(formContent.forename, formContent.surname, formContent.email, formContent.userType).then(() => {
 
-          break;
-
-        default:
-          this.httpError.set(true);
-          break;
+      if (this.userStore.error()) {
+        this.httpError.set(true);
+      } else {
+        this.closeForm();
       }
 
     });

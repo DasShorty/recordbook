@@ -9,8 +9,10 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.util.List;
+import java.util.UUID;
 
 public record AdvancedUserDto(
+        UUID id,
         @NotBlank(message = "Forename is required")
         String forename,
         @NotBlank(message = "Surname is required")

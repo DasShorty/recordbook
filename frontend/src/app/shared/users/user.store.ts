@@ -77,10 +77,6 @@ export const UserStore = signalStore(
           error: false
         });
 
-      },
-
-      async createUser(forename: string, surname: string, email: string, userType: string) {
-
       }
 
     }

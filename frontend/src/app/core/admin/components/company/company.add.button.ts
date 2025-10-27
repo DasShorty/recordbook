@@ -24,7 +24,7 @@ import {CompanyStore} from '@shared/company/company.store';
       </ng-template>
       <form [formGroup]="formGroup()" (submit)="submitForm()">
         <div class="flex items-center gap-4 mb-4">
-          <label for="company" class="font-semibold w-24">Name</label>
+          <label for="company" class="font-semibold w-24">Name*</label>
           <input pInputText formControlName="company" id="company" class="flex-auto" autocomplete="off"/>
         </div>
         <div class="flex flex-col gap-0.5">
