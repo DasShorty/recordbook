@@ -9,6 +9,8 @@ import {LayoutComponent} from '@shared/layout/layout.component';
   template: `
     <layout-component>
 
+
+
     </layout-component>
   `
 })
