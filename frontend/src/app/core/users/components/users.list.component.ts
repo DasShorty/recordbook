@@ -3,8 +3,8 @@ import {Button} from 'primeng/button';
 import {ConfirmDialog} from 'primeng/confirmdialog';
 import {TableModule} from 'primeng/table';
 import {Toast} from 'primeng/toast';
-import {AdvancedUser} from '@shared/users/users.model';
-import {AdminUserStore} from '@shared/users/admin.user.store';
+import {AdvancedUser} from '@core/users/models/users.model';
+import {AdminUserStore} from '@core/users/state/admin.user.store';
 
 @Component({
   selector: 'users-list-component',

@@ -1,10 +1,10 @@
 import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
-import {AdvancedUser} from '@shared/users/users.model';
+import {AdvancedUser} from '@core/users/models/users.model';
 import {inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
 import {httpConfig} from '@environment/environment';
-import {QueryResult} from '@shared/http/http.model';
+import {QueryResult} from '@core/http/http.model';
 
 export const UserStore = signalStore(
   {providedIn: 'root'},

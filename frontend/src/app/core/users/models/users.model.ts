@@ -1,5 +1,5 @@
 import {Optional} from '@shared/datamapping/optional';
-import {Company} from '@shared/company/company.model';
+import {Company} from '@features/company/models/company.model';
 
 export type UserBody = {
   id: string,

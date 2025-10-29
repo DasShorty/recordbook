@@ -1,0 +1,13 @@
+export enum Presence {
+  PRESENT="PRESENT",
+  VACATION="VACATION",
+  HOLIDAY="HOLIDAY",
+  COMPENSATORY_TIME="COMPENSATORY_TIME",
+  ABSENCE="ABSENCE",
+}
+
+export enum PresenceType {
+  WORK="WORK",
+  SCHOOL="SCHOOL",
+  GUIDANCE="GUIDANCE"
+}

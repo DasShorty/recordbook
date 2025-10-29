@@ -30,6 +30,13 @@ public class BookDay {
     @ManyToMany
     private List<Qualification> qualifications;
 
+    public BookDay(LocalDate date) {
+        this.date = date;
+    }
+
+    public BookDay() {
+    }
+
     public UUID getId() {
         return id;
     }

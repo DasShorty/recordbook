@@ -1,9 +1,9 @@
 import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
 import {TableModule} from 'primeng/table';
-import {CompanyStore} from '@shared/company/company.store';
+import {CompanyStore} from '@features/company/state/company.store';
 import {Button} from 'primeng/button';
 import {ConfirmationService, MessageService} from 'primeng/api';
-import {Company} from '@shared/company/company.model';
+import {Company} from '@features/company/models/company.model';
 import {Toast} from 'primeng/toast';
 import {ConfirmDialog} from 'primeng/confirmdialog';
 

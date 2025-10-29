@@ -4,6 +4,7 @@ import de.dasshorty.recordbook.book.week.day.BookDay;
 import de.dasshorty.recordbook.user.User;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,7 +21,7 @@ public class BookWeek {
     @ManyToOne
     private User signedFromTrainer;
 
-    private int calenderWeek;
+    private int calendarWeek;
     private int year;
 
     public UUID getId() {
@@ -33,5 +34,25 @@ public class BookWeek {
 
     public User getSignedFromTrainer() {
         return signedFromTrainer;
+    }
+
+    public BookWeek() {
+    }
+
+    public BookWeek(int calendarWeek, int year) {
+        this.calendarWeek = calendarWeek;
+        this.year = year;
+    }
+
+    public void setDays(List<BookDay> days) {
+        this.days = days;
+    }
+
+    public static BookWeek createEmptyWeek(int calendarWeek, int year, List<BookDay> days) {
+
+        BookWeek bookWeek = new BookWeek(calendarWeek, year);
+        bookWeek.setDays(days);
+
+        return bookWeek;
     }
 }

@@ -6,7 +6,7 @@ import {provideAnimationsAsync} from '@angular/platform-browser/animations/async
 import {providePrimeNG} from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import {HTTP_INTERCEPTORS, provideHttpClient, withFetch} from '@angular/common/http';
-import {OptionalResponseInterceptor} from '@shared/http/optional.response.interceptor';
+import {OptionalResponseInterceptor} from '@core/http/optional.response.interceptor';
 import {definePreset} from '@primeuix/themes';
 import {ConfirmationService, MessageService} from 'primeng/api';
 

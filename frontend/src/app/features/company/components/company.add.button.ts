@@ -3,8 +3,8 @@ import {Button} from 'primeng/button';
 import {Dialog} from 'primeng/dialog';
 import {InputText} from 'primeng/inputtext';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {CompanyFormValidator} from '@shared/company/company.form.validator';
-import {CompanyStore} from '@shared/company/company.store';
+import {CompanyFormValidator} from '@features/company/validators/company.form.validator';
+import {CompanyStore} from '@features/company/state/company.store';
 
 @Component({
   selector: 'company-add-button',

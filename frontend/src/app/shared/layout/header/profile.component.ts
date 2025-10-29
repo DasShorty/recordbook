@@ -2,10 +2,10 @@ import {Component, computed, inject, OnInit} from '@angular/core';
 import {Menu} from 'primeng/menu';
 import {Ripple} from 'primeng/ripple';
 import {MenuItem} from 'primeng/api';
-import {UserStore} from '@shared/users/user.store';
-import {AuthenticationService} from '@shared/authentication/authentication.service';
+import {UserStore} from '@core/users/state/user.store';
+import {AuthenticationService} from '@core/auth/authentication.service';
 import {Router} from '@angular/router';
-import {Authority} from '@shared/users/users.model';
+import {Authority} from '@core/users/models/users.model';
 
 @Component({
   selector: 'profile-component',

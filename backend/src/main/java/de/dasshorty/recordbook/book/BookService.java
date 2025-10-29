@@ -4,6 +4,7 @@ import de.dasshorty.recordbook.book.week.BookWeek;
 import de.dasshorty.recordbook.book.week.BookWeekService;
 import de.dasshorty.recordbook.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,6 +40,14 @@ public class BookService {
 
     public Optional<Book> getBookByTrainee(User trainee) {
         return this.bookRepository.getBookByTrainee(trainee);
+    }
+
+    public List<Book> getBooksByTrainer(UUID trainer, int offset, int limit) {
+        return this.bookRepository.getBooksByTrainersContaining(trainer, offset, limit);
+    }
+
+    public long getBooksByTrainersCount(UUID trainerId) {
+        return this.bookRepository.getBooksByTrainersCount(trainerId);
     }
 
 }

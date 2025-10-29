@@ -1,7 +1,7 @@
 import {AbstractControl, AsyncValidator, ValidationErrors} from '@angular/forms';
 import {inject, Injectable} from '@angular/core';
 import {debounceTime, distinctUntilChanged, map, Observable, of, switchMap, take} from 'rxjs';
-import {CompanyStore} from '@shared/company/company.store';
+import {CompanyStore} from '@features/company/state/company.store';
 
 @Injectable({providedIn: 'root'})
 export class CompanyFormValidator implements AsyncValidator {

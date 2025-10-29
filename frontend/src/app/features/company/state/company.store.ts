@@ -1,9 +1,9 @@
 import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
-import {Company, CompanyNameCheckResult} from '@shared/company/company.model';
+import {Company, CompanyNameCheckResult} from '@features/company/models/company.model';
 import {inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
-import {QueryResult} from '@shared/http/http.model';
+import {QueryResult} from '@core/http/http.model';
 import {httpConfig} from '@environment/environment';
 
 export const CompanyStore = signalStore(

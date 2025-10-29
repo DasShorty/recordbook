@@ -7,15 +7,6 @@ import de.dasshorty.recordbook.user.httpbodies.UserDto;
 import java.util.List;
 import java.util.UUID;
 
-public record BookDto(UUID id, UserDto trainee, List<UserDto> trainers, Job qualifiedJob) {
-
-    public static BookDto fromBook(Book book) {
-        return new BookDto(
-                book.getId(),
-                UserDto.fromUser(book.getTrainee()),
-                book.getTrainers().stream().map(UserDto::fromUser).toList(),
-                book.getQualifiedJob()
-        );
-    }
+public record BookDto(UUID id, UUID trainee, List<UUID> trainers, Job qualifiedJob) {
 
 }

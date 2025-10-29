@@ -4,8 +4,8 @@ import {Dialog} from 'primeng/dialog';
 import {InputText} from 'primeng/inputtext';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Select} from 'primeng/select';
-import {UserType} from '@shared/users/users.model';
-import {AdminUserStore} from '@shared/users/admin.user.store';
+import {UserType} from '@core/users/models/users.model';
+import {AdminUserStore} from '@core/users/state/admin.user.store';
 
 @Component({
   selector: 'user-add-button',

@@ -3,11 +3,11 @@ import {Password} from 'primeng/password';
 import {InputText} from 'primeng/inputtext';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Button} from 'primeng/button';
-import {AuthenticationService} from '@shared/authentication/authentication.service';
+import {AuthenticationService} from '@core/auth/authentication.service';
 import {Router, RouterLink} from '@angular/router';
 import {Toast} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
-import {UserStore} from '@shared/users/user.store';
+import {UserStore} from '@core/users/state/user.store';
 
 
 // @ts-ignore

@@ -1,5 +1,6 @@
 package de.dasshorty.recordbook.book;
 
+import de.dasshorty.recordbook.book.httpbodies.BookDto;
 import de.dasshorty.recordbook.book.week.BookWeek;
 import de.dasshorty.recordbook.job.Job;
 import de.dasshorty.recordbook.user.User;
@@ -21,7 +22,7 @@ public class Book {
     private List<User> trainers;
     @ManyToOne
     private Job qualifiedJob;
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     private List<BookWeek> weeks;
 
     public Book(User trainee, List<User> trainers, Job qualifiedJob) {
@@ -51,5 +52,9 @@ public class Book {
 
     public List<BookWeek> getWeeks() {
         return weeks;
+    }
+
+    public BookDto toDto() {
+        return new BookDto(this.id, this.trainee.getId(), trainers.stream().map(User::getId).toList(), qualifiedJob);
     }
 }
