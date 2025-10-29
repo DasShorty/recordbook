@@ -52,7 +52,7 @@ export class SidebarMenuComponent {
     },
     {
       label: 'Berichtsheft', items: [
-        {label: 'Wochenansicht', icon: 'pi pi-file-arrow-up', routerLink: ['/record-book']},
+        {label: 'Wochenansicht', icon: 'pi pi-file-arrow-up', routerLink: ['/record-book/week']},
         {label: 'Jahresansicht', icon: 'pi pi-file-arrow-up', routerLink: ['/record-book']},
         {label: 'Statistik', icon: 'pi pi-file-arrow-up', routerLink: ['/record-book']},
       ]
