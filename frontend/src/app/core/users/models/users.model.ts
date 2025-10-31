@@ -1,4 +1,4 @@
-import {Optional} from '@shared/datamapping/optional';
+import {Optional} from '@shared/data/optional';
 import {Company} from '@features/company/models/company.model';
 
 export type UserBody = {
