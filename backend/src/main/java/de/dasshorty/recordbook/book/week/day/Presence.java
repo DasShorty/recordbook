@@ -4,7 +4,6 @@ public enum Presence {
 
     PRESENT,
     VACATION,
-    HOLIDAY,
     COMPENSATORY_TIME,
     ABSENCE
 

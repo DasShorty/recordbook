@@ -1,7 +1,7 @@
 import {Component, signal} from '@angular/core';
 import {Select} from 'primeng/select';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Presence, PresenceType} from '@features/book/models/presence.type';
+import {Presence, PresenceDisplay, PresenceType} from '@features/book/models/presence.type';
 import {Qualification} from '@features/job/models/qualification.model';
 import {InputNumber} from 'primeng/inputnumber';
 import {MultiSelect} from 'primeng/multiselect';
@@ -18,10 +18,28 @@ import {MultiSelect} from 'primeng/multiselect';
     <tr>
       <form [formGroup]="form()">
         <td>
-          <p-select [options]="Object.keys(Presence)" formControlName="presence"></p-select>
+          <p-select [options]="Object.keys(Presence)" formControlName="presence">
+            <ng-template #item let-presence>
+              <span>{{ PresenceDisplay.getPresenceDisplay(presence) }}</span>
+            </ng-template>
+
+            <ng-template #selectedItem let-presence>
+              <span>{{ PresenceDisplay.getPresenceDisplay(presence) }}</span>
+            </ng-template>
+          </p-select>
         </td>
         <td>
-          <p-select [options]="Object.keys(PresenceType)" formControlName="presenceType"></p-select>
+          <p-select [options]="Object.keys(PresenceType)" formControlName="presenceType">
+
+            <ng-template #item let-presenceType>
+              <span>{{ PresenceDisplay.getPresenceType(presenceType) }}</span>
+            </ng-template>
+
+            <ng-template #selectedItem let-presenceType>
+              <span>{{ PresenceDisplay.getPresenceType(presenceType) }}</span>
+            </ng-template>
+
+          </p-select>
         </td>
         <td>
           <p-input-number formControlName="duration"></p-input-number>
@@ -50,4 +68,5 @@ export class RecordBookDayComponent {
   protected readonly Object = Object;
   protected readonly Presence = Presence;
   protected readonly PresenceType = PresenceType;
+  protected readonly PresenceDisplay = PresenceDisplay;
 }
