@@ -25,6 +25,22 @@ public class Job {
     @ManyToMany
     private List<Qualification> qualifications;
 
+    public Job() {
+    }
+
+    public Job(String name, String description, List<Qualification> qualifications) {
+        this.name = name;
+        this.description = description;
+        this.qualifications = qualifications;
+    }
+
+    public Job(UUID id, String name, String description, List<Qualification> qualifications) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.qualifications = qualifications;
+    }
+
     public String getName() {
         return name;
     }

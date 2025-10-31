@@ -6,3 +6,10 @@ export type Job = {
   description: string,
   qualifications: Qualification[]
 }
+
+export type UpdateJob = {
+  id: string,
+  name: string,
+  description: string,
+  qualifications: string[]
+}

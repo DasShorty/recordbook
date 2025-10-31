@@ -3,8 +3,11 @@ package de.dasshorty.recordbook.job;
 import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.ErrorResult;
 import de.dasshorty.recordbook.http.result.QueryResult;
+import de.dasshorty.recordbook.job.dto.CreateJobDto;
+import de.dasshorty.recordbook.job.dto.UpdateJobDto;
 import de.dasshorty.recordbook.job.qualifications.Qualification;
 import de.dasshorty.recordbook.job.qualifications.QualificationService;
+import jakarta.validation.ReportAsSingleViolation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +32,9 @@ public class JobController {
 
     @Value("${query.offset}")
     private int defaultOffset;
+
+    @Value("${application.url}")
+    private String applicationUrl;
 
     @Autowired
     public JobController(JobService jobService, QualificationService qualificationService) {
@@ -53,14 +60,20 @@ public class JobController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createJob(@RequestBody @Valid Job job) {
-        return ResponseEntity.ok(this.jobService.createJob(job));
+    public ResponseEntity<?> createJob(@RequestBody @Valid CreateJobDto job) {
+        Job job1 = this.jobService.createJob(job);
+        return ResponseEntity.created(URI.create(this.applicationUrl + "/jobs/" + job1.getId())).body(job1);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteJob(@PathVariable("id") String id) {
         this.jobService.deleteJob(UUID.fromString(id));
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping
+    public ResponseEntity<?> updateJob(@RequestBody @Valid UpdateJobDto jobDto) {
+        return ResponseEntity.ok(this.jobService.updateJob(jobDto));
     }
 
     @PatchMapping("/{id}/qualifications")

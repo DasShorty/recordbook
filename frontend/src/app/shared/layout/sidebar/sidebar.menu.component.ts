@@ -62,6 +62,8 @@ export class SidebarMenuComponent {
         {label: 'Azubis', icon: 'pi pi-file-arrow-up', routerLink: ['/trainees']},
         {label: 'Ausbildungskraft', icon: 'pi pi-file-arrow-up', routerLink: ['/trainers']},
         {label: 'Unternehmen', icon: 'pi pi-file-arrow-up', routerLink: ['/company']},
+        {label: 'Berufe', icon: 'pi pi-file-arrow-up', routerLink: ['/jobs']},
+        {label: 'Qualifikationen', icon: 'pi pi-file-arrow-up', routerLink: ['/jobs/qualifications']},
         {label: 'Admin', icon: 'pi pi-file-arrow-up', routerLink: ['/admin']}
       ]
     },

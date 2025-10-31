@@ -12,6 +12,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'jobs',
+    loadChildren: () => import('@features/job/routes').then(m => m.routes),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'dashboard',
     loadComponent: () => import('@core/home/home.page').then(m => m.HomePage),
     canActivate: [AuthGuard]
