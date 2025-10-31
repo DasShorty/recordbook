@@ -127,10 +127,6 @@ public class BookController {
         return ResponseEntity.ok(optional.get().toDto());
     }
 
-
-
-
-
     @PostMapping
     public ResponseEntity<?> createBook(@RequestBody @Valid CreateBookDto bookBody) {
 

@@ -13,5 +13,10 @@ export const routes: Routes = [
     loadComponent: () => import('@features/book/pages/record.book.page').then(m => m.RecordBookPage),
     pathMatch: "full",
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'manage',
+    loadComponent: () => import('@features/book/pages/trainer.book.manager.page').then(m => m.TrainerBookManagerPage),
+    canActivate: [AuthGuard]
   }
 ]
