@@ -6,7 +6,6 @@ import {TableModule} from 'primeng/table';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {JobStore} from '@features/job/state/job.store';
 import {Job} from '@features/job/models/job.model';
-import {AddJobButton} from '@features/job/components/add.job.button';
 import {JobEditDialog} from '@features/job/components/job.edit.dialog';
 
 @Component({
@@ -16,7 +15,6 @@ import {JobEditDialog} from '@features/job/components/job.edit.dialog';
     Toast,
     Button,
     TableModule,
-    AddJobButton,
     JobEditDialog
   ],
   template: `
@@ -34,7 +32,8 @@ import {JobEditDialog} from '@features/job/components/job.edit.dialog';
         <ng-template #caption>
           <div class="flex items-center justify-between">
             <span class="text-xl font-bold">Berufe</span>
-            <add-job-button></add-job-button>
+            <p-button severity="success" (click)="editDialog.toggleDialog()" outlined icon="pi pi-plus"
+                      label="Beruf hinzufügen"/>
           </div>
         </ng-template>
 

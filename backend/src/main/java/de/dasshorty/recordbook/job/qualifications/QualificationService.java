@@ -4,7 +4,6 @@ import de.dasshorty.recordbook.exception.AlreadyExistingException;
 import de.dasshorty.recordbook.exception.NotExistingException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -63,5 +62,13 @@ public class QualificationService {
         Qualification save = this.qualificationRepository.save(qualification);
         this.qualificationRepository.analyze();
         return save;
+    }
+
+    public List<Qualification> getByName(String name, int limit, int offset) {
+        return this.qualificationRepository.getQualificationsByName(name, limit, offset);
+    }
+
+    public int countByName(String name) {
+        return this.qualificationRepository.countByName(name);
     }
 }

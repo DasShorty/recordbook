@@ -29,5 +29,11 @@ public interface QualificationRepository extends JpaRepository<Qualification, UU
 
     Optional<Qualification> findByName(String name);
 
+    @Query(nativeQuery = true, value = "SELECT * FROM " + TABLE_NAME + " WHERE name ILIKE concat('%', ?1, '%') LIMIT ?2 OFFSET ?3")
+    List<Qualification> getQualificationsByName(String name, int limit, int offset);
+
     boolean existsByName(String name);
+
+    @Query(nativeQuery = true, value = "SELECT count() FROM " + TABLE_NAME + " WHERE name ILIKE concat('%', ?1, '%')")
+    int countByName(String name);
 }

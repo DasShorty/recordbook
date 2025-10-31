@@ -30,10 +30,21 @@ public class QualificationController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getQualifications(@RequestParam Integer limit, @RequestParam Integer offset) {
+    public ResponseEntity<?> getQualifications(
+            @RequestParam("limit") Integer limit,
+            @RequestParam("offset") Integer offset,
+            @RequestParam(value = "search", required = false) String searchTerm) {
 
         int convertedLimit = UserInputHandler.validInteger(limit) ? limit : defaultLimit;
         int convertedOffset = UserInputHandler.validInteger(offset) ? offset : defaultOffset;
+
+        if (searchTerm != null) {
+            return ResponseEntity.ok(new QueryResult<>(
+                    this.qualificationService.countByName(searchTerm),
+                    convertedLimit,
+                    convertedOffset,
+                    this.qualificationService.getByName(searchTerm, convertedLimit, convertedOffset)));
+        }
 
         List<Qualification> qualifications = this.qualificationService.getQualifications(convertedLimit, convertedOffset);
 

@@ -1,24 +1,19 @@
-import {Component, inject, input} from '@angular/core';
-import {WeekService} from '@features/book/services/week.service';
+import {Component, input} from '@angular/core';
 import {TableModule} from 'primeng/table';
 import {BookWeek} from '@features/book/models/book.week.model';
 import {JsonPipe} from '@angular/common';
 
 @Component({
   selector: 'record-book-week-component',
-  imports: [
-    TableModule,
-    JsonPipe
-  ],
+  imports: [TableModule, JsonPipe],
   template: `
     <p-table [value]="recordBookWeek().days">
-
       <ng-template #caption>
-
         <div class="flex items-center justify-items-start">
-          <span class="text-xl font-bold">Woche {{ recordBookWeek().year }}/{{ recordBookWeek().calendarWeek }}</span>
+          <span class="text-xl font-bold"
+          >Woche {{ recordBookWeek().year }}/{{ recordBookWeek().calendarWeek }}</span
+          >
         </div>
-
       </ng-template>
 
       <ng-template #header>
@@ -31,18 +26,11 @@ import {JsonPipe} from '@angular/common';
       </ng-template>
 
       <ng-template #body let-day>
-
-        {{day | json}}
-
+        {{ day | json }}
       </ng-template>
-
     </p-table>
-  `
+  `,
 })
 export class RecordBookWeekComponent {
-
   public readonly recordBookWeek = input.required<BookWeek>();
-  private readonly weekService = inject(WeekService);
-
-
 }
