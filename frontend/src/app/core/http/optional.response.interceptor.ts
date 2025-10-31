@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse} from '@angular/common/http';
 import {map, Observable} from 'rxjs';
-import {Optional} from '@shared/datamapping/optional';
+import {Optional} from '@shared/data/optional';
 
 @Injectable({providedIn: 'root'})
 export class OptionalResponseInterceptor implements HttpInterceptor {
