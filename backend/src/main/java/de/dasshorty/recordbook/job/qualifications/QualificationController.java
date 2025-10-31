@@ -2,6 +2,7 @@ package de.dasshorty.recordbook.job.qualifications;
 
 import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.QueryResult;
+import de.dasshorty.recordbook.job.qualifications.dto.UpdateQualificationDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,5 +54,10 @@ public class QualificationController {
     public ResponseEntity<?> deleteQualification(@PathVariable("id") String id) {
         this.qualificationService.removeQualification(UUID.fromString(id));
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping
+    public ResponseEntity<?> updateQualification(@RequestBody @Valid UpdateQualificationDto qualificationDto) {
+        return ResponseEntity.ok(this.qualificationService.updateQualification(qualificationDto.toQualification()));
     }
 }

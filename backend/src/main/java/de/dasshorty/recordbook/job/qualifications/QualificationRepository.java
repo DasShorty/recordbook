@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -25,6 +26,8 @@ public interface QualificationRepository extends JpaRepository<Qualification, UU
 
     @Query(nativeQuery = true, value = "SELECT * FROM " + TABLE_NAME + " LIMIT ?1 OFFSET ?2")
     List<Qualification> getQualifications(int limit, int offset);
+
+    Optional<Qualification> findByName(String name);
 
     boolean existsByName(String name);
 }

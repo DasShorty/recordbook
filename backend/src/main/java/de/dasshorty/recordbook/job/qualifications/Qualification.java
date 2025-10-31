@@ -35,6 +35,13 @@ public class Qualification {
         this.minimumDuration = minimumDuration;
     }
 
+    public Qualification(UUID id, String name, String description, double minimumDuration) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.minimumDuration = minimumDuration;
+    }
+
     public double getMinimumDuration() {
         return minimumDuration;
     }

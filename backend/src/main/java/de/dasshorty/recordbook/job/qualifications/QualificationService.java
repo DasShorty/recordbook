@@ -1,8 +1,10 @@
 package de.dasshorty.recordbook.job.qualifications;
 
 import de.dasshorty.recordbook.exception.AlreadyExistingException;
+import de.dasshorty.recordbook.exception.NotExistingException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,5 +47,21 @@ public class QualificationService {
 
     public long count() {
         return this.qualificationRepository.getAnalyzedCount();
+    }
+
+    public Qualification updateQualification(Qualification qualification) {
+
+        if (!this.qualificationRepository.existsById(qualification.getId())) {
+            throw new NotExistingException("qualification id is not existing!");
+        }
+
+        Optional<Qualification> optional = this.qualificationRepository.findByName(qualification.getName());
+        if (optional.isPresent() && !optional.get().getId().equals(qualification.getId())) {
+            throw new AlreadyExistingException("name", qualification.getName());
+        }
+
+        Qualification save = this.qualificationRepository.save(qualification);
+        this.qualificationRepository.analyze();
+        return save;
     }
 }
