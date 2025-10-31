@@ -27,3 +27,7 @@ val buildAngularTask = tasks.register<NpmTask>("buildAngular") {
     inputs.dir("src")
     outputs.dir(angularDistDir)
 }
+
+val runAngularTask = tasks.register<NpmTask>("runAngular") {
+  npmCommand.set(listOf("run", "start"))
+}
