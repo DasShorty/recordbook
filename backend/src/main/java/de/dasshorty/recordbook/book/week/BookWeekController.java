@@ -3,7 +3,6 @@ package de.dasshorty.recordbook.book.week;
 import de.dasshorty.recordbook.authentication.jwt.JwtHandler;
 import de.dasshorty.recordbook.book.Book;
 import de.dasshorty.recordbook.book.BookService;
-import de.dasshorty.recordbook.book.week.day.BookDay;
 import de.dasshorty.recordbook.book.week.httpbodies.BookWeekDto;
 import de.dasshorty.recordbook.book.week.httpbodies.CreateWeekDto;
 import de.dasshorty.recordbook.http.handler.UserInputHandler;
@@ -12,6 +11,7 @@ import de.dasshorty.recordbook.user.User;
 import de.dasshorty.recordbook.user.UserService;
 import de.dasshorty.recordbook.user.httpbodies.UserDto;
 import jakarta.validation.Valid;
+import jdk.jshell.spi.ExecutionControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Calendar;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -64,7 +63,7 @@ public class BookWeekController {
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINEE')")
     public ResponseEntity<?> createWeek(@PathVariable("bookId") String bookId, @CookieValue("access_token") String accessToken,
-                                        @RequestBody @Valid CreateWeekDto createWeekBody) {
+                                        @RequestBody @Valid CreateWeekDto createWeekBody) throws ExecutionControl.NotImplementedException {
 
         Optional<UUID> optional = this.jwtHandler.extractUserId(accessToken);
 
@@ -94,6 +93,7 @@ public class BookWeekController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResult("invalid book id provided", "bookId"));
         }
 
+        throw new ExecutionControl.NotImplementedException("Creating a week is not existing at the time!");
     }
 
 }

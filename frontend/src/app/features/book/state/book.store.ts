@@ -4,6 +4,7 @@ import {inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
 import {httpConfig} from '@environment/environment';
+import {Optional} from '@shared/data/optional';
 
 export const BookStore = signalStore(
   {providedIn: 'root'},
@@ -43,6 +44,24 @@ export const BookStore = signalStore(
           activeBook: response.body,
           loading: false
         });
+      },
+
+      async createOwnBook(traineeId: string, trainerIds: string[], jobId: string): Promise<Optional<Book>> {
+
+        const res = await firstValueFrom(httpClient.post<Book>(httpConfig.baseUrl + "books", {
+          trainee: traineeId,
+          trainers: trainerIds,
+          job: jobId
+        }, {
+          withCredentials: true,
+          observe: 'response'
+        }));
+
+        if (!res.ok || res.body === null) {
+          return Optional.empty();
+        }
+
+        return Optional.of(res.body);
       }
 
     }
