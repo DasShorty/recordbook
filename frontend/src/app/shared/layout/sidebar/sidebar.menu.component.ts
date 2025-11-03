@@ -53,8 +53,8 @@ export class SidebarMenuComponent {
     {
       label: 'Berichtsheft', items: [
         {label: 'Wochenansicht', icon: 'pi pi-file-arrow-up', routerLink: ['/record-book/week']},
-        {label: 'Jahresansicht', icon: 'pi pi-file-arrow-up', routerLink: ['/record-book']},
-        {label: 'Statistik', icon: 'pi pi-file-arrow-up', routerLink: ['/record-book']},
+        {label: 'Jahresansicht', icon: 'pi pi-file-arrow-up', routerLink: ['/record-book/year']},
+        {label: 'Statistik', icon: 'pi pi-file-arrow-up', routerLink: ['/record-book/statistic']},
         {label: 'Verwalten', icon: 'pi pi-file-arrow-up', routerLink: ['/record-book/manage']},
       ]
     },

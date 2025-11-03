@@ -10,9 +10,9 @@ import {JsonPipe} from '@angular/common';
     <p-table [value]="recordBookWeek().days">
       <ng-template #caption>
         <div class="flex items-center justify-items-start">
-          <span class="text-xl font-bold"
-          >Woche {{ recordBookWeek().year }}/{{ recordBookWeek().calendarWeek }}</span
-          >
+          <span class="text-xl font-bold">
+            Woche {{ recordBookWeek().year }}/{{ recordBookWeek().calendarWeek }}
+          </span>
         </div>
       </ng-template>
 
