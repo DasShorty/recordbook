@@ -69,7 +69,8 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<?> getUsers(@RequestParam(value = "offset") Integer offset, @RequestParam(value = "limit") Integer limit,
-                                      @RequestParam(value = "company", required = false) String companyId) {
+                                      @RequestParam(value = "company", required = false) String companyId,
+                                      @RequestParam(value = "userType", required = false) UserType userType) {
 
         int convertedOffset = UserInputHandler.validInteger(offset) ? offset : this.defaultOffset;
         int convertedLimit = UserInputHandler.validInteger(limit) ? limit : this.defaultLimit;
@@ -93,6 +94,11 @@ public class UserController {
             } catch (IllegalArgumentException e) {
                 return ResponseEntity.badRequest().body(new ErrorResult("companyId isn't a valid id", "companyId"));
             }
+
+            if (userType != null) {
+                return ResponseEntity.ok(this.userService.getUsersByCompanyAndUserType(companyUid, userType, convertedLimit, convertedOffset));
+            }
+
             users = this.userService.retrieveUsersByCompany(companyUid, convertedLimit, convertedOffset).stream().map(User::transformToBody)
                     .toList();
             totalCount = this.userService.getUserCountByCompany(companyUid);

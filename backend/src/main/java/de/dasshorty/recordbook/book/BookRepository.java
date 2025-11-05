@@ -2,7 +2,6 @@ package de.dasshorty.recordbook.book;
 
 import de.dasshorty.recordbook.user.User;
 import jakarta.transaction.Transactional;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -34,11 +33,11 @@ public interface BookRepository extends JpaRepository<Book, UUID> {
 
     Optional<Book> getBookByTrainee(User trainee);
 
-    @Query(nativeQuery = true, value = "SELECT * FROM books book LEFT JOIN books_trainers trainer ON book.id == trainer.book_id WHERE trainer.trainers_id == ?1 LIMIT ?2 OFFSET ?3")
+    @Query(nativeQuery = true, value = "SELECT * FROM books book LEFT JOIN books_trainers trainer ON book.id = trainer.book_id WHERE trainer.trainers_id = ?1 LIMIT ?2 OFFSET ?3")
     List<Book> getBooksByTrainersContaining(UUID trainerId, int limit, int offset);
 
     @Transactional
-    @Query(nativeQuery = true, value = "SELECT count() FROM books book LEFT JOIN books_trainers trainer ON book.id = trainer.book_id")
+    @Query(nativeQuery = true, value = "SELECT count(id) FROM books book LEFT JOIN books_trainers trainer ON book.id = trainer.book_id")
     long getBooksByTrainersCount(UUID trainerId);
 
 

@@ -1,5 +1,7 @@
 package de.dasshorty.recordbook.user;
 
+import de.dasshorty.recordbook.http.result.OptionResult;
+import de.dasshorty.recordbook.user.httpbodies.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -79,5 +81,9 @@ public class UserService implements UserDetailsService {
 
     public long count() {
         return this.userRepository.getAnalyzedRowCount();
+    }
+
+    public OptionResult<List<UserDto>> getUsersByCompanyAndUserType(UUID companyId, UserType userType, int limit, int offset) {
+        return new OptionResult<>(this.userRepository.findAllByAssignedCompany_IdAndUserType(companyId, userType, offset, limit), offset);
     }
 }

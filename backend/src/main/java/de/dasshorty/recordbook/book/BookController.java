@@ -2,8 +2,6 @@ package de.dasshorty.recordbook.book;
 
 import de.dasshorty.recordbook.authentication.jwt.JwtHandler;
 import de.dasshorty.recordbook.book.httpbodies.CreateBookDto;
-import de.dasshorty.recordbook.book.week.BookWeekService;
-import de.dasshorty.recordbook.book.week.httpbodies.BookWeekDto;
 import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.ErrorResult;
 import de.dasshorty.recordbook.http.result.QueryResult;
@@ -12,7 +10,6 @@ import de.dasshorty.recordbook.job.JobService;
 import de.dasshorty.recordbook.user.User;
 import de.dasshorty.recordbook.user.UserService;
 import de.dasshorty.recordbook.user.UserType;
-import de.dasshorty.recordbook.user.httpbodies.UserDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,7 +30,6 @@ public class BookController {
     private final UserService userService;
     private final JobService jobService;
     private final JwtHandler jwtHandler;
-    private final BookWeekService bookWeekService;
 
     @Value("${query.limit}")
     private int defaultLimit;
@@ -43,13 +38,11 @@ public class BookController {
     private int defaultOffset;
 
     @Autowired
-    public BookController(BookService bookService, UserService userService, JobService jobService, JwtHandler jwtHandler,
-                          BookWeekService bookWeekService) {
+    public BookController(BookService bookService, UserService userService, JobService jobService, JwtHandler jwtHandler) {
         this.bookService = bookService;
         this.userService = userService;
         this.jobService = jobService;
         this.jwtHandler = jwtHandler;
-        this.bookWeekService = bookWeekService;
     }
 
     @GetMapping
@@ -77,7 +70,7 @@ public class BookController {
 
         User user = optionalUser.get();
 
-        if (user.getUserType() != UserType.TRAINER) {
+        if (user.getUserType() != UserType.TRAINER && !user.isAdministrator()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResult("forbidden", "user"));
         }
 
