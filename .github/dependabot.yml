@@ -5,11 +5,13 @@
 
 version: 2
 updates:
-  - package-ecosystem: "gradle" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "gradle"
+    directory: "/backend"
+    open-pull-requests-limit: 5
     schedule:
       interval: "daily"
-  - package-ecosystem: "pnpm"
-    directory: "./frontend"
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    open-pull-requests-limit: 5
     schedule:
       interval: "daily"
