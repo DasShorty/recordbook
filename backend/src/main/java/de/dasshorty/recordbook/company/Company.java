@@ -1,6 +1,6 @@
 package de.dasshorty.recordbook.company;
 
-import de.dasshorty.recordbook.company.httpbodies.CompanyDto;
+import de.dasshorty.recordbook.company.dto.CompanyDto;
 import de.dasshorty.recordbook.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

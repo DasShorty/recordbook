@@ -1,6 +1,6 @@
 package de.dasshorty.recordbook.authentication;
 
-import de.dasshorty.recordbook.authentication.httpbodies.AuthenticationBody;
+import de.dasshorty.recordbook.authentication.dto.AuthenticationBody;
 import de.dasshorty.recordbook.http.result.ErrorResult;
 import de.dasshorty.recordbook.user.User;
 import jakarta.servlet.http.HttpServletResponse;

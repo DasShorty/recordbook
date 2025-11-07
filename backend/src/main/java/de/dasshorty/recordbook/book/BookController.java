@@ -1,7 +1,7 @@
 package de.dasshorty.recordbook.book;
 
 import de.dasshorty.recordbook.authentication.jwt.JwtHandler;
-import de.dasshorty.recordbook.book.httpbodies.CreateBookDto;
+import de.dasshorty.recordbook.book.dto.CreateBookDto;
 import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.ErrorResult;
 import de.dasshorty.recordbook.http.result.QueryResult;

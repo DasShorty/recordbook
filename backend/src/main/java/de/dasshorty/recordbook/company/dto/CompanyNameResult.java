@@ -1,4 +1,4 @@
-package de.dasshorty.recordbook.company.httpbodies;
+package de.dasshorty.recordbook.company.dto;
 
 public record CompanyNameResult(String  searchedName, boolean successful) {
 }

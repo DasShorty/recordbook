@@ -1,4 +1,4 @@
-package de.dasshorty.recordbook.book.week.httpbodies;
+package de.dasshorty.recordbook.book.week.dto;
 
 import de.dasshorty.recordbook.book.week.day.BookDay;
 import de.dasshorty.recordbook.user.dto.UserDto;

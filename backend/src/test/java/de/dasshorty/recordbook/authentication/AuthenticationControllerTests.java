@@ -1,7 +1,7 @@
 package de.dasshorty.recordbook.authentication;
 
 import com.google.gson.Gson;
-import de.dasshorty.recordbook.authentication.httpbodies.TokenBody;
+import de.dasshorty.recordbook.authentication.dto.TokenBody;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

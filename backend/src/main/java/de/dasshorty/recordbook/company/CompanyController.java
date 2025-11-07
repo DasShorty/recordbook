@@ -1,7 +1,7 @@
 package de.dasshorty.recordbook.company;
 
-import de.dasshorty.recordbook.company.httpbodies.CompanyDto;
-import de.dasshorty.recordbook.company.httpbodies.CompanyNameResult;
+import de.dasshorty.recordbook.company.dto.CompanyDto;
+import de.dasshorty.recordbook.company.dto.CompanyNameResult;
 import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.QueryResult;
 import de.dasshorty.recordbook.user.User;

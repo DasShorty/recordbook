@@ -1,4 +1,4 @@
-package de.dasshorty.recordbook.book.httpbodies;
+package de.dasshorty.recordbook.book.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

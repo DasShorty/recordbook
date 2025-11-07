@@ -1,4 +1,4 @@
-package de.dasshorty.recordbook.book.week.httpbodies;
+package de.dasshorty.recordbook.book.week.dto;
 
 import jakarta.validation.constraints.NotBlank;
 

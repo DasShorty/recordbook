@@ -1,4 +1,4 @@
-package de.dasshorty.recordbook.book.httpbodies;
+package de.dasshorty.recordbook.book.dto;
 
 import de.dasshorty.recordbook.job.Job;
 

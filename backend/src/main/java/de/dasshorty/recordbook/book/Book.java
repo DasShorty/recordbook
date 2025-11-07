@@ -1,6 +1,6 @@
 package de.dasshorty.recordbook.book;
 
-import de.dasshorty.recordbook.book.httpbodies.BookDto;
+import de.dasshorty.recordbook.book.dto.BookDto;
 import de.dasshorty.recordbook.book.week.BookWeek;
 import de.dasshorty.recordbook.job.Job;
 import de.dasshorty.recordbook.user.User;
