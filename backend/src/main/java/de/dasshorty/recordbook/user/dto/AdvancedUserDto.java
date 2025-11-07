@@ -1,15 +1,18 @@
-package de.dasshorty.recordbook.user.httpbodies;
+package de.dasshorty.recordbook.user.dto;
 
-import de.dasshorty.recordbook.user.PasswordGenerator;
-import de.dasshorty.recordbook.user.User;
+import de.dasshorty.recordbook.company.Company;
+import de.dasshorty.recordbook.user.Authority;
 import de.dasshorty.recordbook.user.UserType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import java.util.List;
+import java.util.UUID;
 
-public record CreateUserDto(
+public record AdvancedUserDto(
+        UUID id,
         @NotBlank(message = "Forename is required")
         String forename,
         @NotBlank(message = "Surname is required")
@@ -18,14 +21,9 @@ public record CreateUserDto(
         @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "Invalid email address")
         String email,
         @NotNull(message = "user has to have a type")
-        UserType userType) {
-
-    public User toNewUserWithRandomPassword() {
-        return new User(forename(), surname(), email(), this.generateRandomPassword(), List.of(userType().getAuthority()), userType());
-    }
-
-    private String generateRandomPassword() {
-        return PasswordGenerator.generateRandomPassword(8);
-    }
-
+        UserType userType,
+        Company assignedCompany,
+        @NotNull(message = "user has to have at least one authority")
+        @Size(min = 1, message = "user has to have at least one authority")
+        List<Authority> authorities) {
 }

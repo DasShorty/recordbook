@@ -1,7 +1,7 @@
 package de.dasshorty.recordbook.user;
 
 import de.dasshorty.recordbook.company.Company;
-import de.dasshorty.recordbook.user.httpbodies.AdvancedUserDto;
+import de.dasshorty.recordbook.user.dto.AdvancedUserDto;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

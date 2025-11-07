@@ -1,7 +1,7 @@
 package de.dasshorty.recordbook.user;
 
 import de.dasshorty.recordbook.http.result.OptionResult;
-import de.dasshorty.recordbook.user.httpbodies.UserDto;
+import de.dasshorty.recordbook.user.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

@@ -1,6 +1,6 @@
 package de.dasshorty.recordbook.user;
 
-import de.dasshorty.recordbook.user.httpbodies.UserDto;
+import de.dasshorty.recordbook.user.dto.UserDto;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

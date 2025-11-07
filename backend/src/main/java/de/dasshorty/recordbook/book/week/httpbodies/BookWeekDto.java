@@ -1,7 +1,7 @@
 package de.dasshorty.recordbook.book.week.httpbodies;
 
 import de.dasshorty.recordbook.book.week.day.BookDay;
-import de.dasshorty.recordbook.user.httpbodies.UserDto;
+import de.dasshorty.recordbook.user.dto.UserDto;
 
 import java.util.List;
 import java.util.UUID;

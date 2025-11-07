@@ -9,7 +9,7 @@ import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.ErrorResult;
 import de.dasshorty.recordbook.user.User;
 import de.dasshorty.recordbook.user.UserService;
-import de.dasshorty.recordbook.user.httpbodies.UserDto;
+import de.dasshorty.recordbook.user.dto.UserDto;
 import jakarta.validation.Valid;
 import jdk.jshell.spi.ExecutionControl;
 import org.springframework.beans.factory.annotation.Autowired;

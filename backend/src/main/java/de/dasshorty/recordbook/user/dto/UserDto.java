@@ -1,4 +1,4 @@
-package de.dasshorty.recordbook.user.httpbodies;
+package de.dasshorty.recordbook.user.dto;
 
 import de.dasshorty.recordbook.user.User;
 import de.dasshorty.recordbook.user.UserType;
