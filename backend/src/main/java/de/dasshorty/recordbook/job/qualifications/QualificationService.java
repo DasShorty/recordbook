@@ -68,7 +68,8 @@ public class QualificationService {
     }
 
     public Page<Qualification> getByName(String name, int limit, int offset) {
-        return this.qualificationRepository.getQualificationsByName(name, Pageable.ofSize(limit).withPage(offset / limit));
+        return this.qualificationRepository.getQualificationsByName(name,
+                Pageable.ofSize(limit).withPage(offset / limit));
     }
 
     public Page<QualificationOptionDto> getQualificationOptions(String filter, int limit, int offset) {
