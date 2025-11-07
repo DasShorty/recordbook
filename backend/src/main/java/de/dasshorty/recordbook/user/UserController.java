@@ -1,14 +1,17 @@
 package de.dasshorty.recordbook.user;
 
+import de.dasshorty.recordbook.authentication.jwt.JwtHandler;
 import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.ErrorResult;
 import de.dasshorty.recordbook.http.result.QueryResult;
 import de.dasshorty.recordbook.user.dto.AdvancedUserDto;
 import de.dasshorty.recordbook.user.dto.CreateUserDto;
+import de.dasshorty.recordbook.user.dto.UserDto;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,6 +28,7 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
+    private final JwtHandler jwtHandler;
 
     @Value("${query.limit}")
     private int defaultLimit;
@@ -48,8 +52,9 @@ public class UserController {
     private String applicationUrl;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, JwtHandler jwtHandler) {
         this.userService = userService;
+        this.jwtHandler = jwtHandler;
     }
 
     @PostConstruct
@@ -162,18 +167,34 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    // TODO - add check for company and retrieve the jwt from the request in order to obtain company id instead of the request param
     @GetMapping("/options")
     public ResponseEntity<?> getUserOptions(@RequestParam("offset") Integer offset,
                                             @RequestParam("limit") Integer limit,
-                                            @RequestParam(value = "userType", required = false) UserType userType,
-                                            @RequestParam(value = "company", required = false) String companyId) {
+                                            @RequestParam(value = "userType") UserType userType,
+                                            @RequestParam(value = "company", required = false) String companyId,
+                                            @CookieValue("access_token") String accessToken) {
 
         int convertedOffset = UserInputHandler.validInteger(offset) ? offset : this.defaultOffset;
         int convertedLimit = UserInputHandler.validInteger(limit) ? limit : this.defaultLimit;
 
+        Optional<UUID> optional = this.jwtHandler.extractUserId(accessToken);
 
+        if (optional.isEmpty()) {
+            throw new IllegalArgumentException("accessToken is required");
+        }
 
-        this.userService.getUsersByCompanyAndUserType()
+        boolean isAdministrator = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(
+                a -> a.getAuthority().equals(Authority.ADMINISTRATOR.name()));
 
+        UUID companyUid = companyId.isBlank() ? this.userService.getCompanyFromUser(optional.get()) : UUID.fromString(companyId);
+
+        if (!this.userService.isUserAssociatedWithCompany(optional.get(), companyUid) && !isAdministrator) {
+            throw new IllegalArgumentException("companyId is required for non administrator");
+        }
+
+        Page<List<UserDto>> page = this.userService.getUsersByCompanyAndUserType(companyUid, userType, convertedLimit, convertedOffset);
+
+        return ResponseEntity.ok(new QueryResult<>(page.getTotalElements(), convertedLimit, convertedOffset, page.stream().toList()));
     }
 }

@@ -13,7 +13,7 @@ import {UserOptionStore} from '@core/users/state/user.option.store';
       <ng-template #header>
         Berichtsheft erstellen
       </ng-template>
-      <form [formGroup]="formGroup">
+      <form [formGroup]="formGroup" class="flex flex-col gap-2">
         <div class="flex items-center gap-5 mb-4">
           <label for="trainee" class="font-semibold w-24">Azubi*</label>
           <p-select
@@ -25,6 +25,29 @@ import {UserOptionStore} from '@core/users/state/user.option.store';
             [lazy]="true"
             [options]="this.userOptionStore.trainees()"
             placeholder="Azubi auswählen">
+            <ng-template #item #selectedItem let-item>
+              {{ item.forename }} {{ item.surname }}
+            </ng-template>
+          </p-select>
+        </div>
+        <div class="flex flex-col gap-0.5">
+          @if (formGroup.controls['trainee'].errors && formGroup.dirty) {
+            @if (formGroup.controls['trainee'].hasError('required')) {
+              <span>Das Berichtsheft benötigt einen Azubi</span>
+            }
+          }
+        </div>
+        <div class="flex items-center gap-5 mb-4">
+          <label for="trainers" class="font-semibold w-24">Ausbildungskräfte*</label>
+          <p-select
+            appendTo="body"
+            formControlName="trainers"
+            id="trainers"
+            class="flex-auto"
+            (onLazyLoad)="lazyLoadMoreTrainers()"
+            [lazy]="true"
+            [options]="this.userOptionStore.trainers()"
+            placeholder="Ausbildungskraft auswählen">
             <ng-template #item #selectedItem let-item>
               {{ item.forename }} {{ item.surname }}
             </ng-template>
@@ -52,7 +75,7 @@ import {UserOptionStore} from '@core/users/state/user.option.store';
     </p-dialog>
   `
 })
-export class RecordBookManagerDialog implements OnInit{
+export class RecordBookManagerDialog implements OnInit {
 
   readonly error = signal(false);
   readonly loading = signal(false);
@@ -83,13 +106,16 @@ export class RecordBookManagerDialog implements OnInit{
     this.dialogVisible.set(false);
   }
 
-  submitForm() {
+  protected submitForm() {
 
   }
 
-  lazyLoadMoreTrainees() {
-
+  protected lazyLoadMoreTrainees() {
+    this.userOptionStore.loadOptions(UserType.TRAINEE);
   }
 
 
+  protected lazyLoadMoreTrainers() {
+    this.userOptionStore.loadOptions(UserType.TRAINER);
+  }
 }

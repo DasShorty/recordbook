@@ -88,4 +88,12 @@ public class UserService implements UserDetailsService {
     public Page<List<UserDto>> getUsersByCompanyAndUserType(UUID companyId, UserType userType, int limit, int offset) {
         return this.userRepository.getUserOptions(companyId, userType, Pageable.ofSize(limit).withPage(offset / limit));
     }
+
+    protected boolean isUserAssociatedWithCompany(UUID userId, UUID associatedCompanyId) {
+        return this.userRepository.existsUserByAssignedCompany_IdAndId(associatedCompanyId, userId);
+    }
+
+    protected UUID getCompanyFromUser(UUID userId) {
+        return this.userRepository.getCompanyByUserId(userId);
+    }
 }
