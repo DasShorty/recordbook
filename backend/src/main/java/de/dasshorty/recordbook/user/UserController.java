@@ -161,4 +161,19 @@ public class UserController {
 
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/options")
+    public ResponseEntity<?> getUserOptions(@RequestParam("offset") Integer offset,
+                                            @RequestParam("limit") Integer limit,
+                                            @RequestParam(value = "userType", required = false) UserType userType,
+                                            @RequestParam(value = "company", required = false) String companyId) {
+
+        int convertedOffset = UserInputHandler.validInteger(offset) ? offset : this.defaultOffset;
+        int convertedLimit = UserInputHandler.validInteger(limit) ? limit : this.defaultLimit;
+
+
+
+        this.userService.getUsersByCompanyAndUserType()
+
+    }
 }

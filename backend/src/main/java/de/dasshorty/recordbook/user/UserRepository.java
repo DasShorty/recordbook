@@ -2,9 +2,12 @@ package de.dasshorty.recordbook.user;
 
 import de.dasshorty.recordbook.user.dto.UserDto;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -35,4 +38,10 @@ public interface UserRepository extends CrudRepository<User, UUID> {
     @Modifying
     @Query(nativeQuery = true, value = "ANALYSE users")
     void analyse();
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    @Query("SELECT new de.dasshorty.recordbook.user.dto.UserDto(u.id, u.forename, u.surname, u.userType) from User u " +
+            "WHERE u.userType == :userType AND u.assignedCompany == :companyId")
+    Page<List<UserDto>> getUserOptions(@Param("companyId") UUID companyId, @Param("userType") UserType userType,
+                                       Pageable pageable);
 }

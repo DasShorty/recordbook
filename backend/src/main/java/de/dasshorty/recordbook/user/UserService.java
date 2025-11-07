@@ -3,6 +3,8 @@ package de.dasshorty.recordbook.user;
 import de.dasshorty.recordbook.http.result.OptionResult;
 import de.dasshorty.recordbook.user.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -83,7 +85,7 @@ public class UserService implements UserDetailsService {
         return this.userRepository.getAnalyzedRowCount();
     }
 
-    public OptionResult<List<UserDto>> getUsersByCompanyAndUserType(UUID companyId, UserType userType, int limit, int offset) {
-        return new OptionResult<>(this.userRepository.findAllByAssignedCompany_IdAndUserType(companyId, userType, offset, limit), offset);
+    public Page<List<UserDto>> getUsersByCompanyAndUserType(UUID companyId, UserType userType, int limit, int offset) {
+        return this.userRepository.getUserOptions(companyId, userType, Pageable.ofSize(limit).withPage(offset / limit));
     }
 }
