@@ -2,8 +2,11 @@ package de.dasshorty.recordbook.job.qualifications;
 
 import de.dasshorty.recordbook.exception.AlreadyExistingException;
 import de.dasshorty.recordbook.exception.NotExistingException;
+import de.dasshorty.recordbook.job.qualifications.dto.QualificationOptionDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -64,11 +67,11 @@ public class QualificationService {
         return save;
     }
 
-    public List<Qualification> getByName(String name, int limit, int offset) {
-        return this.qualificationRepository.getQualificationsByName(name, limit, offset);
+    public Page<Qualification> getByName(String name, int limit, int offset) {
+        return this.qualificationRepository.getQualificationsByName(name, Pageable.ofSize(limit).withPage(offset / limit));
     }
 
-    public int countByName(String name) {
-        return this.qualificationRepository.countByName(name);
+    public Page<QualificationOptionDto> getQualificationOptions(String filter, int limit, int offset) {
+        return this.qualificationRepository.getQualificationOptions(filter, Pageable.ofSize(limit).withPage(offset / limit));
     }
 }

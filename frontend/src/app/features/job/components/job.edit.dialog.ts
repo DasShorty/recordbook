@@ -6,9 +6,9 @@ import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/
 import {Optional} from '@shared/data/optional';
 import {JobStore} from '@features/job/state/job.store';
 import {Job, UpdateJob} from '@features/job/models/job.model';
-import {MultiSelect} from 'primeng/multiselect';
+import {MultiSelect, MultiSelectFilterEvent} from 'primeng/multiselect';
 import {Qualification} from '@features/job/models/qualification.model';
-import {QualificationSearchStore} from '@features/job/state/qualification.search.store';
+import {QualificationOptionStore} from '@features/job/state/qualification.option.store';
 
 @Component({
   selector: 'job-edit-dialog',
@@ -52,6 +52,7 @@ import {QualificationSearchStore} from '@features/job/state/qualification.search
             formControlName="qualifications"
             id="qualifications"
             class="flex-auto"
+            (onFilter)="onQualificationFilter($event)"
             (onLazyLoad)="lazyLoadQualifications()"
             [lazy]="true"
             [filter]="true"
@@ -93,7 +94,7 @@ export class JobEditDialog implements OnInit {
   readonly dialogVisible = signal<boolean>(false);
   readonly editMode = signal<boolean>(false);
   readonly jobStore = inject(JobStore);
-  readonly qualificationStore = inject(QualificationSearchStore);
+  readonly qualificationStore = inject(QualificationOptionStore);
   protected readonly formGroup = new FormGroup({
     id: new FormControl(''),
     name: new FormControl<string | null>(null, {
@@ -191,5 +192,9 @@ export class JobEditDialog implements OnInit {
     this.formGroup.controls['name'].setValue(job.name);
     this.formGroup.controls['description'].setValue(job.description);
     this.formGroup.controls['qualifications'].setValue(job.qualifications);
+  }
+
+  onQualificationFilter($event: MultiSelectFilterEvent) {
+    this.qualificationStore.filterQualifications($event.filter).then();
   }
 }

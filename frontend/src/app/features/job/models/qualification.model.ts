@@ -4,3 +4,8 @@ export type Qualification = {
   description: string,
   minimumDuration: number
 }
+
+export type QualificationOption = {
+  id: string,
+  name: string
+}

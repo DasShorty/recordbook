@@ -1,9 +1,13 @@
 package de.dasshorty.recordbook.job.qualifications;
 
+import de.dasshorty.recordbook.job.qualifications.dto.QualificationOptionDto;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -29,11 +33,13 @@ public interface QualificationRepository extends JpaRepository<Qualification, UU
 
     Optional<Qualification> findByName(String name);
 
-    @Query(nativeQuery = true, value = "SELECT * FROM " + TABLE_NAME + " WHERE name ILIKE concat('%', ?1, '%') LIMIT ?2 OFFSET ?3")
-    List<Qualification> getQualificationsByName(String name, int limit, int offset);
-
     boolean existsByName(String name);
 
-    @Query(nativeQuery = true, value = "SELECT count() FROM " + TABLE_NAME + " WHERE name ILIKE concat('%', ?1, '%')")
-    int countByName(String name);
+    @Query("SELECT Qualification FROM Qualification q WHERE q.name LIKE CONCAT('%', :name,'%')")
+    Page<Qualification> getQualificationsByName(String name, Pageable pageable);
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    @Query("SELECT new de.dasshorty.recordbook.job.qualifications.dto.QualificationOptionDto(q.id,q.name) FROM " +
+            "Qualification q WHERE LOWER(q.name) LIKE LOWER(concat('%', :name, '%'))")
+    Page<QualificationOptionDto> getQualificationOptions(@Param("name") String name, Pageable pageable);
 }
