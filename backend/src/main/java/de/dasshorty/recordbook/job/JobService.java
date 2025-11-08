@@ -3,11 +3,14 @@ package de.dasshorty.recordbook.job;
 import de.dasshorty.recordbook.exception.AlreadyExistingException;
 import de.dasshorty.recordbook.exception.NotExistingException;
 import de.dasshorty.recordbook.job.dto.CreateJobDto;
+import de.dasshorty.recordbook.job.dto.JobOption;
 import de.dasshorty.recordbook.job.dto.UpdateJobDto;
 import de.dasshorty.recordbook.job.qualifications.Qualification;
 import de.dasshorty.recordbook.job.qualifications.QualificationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -92,6 +95,10 @@ public class JobService {
         Job savedJob = this.jobRepository.save(new Job(job.id(), job.name(), job.description(), this.checkQualifications(job.qualifications())));
         this.jobRepository.analyze();
         return savedJob;
+    }
+
+    protected Page<JobOption> getJobOptions(String name, int offset, int limit) {
+        return this.jobRepository.getJobOptions(name, Pageable.ofSize(limit).withPage(offset / limit));
     }
 
 

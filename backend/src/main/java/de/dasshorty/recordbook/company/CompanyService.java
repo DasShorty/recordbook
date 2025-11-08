@@ -1,7 +1,10 @@
 package de.dasshorty.recordbook.company;
 
+import de.dasshorty.recordbook.company.dto.CompanyOptionDto;
 import de.dasshorty.recordbook.exception.AlreadyExistingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,16 +42,20 @@ public class CompanyService {
         this.companyRepository.deleteById(companyId);
     }
 
-    public List<Company> retrieveComputers(int limit, int offset) {
+    public List<Company> retrieveCompanies(int limit, int offset) {
         return this.companyRepository.findCompanies(offset, limit);
     }
 
-    public Optional<Company> retrieveComputerById(UUID id) {
+    public Optional<Company> retrieveCompanyById(UUID id) {
         return this.companyRepository.findById(id);
     }
 
     public long count() {
         return this.companyRepository.getAnalyzedCount();
+    }
+
+    protected Page<CompanyOptionDto> getCompanyOptions(String companyName, int offset, int limit) {
+        return this.companyRepository.getCompaniesAsOptions(companyName, Pageable.ofSize(limit).withPage(offset / limit));
     }
 
 }

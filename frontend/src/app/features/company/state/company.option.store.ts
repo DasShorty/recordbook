@@ -1,15 +1,15 @@
 import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
-import {JobOption} from '@features/job/models/job.model';
+import {CompanyOption} from '@features/company/models/company.model';
 import {inject} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
 import {QueryResult} from '@core/http/http.model';
 import {httpConfig} from '@environment/environment';
 
-export const JobOptionStore = signalStore(
+export const CompanyOptionStore = signalStore(
   {providedIn: 'root'},
   withState({
-    jobs: [] as JobOption[],
+    companies: [] as CompanyOption[],
     offset: 0,
     filter: '' as string
   }),
@@ -19,17 +19,17 @@ export const JobOptionStore = signalStore(
 
     return {
 
-      retrieveJobs() {
+      retrieveCompanies() {
 
-        if (store.jobs().length != 0) {
+        if (store.companies().length != 0) {
           return;
         }
 
-        this.getJobOptions(0, store.filter()).then();
+        this.getCompanyOptions(0, store.filter()).then();
       },
 
-      retrieveJobsLazy() {
-        this.getJobOptions(store.offset() + 50, store.filter()).then();
+      retrieveCompaniesLazy() {
+        this.getCompanyOptions(store.offset() + 50, store.filter()).then();
       },
 
       filterOptions(filter: string) {
@@ -47,17 +47,17 @@ export const JobOptionStore = signalStore(
         }
 
 
-        this.getJobOptions(store.offset(), filter).then();
+        this.getCompanyOptions(store.offset(), filter).then();
       },
 
-      async getJobOptions(offset: number, name: string) {
+      async getCompanyOptions(offset: number, name: string) {
 
         const httpParams = new HttpParams()
           .set("offset", offset)
           .set("limit", 50)
           .set("name", name);
 
-        const res = await firstValueFrom(httpClient.get<QueryResult<JobOption[]>>(httpConfig.baseUrl + "jobs/options", {
+        const res = await firstValueFrom(httpClient.get<QueryResult<CompanyOption[]>>(httpConfig.baseUrl + "companies/options", {
           params: httpParams,
           withCredentials: true,
           observe: 'response'
@@ -68,7 +68,7 @@ export const JobOptionStore = signalStore(
         }
 
         patchState(store, {
-          jobs: res.body.data,
+          companies: res.body.data,
           offset: res.body.offset
         });
 

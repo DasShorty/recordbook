@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+@SuppressWarnings("FieldCanBeLocal")
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
@@ -55,8 +56,14 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public void setPassword(String password) {
+    public User(String forename, String surname, String email, String password, List<Authority> authorities, UserType userType, Company assignedCompany) {
+        this.forename = forename;
+        this.surname = surname;
+        this.email = email;
         this.password = password;
+        this.authorities = authorities;
+        this.userType = userType;
+        this.assignedCompany = assignedCompany;
     }
 
     public UserType getUserType() {
@@ -87,6 +94,10 @@ public class User implements UserDetails {
     @Override
     public String getPassword() {
         return this.password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override

@@ -4,13 +4,14 @@ import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.ErrorResult;
 import de.dasshorty.recordbook.http.result.QueryResult;
 import de.dasshorty.recordbook.job.dto.CreateJobDto;
+import de.dasshorty.recordbook.job.dto.JobOption;
 import de.dasshorty.recordbook.job.dto.UpdateJobDto;
 import de.dasshorty.recordbook.job.qualifications.Qualification;
 import de.dasshorty.recordbook.job.qualifications.QualificationService;
-import jakarta.validation.ReportAsSingleViolation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -105,5 +106,18 @@ public class JobController {
         Job updatedJob = this.jobService.updateAssignedQualifications(uid, qualifications);
 
         return ResponseEntity.ok(updatedJob);
+    }
+
+    @GetMapping("options")
+    public ResponseEntity<?> getJobOptions(@RequestParam("limit") Integer limit,
+                                           @RequestParam("offset") Integer offset,
+                                           @RequestParam("name") String filter) {
+
+        int convertedLimit = UserInputHandler.validInteger(limit) ? limit : defaultLimit;
+        int convertedOffset = UserInputHandler.validInteger(offset) ? offset : defaultOffset;
+
+        Page<JobOption> jobOptions = this.jobService.getJobOptions(filter == null ? "" : filter, convertedOffset, convertedLimit);
+
+        return ResponseEntity.ok(new QueryResult<>(jobOptions.getTotalElements(), convertedLimit, convertedOffset, jobOptions.getContent()));
     }
 }

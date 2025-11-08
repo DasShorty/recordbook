@@ -1,6 +1,8 @@
 package de.dasshorty.recordbook.user;
 
 import de.dasshorty.recordbook.authentication.jwt.JwtHandler;
+import de.dasshorty.recordbook.company.Company;
+import de.dasshorty.recordbook.company.CompanyService;
 import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.ErrorResult;
 import de.dasshorty.recordbook.http.result.QueryResult;
@@ -28,6 +30,7 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
+    private final CompanyService companyService;
     private final JwtHandler jwtHandler;
 
     @Value("${query.limit}")
@@ -52,36 +55,44 @@ public class UserController {
     private String applicationUrl;
 
     @Autowired
-    public UserController(UserService userService, JwtHandler jwtHandler) {
+    public UserController(UserService userService, CompanyService companyService, JwtHandler jwtHandler) {
         this.userService = userService;
+        this.companyService = companyService;
         this.jwtHandler = jwtHandler;
     }
 
     @PostConstruct
     private void initFirstUser() {
-        this.userService.createFirstUser(new User(
-                administratorUserForename, administratorUserSurname, administratorUserEmail, administratorUserPassword,
-                List.of(Authority.ADMINISTRATOR), UserType.COMPANY
-        ));
+        this.userService.createFirstUser(new User(administratorUserForename, administratorUserSurname, administratorUserEmail, administratorUserPassword, List.of(Authority.ADMINISTRATOR), UserType.COMPANY));
     }
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('COMPANY', 'ADMINISTRATOR')")
     public ResponseEntity<?> create(@RequestBody @Valid CreateUserDto body) {
-        AdvancedUserDto advancedUserDto = this.userService.createUser(body.toNewUserWithRandomPassword()).transformToBody();
+
+        AdvancedUserDto advancedUserDto;
+        if (body.companyId() != null) {
+            Optional<Company> optional = this.companyService.retrieveCompanyById(body.companyId());
+
+            if (optional.isEmpty()) {
+                throw new IllegalArgumentException("Company id not found");
+            }
+
+            advancedUserDto = this.userService.createUser(body.toNewUserWithRandomPassword(optional.get())).transformToBody();
+        } else {
+            advancedUserDto = this.userService.createUser(body.toNewUserWithRandomPassword()).transformToBody();
+        }
+
         return ResponseEntity.created(URI.create(applicationUrl + "/users/" + advancedUserDto.id().toString())).body(advancedUserDto);
     }
 
     @GetMapping
-    public ResponseEntity<?> getUsers(@RequestParam(value = "offset") Integer offset, @RequestParam(value = "limit") Integer limit,
-                                      @RequestParam(value = "company", required = false) String companyId,
-                                      @RequestParam(value = "userType", required = false) UserType userType) {
+    public ResponseEntity<?> getUsers(@RequestParam(value = "offset") Integer offset, @RequestParam(value = "limit") Integer limit, @RequestParam(value = "company", required = false) String companyId, @RequestParam(value = "userType", required = false) UserType userType) {
 
         int convertedOffset = UserInputHandler.validInteger(offset) ? offset : this.defaultOffset;
         int convertedLimit = UserInputHandler.validInteger(limit) ? limit : this.defaultLimit;
 
-        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(
-                a -> a.getAuthority().equals("ADMINISTRATOR"));
+        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ADMINISTRATOR"));
 
         List<AdvancedUserDto> users;
         long totalCount;
@@ -104,8 +115,7 @@ public class UserController {
                 return ResponseEntity.ok(this.userService.getUsersByCompanyAndUserType(companyUid, userType, convertedLimit, convertedOffset));
             }
 
-            users = this.userService.retrieveUsersByCompany(companyUid, convertedLimit, convertedOffset).stream().map(User::transformToBody)
-                    .toList();
+            users = this.userService.retrieveUsersByCompany(companyUid, convertedLimit, convertedOffset).stream().map(User::transformToBody).toList();
             totalCount = this.userService.getUserCountByCompany(companyUid);
         }
 
@@ -147,8 +157,7 @@ public class UserController {
             return ResponseEntity.badRequest().body(new ErrorResult("Id is not a valid id", "id"));
         }
 
-        boolean isAdministrator = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(
-                a -> a.getAuthority().equals(Authority.ADMINISTRATOR.name()));
+        boolean isAdministrator = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(Authority.ADMINISTRATOR.name()));
 
         Optional<User> optional = this.userService.retrieveUserById(uid);
 
@@ -169,11 +178,12 @@ public class UserController {
 
     // TODO - add check for company and retrieve the jwt from the request in order to obtain company id instead of the request param
     @GetMapping("/options")
-    public ResponseEntity<?> getUserOptions(@RequestParam("offset") Integer offset,
-                                            @RequestParam("limit") Integer limit,
-                                            @RequestParam(value = "userType") UserType userType,
-                                            @RequestParam(value = "company", required = false) String companyId,
-                                            @CookieValue("access_token") String accessToken) {
+    public ResponseEntity<?> getUserOptions(
+            @RequestParam("offset") Integer offset,
+            @RequestParam("limit") Integer limit,
+            @RequestParam(value = "userType") UserType userType,
+            @RequestParam(value = "company", required = false) String companyId,
+            @CookieValue("access_token") String accessToken) {
 
         int convertedOffset = UserInputHandler.validInteger(offset) ? offset : this.defaultOffset;
         int convertedLimit = UserInputHandler.validInteger(limit) ? limit : this.defaultLimit;
@@ -184,10 +194,9 @@ public class UserController {
             throw new IllegalArgumentException("accessToken is required");
         }
 
-        boolean isAdministrator = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(
-                a -> a.getAuthority().equals(Authority.ADMINISTRATOR.name()));
+        boolean isAdministrator = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(Authority.ADMINISTRATOR.name()));
 
-        UUID companyUid = companyId.isBlank() ? this.userService.getCompanyFromUser(optional.get()) : UUID.fromString(companyId);
+        UUID companyUid = companyId == null || companyId.isBlank() ? this.userService.getCompanyFromUser(optional.get()) : UUID.fromString(companyId);
 
         if (!this.userService.isUserAssociatedWithCompany(optional.get(), companyUid) && !isAdministrator) {
             throw new IllegalArgumentException("companyId is required for non administrator");

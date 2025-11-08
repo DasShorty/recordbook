@@ -1,5 +1,6 @@
 package de.dasshorty.recordbook.user.dto;
 
+import de.dasshorty.recordbook.company.Company;
 import de.dasshorty.recordbook.user.PasswordGenerator;
 import de.dasshorty.recordbook.user.User;
 import de.dasshorty.recordbook.user.UserType;
@@ -8,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 import java.util.List;
+import java.util.UUID;
 
 public record CreateUserDto(
         @NotBlank(message = "Forename is required")
@@ -18,10 +20,15 @@ public record CreateUserDto(
         @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "Invalid email address")
         String email,
         @NotNull(message = "user has to have a type")
-        UserType userType) {
+        UserType userType,
+        UUID companyId) {
 
     public User toNewUserWithRandomPassword() {
         return new User(forename(), surname(), email(), this.generateRandomPassword(), List.of(userType().getAuthority()), userType());
+    }
+
+    public User toNewUserWithRandomPassword(Company company) {
+        return new User(forename(), surname(), email(), this.generateRandomPassword(), List.of(userType().getAuthority()), userType(), company);
     }
 
     private String generateRandomPassword() {

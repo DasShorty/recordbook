@@ -6,6 +6,8 @@ import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/
 import {Select} from 'primeng/select';
 import {UserType} from '@core/users/models/users.model';
 import {AdminUserStore} from '@core/users/state/admin.user.store';
+import {CompanyOptionStore} from '@features/company/state/company.option.store';
+import {CompanyOption} from '@features/company/models/company.model';
 
 @Component({
   selector: 'user-add-button',
@@ -28,7 +30,8 @@ import {AdminUserStore} from '@core/users/state/admin.user.store';
 
         <div class="flex items-center gap-4 mb-4">
           <label for="userType" class="font-semibold w-24">Type*</label>
-          <p-select [options]="Object.keys(UserType)" formControlName="userType" [showClear]="true" placeholder="Wähle einen Benutzertypen"
+          <p-select [options]="Object.keys(UserType)" formControlName="userType" [showClear]="true"
+                    placeholder="Wähle einen Benutzertypen"
                     class="w-full md:w-56">
             <ng-template #selectedItem let-selectedOption>
               <div class="flex items-center gap-2">
@@ -100,10 +103,36 @@ import {AdminUserStore} from '@core/users/state/admin.user.store';
             }
           }
         </div>
+
+        <div class="flex items-center gap-4 mb-4">
+          <label for="companyId" class="font-semibold w-24">Unternehmen</label>
+          <p-select
+            fluid
+            [options]="this.companyOptionStore.companies()"
+            formControlName="companyId"
+            (onShow)="this.companyOptionStore.retrieveCompanies()"
+            (onLazyLoad)="this.companyOptionStore.retrieveCompaniesLazy()"
+            appendTo="body">
+            <ng-template #selectedItem #item let-data>
+              <span>{{ data.companyName }}</span>
+            </ng-template>
+          </p-select>
+        </div>
+        <div class="flex flex-col gap-0.5">
+          @if (httpError()) {
+            <span>Ein Fehler ist bei der Übertragung der Daten aufgetreten. Bitte versuche es erneut!</span>
+          }
+          @if (formGroup().controls['companyId'].touched) {
+            @if (formGroup().controls['companyId'].hasError("required")) {
+              <span>Der Benutzer benötigt eine E-Mail</span>
+            }
+          }
+        </div>
       </form>
       <ng-template #footer>
         <p-button label="Cancel" severity="secondary" (click)="closeForm()"/>
-        <p-button [disabled]="formGroup().invalid" [loading]="this.userStore.loading()" label="Save" (click)="submitForm()"/>
+        <p-button [disabled]="formGroup().invalid" [loading]="this.userStore.loading()" label="Save"
+                  (click)="submitForm()"/>
       </ng-template>
     </p-dialog>
   `
@@ -113,6 +142,7 @@ export class UserAddButton {
   readonly userStore = inject(AdminUserStore);
   readonly httpError = signal(false);
   readonly dialogVisible = signal<boolean>(false);
+  readonly companyOptionStore = inject(CompanyOptionStore);
 
   readonly formGroup = signal(new FormGroup({
     forename: new FormControl<string | null>(null, {
@@ -139,8 +169,13 @@ export class UserAddButton {
         Validators.email
       ],
       updateOn: "change"
+    }),
+    companyId: new FormControl<CompanyOption | null>(null, {
+      updateOn: "change"
     })
   }));
+  protected readonly Object = Object;
+  protected readonly UserType = UserType;
 
   submitForm() {
 
@@ -162,7 +197,7 @@ export class UserAddButton {
       return;
     }
 
-    this.userStore.createUser(formContent.forename, formContent.surname, formContent.email, formContent.userType).then(() => {
+    this.userStore.createUser(formContent.forename, formContent.surname, formContent.email, formContent.userType, formContent.companyId?.id).then(() => {
 
       if (this.userStore.error()) {
         this.httpError.set(true);
@@ -182,9 +217,6 @@ export class UserAddButton {
   toggleDialog() {
     this.dialogVisible.update(value => !value);
   }
-
-  protected readonly Object = Object;
-  protected readonly UserType = UserType;
 
   clearForm() {
     this.formGroup().reset();

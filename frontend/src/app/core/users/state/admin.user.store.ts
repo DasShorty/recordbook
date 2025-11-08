@@ -53,7 +53,7 @@ export const AdminUserStore = signalStore(
 
       },
 
-      async createUser(forename: string, surname: string, email: string, userType: string) {
+      async createUser(forename: string, surname: string, email: string, userType: string, companyId: string | null | undefined) {
 
         patchState(store, {
           loading: true,
@@ -64,7 +64,8 @@ export const AdminUserStore = signalStore(
             forename: forename,
             surname: surname,
             email: email,
-            userType: userType
+            userType: userType,
+            companyId: companyId
           },
           {
             observe: 'response',

@@ -2,6 +2,7 @@ package de.dasshorty.recordbook.company;
 
 import de.dasshorty.recordbook.company.dto.CompanyDto;
 import de.dasshorty.recordbook.company.dto.CompanyNameResult;
+import de.dasshorty.recordbook.company.dto.CompanyOptionDto;
 import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.QueryResult;
 import de.dasshorty.recordbook.user.User;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -50,7 +52,7 @@ public class CompanyController {
         int convertedLimit = UserInputHandler.validInteger(limit) ? limit : defaultLimit;
         int convertedOffset = UserInputHandler.validInteger(offset) ? offset : defaultOffset;
 
-        List<CompanyDto> companyDtos = this.companyService.retrieveComputers(convertedLimit, convertedOffset).stream().map(
+        List<CompanyDto> companyDtos = this.companyService.retrieveCompanies(convertedLimit, convertedOffset).stream().map(
                 Company::toBody).toList();
 
         log.debug("Length of List " + companyDtos.size());
@@ -61,7 +63,7 @@ public class CompanyController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getCompany(@PathVariable UUID id) {
-        return ResponseEntity.of(this.companyService.retrieveComputerById(id));
+        return ResponseEntity.of(this.companyService.retrieveCompanyById(id));
     }
 
     @PostMapping
@@ -103,5 +105,18 @@ public class CompanyController {
             return ResponseEntity.ok().body(new CompanyNameResult(name, true));
         }
 
+    }
+
+    @GetMapping("options")
+    public ResponseEntity<?> getCompanyOptions(
+            @RequestParam("limit") Integer limit,
+            @RequestParam("offset") Integer offset,
+            @RequestParam("name") String companyName) {
+
+        int convertedLimit = UserInputHandler.validInteger(limit) ? limit : defaultLimit;
+        int convertedOffset = UserInputHandler.validInteger(offset) ? offset : defaultOffset;
+
+        Page<CompanyOptionDto> companyOptions = this.companyService.getCompanyOptions(companyName, convertedOffset, convertedLimit);
+        return ResponseEntity.ok(new QueryResult<>(companyOptions.getTotalElements(), convertedLimit, convertedOffset, companyOptions.getContent()));
     }
 }
