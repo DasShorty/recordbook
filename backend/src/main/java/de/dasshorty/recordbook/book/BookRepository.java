@@ -4,6 +4,7 @@ import de.dasshorty.recordbook.user.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -22,22 +23,22 @@ public interface BookRepository extends JpaRepository<Book, UUID> {
     void analyze();
 
     @Transactional
-    @Query(nativeQuery = true, value = "SELECT reltuples::bigint FROM pg_class WHERE relname = '" + TABLE_NAME + "'")
+    @NativeQuery("SELECT reltuples::bigint FROM pg_class WHERE relname = '" + TABLE_NAME + "'")
     long getAnalyzedCount();
 
-    @Query(nativeQuery = true, value = "SELECT * FROM " + TABLE_NAME + " LIMIT ?1 OFFSET ?2")
+    @NativeQuery("SELECT * FROM " + TABLE_NAME + " LIMIT ?1 OFFSET ?2")
     List<Book> getBooks(int limit, int offset);
 
-    @Query(nativeQuery = true, value = "SELECT weeks_id FROM books_weeks WHERE book_dto_id = ?1")
+    @NativeQuery("SELECT weeks_id FROM books_weeks WHERE book_dto_id = ?1")
     List<String> getWeeks(UUID bookId);
 
     Optional<Book> getBookByTrainee(User trainee);
 
-    @Query(nativeQuery = true, value = "SELECT * FROM books book LEFT JOIN books_trainers trainer ON book.id = trainer.book_id WHERE trainer.trainers_id = ?1 LIMIT ?2 OFFSET ?3")
+    @NativeQuery("SELECT * FROM books book LEFT JOIN books_trainers trainer ON book.id = trainer.book_id WHERE trainer.trainers_id = ?1 LIMIT ?2 OFFSET ?3")
     List<Book> getBooksByTrainersContaining(UUID trainerId, int limit, int offset);
 
     @Transactional
-    @Query(nativeQuery = true, value = "SELECT count(id) FROM books book LEFT JOIN books_trainers trainer ON book.id = trainer.book_id")
+    @NativeQuery("SELECT count(id) FROM books book LEFT JOIN books_trainers trainer ON book.id = trainer.book_id")
     long getBooksByTrainersCount(UUID trainerId);
 
 

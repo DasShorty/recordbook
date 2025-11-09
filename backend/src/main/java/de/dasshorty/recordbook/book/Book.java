@@ -18,9 +18,9 @@ public class Book {
     private UUID id;
     @ManyToOne
     private User trainee;
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     private List<User> trainers;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Job qualifiedJob;
     @ManyToMany(fetch = FetchType.LAZY)
     private List<BookWeek> weeks;
@@ -55,6 +55,6 @@ public class Book {
     }
 
     public BookDto toDto() {
-        return new BookDto(this.id, this.trainee.getId(), trainers.stream().map(User::getId).toList(), qualifiedJob);
+        return new BookDto(this.id, this.trainee.transformToDto(), trainers.stream().map(User::transformToDto).toList(), qualifiedJob);
     }
 }

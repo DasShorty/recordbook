@@ -12,13 +12,28 @@ import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
     Button
   ],
   template: `
-    <p-table>
+    <p-table [value]="this.bookManagerStore.books()">
       <ng-template #caption>
         <div class="flex items-center justify-between gap-1">
           <span class="text-xl font-bold">Berichtshefte</span>
           <p-button severity="success" (click)="openDialog()" outlined icon="pi pi-plus"
                     label="Berichtsheft anlegen"/>
         </div>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th>Beruf</th>
+          <th>Azubi</th>
+          <th>Ausbildungskräfte</th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-book>
+        <tr>
+          <td>{{ book.job.name }}</td>
+          <td>{{ book.trainee.forename }} {{ book.trainee.surname }}</td>
+          <td>{{ book.trainee.forename }} {{ book.trainee.surname }}</td>
+        </tr>
       </ng-template>
     </p-table>
   `
@@ -28,7 +43,7 @@ export class RecordBookManagerListComponent implements OnInit {
   readonly loading = signal(false);
   readonly error = signal(false);
   readonly dialogService = inject(DialogService);
-  private readonly bookManagerStore = inject(BookManagerStore);
+  readonly bookManagerStore = inject(BookManagerStore);
   private readonly dialogRef = signal<DynamicDialogRef | null>(null);
 
   ngOnInit() {

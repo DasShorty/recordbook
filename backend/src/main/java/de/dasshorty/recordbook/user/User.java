@@ -2,6 +2,7 @@ package de.dasshorty.recordbook.user;
 
 import de.dasshorty.recordbook.company.Company;
 import de.dasshorty.recordbook.user.dto.AdvancedUserDto;
+import de.dasshorty.recordbook.user.dto.UserDto;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -131,5 +132,9 @@ public class User implements UserDetails {
 
     public AdvancedUserDto transformToBody() {
         return new AdvancedUserDto(this.id, this.forename, this.surname, this.email, this.userType, this.assignedCompany, this.authorities);
+    }
+
+    public UserDto transformToDto() {
+        return new UserDto(this.id, this.forename, this.surname, this.userType);
     }
 }

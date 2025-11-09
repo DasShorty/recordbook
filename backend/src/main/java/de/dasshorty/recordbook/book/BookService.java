@@ -43,7 +43,7 @@ public class BookService {
     }
 
     public List<Book> getBooksByTrainer(UUID trainer, int offset, int limit) {
-        return this.bookRepository.getBooksByTrainersContaining(trainer, offset, limit);
+        return this.bookRepository.getBooksByTrainersContaining(trainer, limit, offset);
     }
 
     public long getBooksByTrainersCount(UUID trainerId) {
