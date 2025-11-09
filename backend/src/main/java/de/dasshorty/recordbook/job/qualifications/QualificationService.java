@@ -2,7 +2,7 @@ package de.dasshorty.recordbook.job.qualifications;
 
 import de.dasshorty.recordbook.exception.AlreadyExistingException;
 import de.dasshorty.recordbook.exception.NotExistingException;
-import de.dasshorty.recordbook.job.qualifications.dto.QualificationOptionDto;
+import de.dasshorty.recordbook.http.result.OptionData;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -72,7 +72,7 @@ public class QualificationService {
                 Pageable.ofSize(limit).withPage(offset / limit));
     }
 
-    public Page<QualificationOptionDto> getQualificationOptions(String filter, int limit, int offset) {
+    public Page<OptionData<String>> getQualificationOptions(String filter, int limit, int offset) {
         return this.qualificationRepository.getQualificationOptions(filter, Pageable.ofSize(limit).withPage(offset / limit));
     }
 }

@@ -2,8 +2,8 @@ package de.dasshorty.recordbook.job;
 
 import de.dasshorty.recordbook.exception.AlreadyExistingException;
 import de.dasshorty.recordbook.exception.NotExistingException;
+import de.dasshorty.recordbook.http.result.OptionData;
 import de.dasshorty.recordbook.job.dto.CreateJobDto;
-import de.dasshorty.recordbook.job.dto.JobOption;
 import de.dasshorty.recordbook.job.dto.UpdateJobDto;
 import de.dasshorty.recordbook.job.qualifications.Qualification;
 import de.dasshorty.recordbook.job.qualifications.QualificationRepository;
@@ -97,7 +97,7 @@ public class JobService {
         return savedJob;
     }
 
-    protected Page<JobOption> getJobOptions(String name, int offset, int limit) {
+    protected Page<OptionData<String>> getJobOptions(String name, int offset, int limit) {
         return this.jobRepository.getJobOptions(name, Pageable.ofSize(limit).withPage(offset / limit));
     }
 

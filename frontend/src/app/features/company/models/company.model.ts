@@ -10,8 +10,3 @@ export type CompanyNameCheckResult = {
   searchedName: string,
   successful: boolean
 }
-
-export type CompanyOption = {
-  id: string,
-  companyName: string
-}

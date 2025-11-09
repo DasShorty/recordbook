@@ -1,6 +1,6 @@
 package de.dasshorty.recordbook.user;
 
-import de.dasshorty.recordbook.http.result.OptionResult;
+import de.dasshorty.recordbook.http.result.OptionData;
 import de.dasshorty.recordbook.user.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -85,7 +85,7 @@ public class UserService implements UserDetailsService {
         return this.userRepository.getAnalyzedRowCount();
     }
 
-    public Page<List<UserDto>> getUsersByCompanyAndUserType(UUID companyId, UserType userType, int limit, int offset) {
+    public Page<OptionData<String>> getUsersByCompanyAndUserType(UUID companyId, UserType userType, int limit, int offset) {
         return this.userRepository.getUserOptions(companyId, userType, Pageable.ofSize(limit).withPage(offset / limit));
     }
 

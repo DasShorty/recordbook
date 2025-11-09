@@ -13,8 +13,3 @@ export type UpdateJob = {
   description: string,
   qualifications: string[]
 }
-
-export type JobOption = {
-  id: string,
-  name: string
-}

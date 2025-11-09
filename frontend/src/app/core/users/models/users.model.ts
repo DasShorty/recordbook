@@ -1,11 +1,6 @@
 import {Optional} from '@shared/data/optional';
 import {Company} from '@features/company/models/company.model';
 
-export type UserOption = {
-  id: string,
-  name: string
-}
-
 export type UserBody = {
   id: string,
   forename: string,

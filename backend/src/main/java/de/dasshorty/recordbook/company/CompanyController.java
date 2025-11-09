@@ -2,8 +2,8 @@ package de.dasshorty.recordbook.company;
 
 import de.dasshorty.recordbook.company.dto.CompanyDto;
 import de.dasshorty.recordbook.company.dto.CompanyNameResult;
-import de.dasshorty.recordbook.company.dto.CompanyOptionDto;
 import de.dasshorty.recordbook.http.handler.UserInputHandler;
+import de.dasshorty.recordbook.http.result.OptionData;
 import de.dasshorty.recordbook.http.result.QueryResult;
 import de.dasshorty.recordbook.user.User;
 import de.dasshorty.recordbook.user.UserService;
@@ -116,7 +116,7 @@ public class CompanyController {
         int convertedLimit = UserInputHandler.validInteger(limit) ? limit : defaultLimit;
         int convertedOffset = UserInputHandler.validInteger(offset) ? offset : defaultOffset;
 
-        Page<CompanyOptionDto> companyOptions = this.companyService.getCompanyOptions(companyName, convertedOffset, convertedLimit);
+        Page<OptionData<String>> companyOptions = this.companyService.getCompanyOptions(companyName, convertedOffset, convertedLimit);
         return ResponseEntity.ok(new QueryResult<>(companyOptions.getTotalElements(), convertedLimit, convertedOffset, companyOptions.getContent()));
     }
 }

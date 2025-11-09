@@ -1,7 +1,7 @@
 package de.dasshorty.recordbook.company;
 
-import de.dasshorty.recordbook.company.dto.CompanyOptionDto;
 import de.dasshorty.recordbook.exception.AlreadyExistingException;
+import de.dasshorty.recordbook.http.result.OptionData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -54,7 +54,7 @@ public class CompanyService {
         return this.companyRepository.getAnalyzedCount();
     }
 
-    protected Page<CompanyOptionDto> getCompanyOptions(String companyName, int offset, int limit) {
+    protected Page<OptionData<String>> getCompanyOptions(String companyName, int offset, int limit) {
         return this.companyRepository.getCompaniesAsOptions(companyName, Pageable.ofSize(limit).withPage(offset / limit));
     }
 

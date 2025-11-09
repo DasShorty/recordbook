@@ -1,6 +1,6 @@
 package de.dasshorty.recordbook.job;
 
-import de.dasshorty.recordbook.job.dto.JobOption;
+import de.dasshorty.recordbook.http.result.OptionData;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.domain.Page;
@@ -38,6 +38,6 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
     Optional<Job> findByName(String name);
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    @Query("SELECT new de.dasshorty.recordbook.job.dto.JobOption(j.id, j.name) FROM Job j WHERE j.name LIKE concat('%', :name, '%')")
-    Page<JobOption> getJobOptions(@Param("name") String name, Pageable pageable);
+    @Query("SELECT new de.dasshorty.recordbook.http.result.OptionData(j.id, j.name) FROM Job j WHERE j.name LIKE concat('%', :name, '%')")
+    Page<OptionData<String>> getJobOptions(@Param("name") String name, Pageable pageable);
 }

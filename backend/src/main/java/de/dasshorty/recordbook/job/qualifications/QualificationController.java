@@ -1,8 +1,8 @@
 package de.dasshorty.recordbook.job.qualifications;
 
 import de.dasshorty.recordbook.http.handler.UserInputHandler;
+import de.dasshorty.recordbook.http.result.OptionData;
 import de.dasshorty.recordbook.http.result.QueryResult;
-import de.dasshorty.recordbook.job.qualifications.dto.QualificationOptionDto;
 import de.dasshorty.recordbook.job.qualifications.dto.UpdateQualificationDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,7 +85,7 @@ public class QualificationController {
         int convertedLimit = UserInputHandler.validInteger(limit) ? limit : defaultLimit;
         int convertedOffset = UserInputHandler.validInteger(offset) ? offset : defaultOffset;
 
-        Page<QualificationOptionDto> qualificationOptions = this.qualificationService.getQualificationOptions(filter == null ? "" : filter, convertedLimit,
+        Page<OptionData<String>> qualificationOptions = this.qualificationService.getQualificationOptions(filter == null ? "" : filter, convertedLimit,
                 convertedOffset);
 
         return ResponseEntity.ok(new QueryResult<>(

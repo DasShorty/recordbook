@@ -5,10 +5,10 @@ import de.dasshorty.recordbook.company.Company;
 import de.dasshorty.recordbook.company.CompanyService;
 import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.ErrorResult;
+import de.dasshorty.recordbook.http.result.OptionData;
 import de.dasshorty.recordbook.http.result.QueryResult;
 import de.dasshorty.recordbook.user.dto.AdvancedUserDto;
 import de.dasshorty.recordbook.user.dto.CreateUserDto;
-import de.dasshorty.recordbook.user.dto.UserDto;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -202,8 +202,8 @@ public class UserController {
             throw new IllegalArgumentException("companyId is required for non administrator");
         }
 
-        Page<List<UserDto>> page = this.userService.getUsersByCompanyAndUserType(companyUid, userType, convertedLimit, convertedOffset);
+        Page<OptionData<String>> page = this.userService.getUsersByCompanyAndUserType(companyUid, userType, convertedLimit, convertedOffset);
 
-        return ResponseEntity.ok(new QueryResult<>(page.getTotalElements(), convertedLimit, convertedOffset, page.stream().toList()));
+        return ResponseEntity.ok(new QueryResult<>(page.getTotalElements(), convertedLimit, convertedOffset, page.getContent()));
     }
 }

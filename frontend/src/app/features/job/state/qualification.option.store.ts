@@ -1,15 +1,15 @@
 import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
-import {QualificationOption} from '@features/job/models/qualification.model';
 import {inject} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
 import {QueryResult} from '@core/http/http.model';
 import {httpConfig} from '@environment/environment';
+import {SelectOption} from '@shared/http/model/select.option.model';
 
 export const QualificationOptionStore = signalStore(
   {providedIn: 'root'},
   withState({
-    qualifications: [] as QualificationOption[],
+    qualifications: [] as SelectOption<String>[],
     limit: 50,
     offset: 0,
     filter: "" as string
@@ -27,7 +27,7 @@ export const QualificationOptionStore = signalStore(
           .set('limit', store.limit())
           .set("filter", filter);
 
-        const res = await firstValueFrom(httpClient.get<QueryResult<QualificationOption[]>>(httpConfig.baseUrl + "jobs/qualifications/options", {
+        const res = await firstValueFrom(httpClient.get<QueryResult<SelectOption<String>[]>>(httpConfig.baseUrl + "jobs/qualifications/options", {
           withCredentials: true,
           params: httpParams,
           observe: 'response'
@@ -59,7 +59,7 @@ export const QualificationOptionStore = signalStore(
         }
 
         const res = await firstValueFrom(httpClient
-          .get<QueryResult<QualificationOption[]>>(httpConfig.baseUrl + "jobs/qualifications/options", {
+          .get<QueryResult<SelectOption<String>[]>>(httpConfig.baseUrl + "jobs/qualifications/options", {
             withCredentials: true,
             observe: 'response',
             params: httpParams

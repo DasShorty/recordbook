@@ -1,6 +1,6 @@
 package de.dasshorty.recordbook.user;
 
-import de.dasshorty.recordbook.user.dto.UserDto;
+import de.dasshorty.recordbook.http.result.OptionData;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,10 +38,10 @@ public interface UserRepository extends CrudRepository<User, UUID> {
     void analyse();
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    @Query("SELECT new de.dasshorty.recordbook.user.dto.UserDto(u.id, u.forename, u.surname, u.userType) from User u " +
+    @Query("SELECT new de.dasshorty.recordbook.http.result.OptionData(u.id, concat(u.forename, ' ', u.surname)) from User u " +
             "WHERE u.userType = :userType AND u.assignedCompany.id = :companyId")
-    Page<List<UserDto>> getUserOptions(@Param("companyId") UUID companyId, @Param("userType") UserType userType,
-                                       Pageable pageable);
+    Page<OptionData<String>> getUserOptions(@Param("companyId") UUID companyId, @Param("userType") UserType userType,
+                                            Pageable pageable);
 
     boolean existsUserByAssignedCompany_IdAndId(UUID assignedCompanyId, UUID id);
 

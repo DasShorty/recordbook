@@ -1,6 +1,6 @@
 package de.dasshorty.recordbook.company;
 
-import de.dasshorty.recordbook.company.dto.CompanyOptionDto;
+import de.dasshorty.recordbook.http.result.OptionData;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,8 +18,8 @@ import java.util.UUID;
 public interface CompanyRepository extends JpaRepository<Company, UUID> {
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    @Query("SELECT new de.dasshorty.recordbook.company.dto.CompanyOptionDto(c.id, c.companyName) FROM Company c WHERE c.companyName LIKE concat('%', :companyName, '%') ")
-    Page<CompanyOptionDto> getCompaniesAsOptions(@Param("companyName") String companyName, Pageable pageable);
+    @Query("SELECT new de.dasshorty.recordbook.http.result.OptionData(c.id, c.companyName) FROM Company c WHERE c.companyName LIKE concat('%', :companyName, '%') ")
+    Page<OptionData<String>> getCompaniesAsOptions(@Param("companyName") String companyName, Pageable pageable);
 
     @Query(nativeQuery = true, value = "SELECT * FROM companies OFFSET ?1 LIMIT ?2")
     List<Company> findCompanies(int offset, int limit);

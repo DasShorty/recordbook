@@ -1,6 +1,6 @@
 package de.dasshorty.recordbook.job.qualifications;
 
-import de.dasshorty.recordbook.job.qualifications.dto.QualificationOptionDto;
+import de.dasshorty.recordbook.http.result.OptionData;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,7 +39,7 @@ public interface QualificationRepository extends JpaRepository<Qualification, UU
     Page<Qualification> getQualificationsByName(String name, Pageable pageable);
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    @Query("SELECT new de.dasshorty.recordbook.job.qualifications.dto.QualificationOptionDto(q.id,q.name) FROM " +
+    @Query("SELECT new de.dasshorty.recordbook.http.result.OptionData(q.id,q.name) FROM " +
             "Qualification q WHERE LOWER(q.name) LIKE LOWER(concat('%', :name, '%'))")
-    Page<QualificationOptionDto> getQualificationOptions(@Param("name") String name, Pageable pageable);
+    Page<OptionData<String>> getQualificationOptions(@Param("name") String name, Pageable pageable);
 }

@@ -2,9 +2,9 @@ package de.dasshorty.recordbook.job;
 
 import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.ErrorResult;
+import de.dasshorty.recordbook.http.result.OptionData;
 import de.dasshorty.recordbook.http.result.QueryResult;
 import de.dasshorty.recordbook.job.dto.CreateJobDto;
-import de.dasshorty.recordbook.job.dto.JobOption;
 import de.dasshorty.recordbook.job.dto.UpdateJobDto;
 import de.dasshorty.recordbook.job.qualifications.Qualification;
 import de.dasshorty.recordbook.job.qualifications.QualificationService;
@@ -116,7 +116,7 @@ public class JobController {
         int convertedLimit = UserInputHandler.validInteger(limit) ? limit : defaultLimit;
         int convertedOffset = UserInputHandler.validInteger(offset) ? offset : defaultOffset;
 
-        Page<JobOption> jobOptions = this.jobService.getJobOptions(filter == null ? "" : filter, convertedOffset, convertedLimit);
+        Page<OptionData<String>> jobOptions = this.jobService.getJobOptions(filter == null ? "" : filter, convertedOffset, convertedLimit);
 
         return ResponseEntity.ok(new QueryResult<>(jobOptions.getTotalElements(), convertedLimit, convertedOffset, jobOptions.getContent()));
     }

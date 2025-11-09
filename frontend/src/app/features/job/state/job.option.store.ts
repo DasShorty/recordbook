@@ -1,15 +1,15 @@
 import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
-import {JobOption} from '@features/job/models/job.model';
 import {inject} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
 import {QueryResult} from '@core/http/http.model';
 import {httpConfig} from '@environment/environment';
+import {SelectOption} from '@shared/http/model/select.option.model';
 
 export const JobOptionStore = signalStore(
   {providedIn: 'root'},
   withState({
-    jobs: [] as JobOption[],
+    jobs: [] as SelectOption<String>[],
     offset: 0,
     filter: '' as string
   }),
@@ -57,7 +57,7 @@ export const JobOptionStore = signalStore(
           .set("limit", 50)
           .set("name", name);
 
-        const res = await firstValueFrom(httpClient.get<QueryResult<JobOption[]>>(httpConfig.baseUrl + "jobs/options", {
+        const res = await firstValueFrom(httpClient.get<QueryResult<SelectOption<String>[]>>(httpConfig.baseUrl + "jobs/options", {
           params: httpParams,
           withCredentials: true,
           observe: 'response'
