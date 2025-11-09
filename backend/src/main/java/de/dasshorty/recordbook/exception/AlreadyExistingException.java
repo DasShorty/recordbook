@@ -4,8 +4,8 @@ public class AlreadyExistingException extends RuntimeException {
 
     private final Object value;
 
-    public AlreadyExistingException(String paremeter, Object value) {
-        super(paremeter);
+    public AlreadyExistingException(String parameter, Object value) {
+        super(parameter);
         this.value = value;
     }
 
