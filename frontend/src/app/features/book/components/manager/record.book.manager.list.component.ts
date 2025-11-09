@@ -2,23 +2,22 @@ import {Component, inject, OnInit, signal} from '@angular/core';
 import {TableModule} from 'primeng/table';
 import {Button} from 'primeng/button';
 import {BookManagerStore} from '@features/book/state/book.manager.store';
-import {RecordBookManagerDialog} from '@features/book/components/manager/record.book.manager.dialog';
+import {CreateRecordBookComponent} from '@features/book/components/manager/create.record.book.component';
+import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'record-book-manager-list-component',
   imports: [
     TableModule,
-    Button,
-    RecordBookManagerDialog
+    Button
   ],
   template: `
     <p-table>
       <ng-template #caption>
         <div class="flex items-center justify-between gap-1">
           <span class="text-xl font-bold">Berichtshefte</span>
-          <p-button severity="success" (click)="dialog.toggleDialog()" outlined icon="pi pi-plus"
+          <p-button severity="success" (click)="openDialog()" outlined icon="pi pi-plus"
                     label="Berichtsheft anlegen"/>
-          <record-book-manager-dialog #dialog></record-book-manager-dialog>
         </div>
       </ng-template>
     </p-table>
@@ -28,10 +27,26 @@ export class RecordBookManagerListComponent implements OnInit {
 
   readonly loading = signal(false);
   readonly error = signal(false);
+  readonly dialogService = inject(DialogService);
   private readonly bookManagerStore = inject(BookManagerStore);
+  private readonly dialogRef = signal<DynamicDialogRef | null>(null);
 
   ngOnInit() {
     this.loadBooks();
+  }
+
+  openDialog() {
+    this.dialogRef.set(this.dialogService.open(CreateRecordBookComponent, {
+      appendTo: 'body',
+      header: 'Berichtsheft erstellen',
+      width: '50vw',
+      modal: true,
+      contentStyle: {overflow: 'auto'},
+      breakpoints: {
+        '960px': '75vw',
+        '640px': '90vw'
+      }
+    }));
   }
 
   private loadBooks() {

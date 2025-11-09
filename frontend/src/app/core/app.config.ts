@@ -9,6 +9,7 @@ import {HTTP_INTERCEPTORS, provideHttpClient, withFetch} from '@angular/common/h
 import {OptionalResponseInterceptor} from '@core/http/optional.response.interceptor';
 import {definePreset} from '@primeuix/themes';
 import {ConfirmationService, MessageService} from 'primeng/api';
+import {DialogService} from 'primeng/dynamicdialog';
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -60,6 +61,7 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideHttpClient(withFetch()),
     MessageService,
+    DialogService,
     ConfirmationService,
     provideRouter(routes),
     {
