@@ -1,7 +1,6 @@
 import {Component, inject, signal} from '@angular/core';
 import {Dialog} from 'primeng/dialog';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {JobOption} from '@features/job/models/job.model';
 import {UserBody, UserType} from '@core/users/models/users.model';
 import {Button} from 'primeng/button';
 import {Select} from 'primeng/select';
@@ -9,6 +8,7 @@ import {UserOptionStore} from '@core/users/state/user.option.store';
 import {JobOptionStore} from '@features/job/state/job.option.store';
 import {BookManagerStore} from '@features/book/state/book.manager.store';
 import {MultiSelect} from 'primeng/multiselect';
+import {SelectOption} from '@shared/http/model/select.option.model';
 
 @Component({
   selector: 'record-book-manager-dialog', imports: [Dialog, Button, ReactiveFormsModule, Select, MultiSelect], template: `
@@ -121,7 +121,7 @@ export class RecordBookManagerDialog {
     trainers: new FormControl<UserBody[] | null>(null, {
       validators: [Validators.required], updateOn: 'change',
     }),
-    job: new FormControl<JobOption | null>(null, {
+    job: new FormControl<SelectOption<String> | null>(null, {
       validators: [Validators.required], updateOn: 'change',
     }),
   });

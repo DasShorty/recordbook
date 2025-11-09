@@ -7,7 +7,7 @@ import {Select} from 'primeng/select';
 import {UserType} from '@core/users/models/users.model';
 import {AdminUserStore} from '@core/users/state/admin.user.store';
 import {CompanyOptionStore} from '@features/company/state/company.option.store';
-import {CompanyOption} from '@features/company/models/company.model';
+import {SelectOption} from '@shared/http/model/select.option.model';
 
 @Component({
   selector: 'user-add-button',
@@ -170,7 +170,7 @@ export class UserAddButton {
       ],
       updateOn: "change"
     }),
-    companyId: new FormControl<CompanyOption | null>(null, {
+    companyId: new FormControl<SelectOption<String> | null>(null, {
       updateOn: "change"
     })
   }));
