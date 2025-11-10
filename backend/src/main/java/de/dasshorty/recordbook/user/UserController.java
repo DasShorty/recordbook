@@ -13,6 +13,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -70,20 +71,29 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('COMPANY', 'ADMINISTRATOR')")
     public ResponseEntity<?> create(@RequestBody @Valid CreateUserDto body) {
 
-        AdvancedUserDto advancedUserDto;
-        if (body.companyId() != null) {
-            Optional<Company> optional = this.companyService.retrieveCompanyById(body.companyId());
+        try {
+            AdvancedUserDto advancedUserDto;
+            if (body.companyId() != null) {
+                Optional<Company> optional = this.companyService.retrieveCompanyById(body.companyId());
 
-            if (optional.isEmpty()) {
-                throw new IllegalArgumentException("Company id not found");
+                if (optional.isEmpty()) {
+                    throw new IllegalArgumentException("Company id not found");
+                }
+
+                advancedUserDto = this.userService.createUser(body.toNewUserWithRandomPassword(optional.get())).transformToBody();
+            } else {
+                advancedUserDto = this.userService.createUser(body.toNewUserWithRandomPassword()).transformToBody();
             }
 
-            advancedUserDto = this.userService.createUser(body.toNewUserWithRandomPassword(optional.get())).transformToBody();
-        } else {
-            advancedUserDto = this.userService.createUser(body.toNewUserWithRandomPassword()).transformToBody();
+            return ResponseEntity.created(URI.create(applicationUrl + "/users/" + advancedUserDto.id().toString())).body(advancedUserDto);
+        } catch (DataIntegrityViolationException e) {
+            // Handle SQL constraint violations (e.g., unique email constraint)
+            String message = e.getMessage();
+            if (message != null && message.toLowerCase().contains("email")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResult("User with this email already exists", "email"));
+            }
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResult("Database constraint violation", "user"));
         }
-
-        return ResponseEntity.created(URI.create(applicationUrl + "/users/" + advancedUserDto.id().toString())).body(advancedUserDto);
     }
 
     @GetMapping
@@ -112,14 +122,15 @@ public class UserController {
             }
 
             if (userType != null) {
-                return ResponseEntity.ok(this.userService.getUsersByCompanyAndUserType(companyUid, userType, convertedLimit, convertedOffset));
+                Page<OptionData<String>> pageData = this.userService.getUsersByCompanyAndUserType(companyUid, userType, convertedLimit, convertedOffset);
+                return ResponseEntity.ok(new QueryResult<>(pageData.getTotalElements(), convertedLimit, convertedOffset, pageData.getContent()));
             }
 
             users = this.userService.retrieveUsersByCompany(companyUid, convertedLimit, convertedOffset).stream().map(User::transformToBody).toList();
             totalCount = this.userService.getUserCountByCompany(companyUid);
         }
 
-        return ResponseEntity.ok(new QueryResult<>(totalCount, convertedOffset, convertedLimit, users));
+        return ResponseEntity.ok(new QueryResult<>(totalCount, convertedLimit, convertedOffset, users));
     }
 
     @GetMapping("/{id}")
