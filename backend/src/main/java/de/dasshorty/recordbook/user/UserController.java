@@ -1,29 +1,17 @@
 package de.dasshorty.recordbook.user;
 
-import de.dasshorty.recordbook.authentication.jwt.JwtHandler;
-import de.dasshorty.recordbook.company.Company;
-import de.dasshorty.recordbook.company.CompanyService;
-import de.dasshorty.recordbook.http.handler.UserInputHandler;
-import de.dasshorty.recordbook.http.result.ErrorResult;
-import de.dasshorty.recordbook.http.result.OptionData;
-import de.dasshorty.recordbook.http.result.QueryResult;
-import de.dasshorty.recordbook.user.dto.AdvancedUserDto;
 import de.dasshorty.recordbook.user.dto.CreateUserDto;
-import jakarta.annotation.PostConstruct;
+import de.dasshorty.recordbook.user.dto.UserDto;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataIntegrityViolationException;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -31,190 +19,33 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
-    private final CompanyService companyService;
-    private final JwtHandler jwtHandler;
 
-    @Value("${query.limit}")
-    private int defaultLimit;
-
-    @Value("${query.offset}")
-    private int defaultOffset;
-
-    @Value("${administrator.user.email}")
-    private String administratorUserEmail;
-
-    @Value("${administrator.user.forename}")
-    private String administratorUserForename;
-
-    @Value("${administrator.user.surname}")
-    private String administratorUserSurname;
-
-    @Value("${administrator.password}")
-    private String administratorUserPassword;
-
-    @Value("${application.url}")
-    private String applicationUrl;
-
-    @Autowired
-    public UserController(UserService userService, CompanyService companyService, JwtHandler jwtHandler) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.companyService = companyService;
-        this.jwtHandler = jwtHandler;
-    }
-
-    @PostConstruct
-    private void initFirstUser() {
-        this.userService.createFirstUser(new User(administratorUserForename, administratorUserSurname, administratorUserEmail, administratorUserPassword, List.of(Authority.ADMINISTRATOR), UserType.COMPANY));
     }
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('COMPANY', 'ADMINISTRATOR')")
-    public ResponseEntity<?> create(@RequestBody @Valid CreateUserDto body) {
-
-        try {
-            AdvancedUserDto advancedUserDto;
-            if (body.companyId() != null) {
-                Optional<Company> optional = this.companyService.retrieveCompanyById(body.companyId());
-
-                if (optional.isEmpty()) {
-                    throw new IllegalArgumentException("Company id not found");
-                }
-
-                advancedUserDto = this.userService.createUser(body.toNewUserWithRandomPassword(optional.get())).transformToBody();
-            } else {
-                advancedUserDto = this.userService.createUser(body.toNewUserWithRandomPassword()).transformToBody();
-            }
-
-            return ResponseEntity.created(URI.create(applicationUrl + "/users/" + advancedUserDto.id().toString())).body(advancedUserDto);
-        } catch (DataIntegrityViolationException e) {
-            // Handle SQL constraint violations (e.g., unique email constraint)
-            String message = e.getMessage();
-            if (message != null && message.toLowerCase().contains("email")) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResult("User with this email already exists", "email"));
-            }
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResult("Database constraint violation", "user"));
-        }
+    public ResponseEntity<UserDto> create(@RequestBody @Valid CreateUserDto body) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.createUser(body)); // TODO - check for possible issues
     }
 
     @GetMapping
-    public ResponseEntity<?> getUsers(@RequestParam(value = "offset") Integer offset, @RequestParam(value = "limit") Integer limit, @RequestParam(value = "company", required = false) String companyId, @RequestParam(value = "userType", required = false) UserType userType) {
-
-        int convertedOffset = UserInputHandler.validInteger(offset) ? offset : this.defaultOffset;
-        int convertedLimit = UserInputHandler.validInteger(limit) ? limit : this.defaultLimit;
-
-        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ADMINISTRATOR"));
-
-        List<AdvancedUserDto> users;
-        long totalCount;
-
-        if (isAdmin && companyId == null) {
-            users = this.userService.retrieveUsers(convertedLimit, convertedOffset).stream().map(User::transformToBody).toList();
-            totalCount = this.userService.count();
-        } else {
-            if (companyId == null) {
-                return ResponseEntity.badRequest().body(new ErrorResult("companyId is required for non-admins", "companyId"));
-            }
-            UUID companyUid;
-            try {
-                companyUid = UUID.fromString(companyId);
-            } catch (IllegalArgumentException e) {
-                return ResponseEntity.badRequest().body(new ErrorResult("companyId isn't a valid id", "companyId"));
-            }
-
-            if (userType != null) {
-                Page<OptionData<String>> pageData = this.userService.getUsersByCompanyAndUserType(companyUid, userType, convertedLimit, convertedOffset);
-                return ResponseEntity.ok(new QueryResult<>(pageData.getTotalElements(), convertedLimit, convertedOffset, pageData.getContent()));
-            }
-
-            users = this.userService.retrieveUsersByCompany(companyUid, convertedLimit, convertedOffset).stream().map(User::transformToBody).toList();
-            totalCount = this.userService.getUserCountByCompany(companyUid);
-        }
-
-        return ResponseEntity.ok(new QueryResult<>(totalCount, convertedLimit, convertedOffset, users));
+    public ResponseEntity<Page<UserDto>> getUsers(
+            @PageableDefault Pageable pageable,
+            @RequestParam(value = "userType", required = false) UserType userType) {
+        return ResponseEntity.ok(this.userService.retrieveUsers(pageable, userType));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUser(@PathVariable String id) {
-
-        if (id.isBlank()) {
-            return ResponseEntity.badRequest().body(new ErrorResult("Id is required", "id"));
-        }
-
-        UUID uid;
-
-        try {
-            uid = UUID.fromString(id);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ErrorResult("Id is not a valid id", "id"));
-        }
-
-        return ResponseEntity.of(this.userService.retrieveUserById(uid));
-
+    public ResponseEntity<UserDto> getUser(@PathVariable @NotNull UUID id) {
+        return ResponseEntity.of(this.userService.retrieveUserById(id));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'COMPANY')")
-    public ResponseEntity<?> delete(@PathVariable("id") String id) {
-
-        if (id.isBlank()) {
-            return ResponseEntity.badRequest().body(new ErrorResult("Id is required", "id"));
-        }
-
-        UUID uid;
-
-        try {
-            uid = UUID.fromString(id);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ErrorResult("Id is not a valid id", "id"));
-        }
-
-        boolean isAdministrator = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(Authority.ADMINISTRATOR.name()));
-
-        Optional<User> optional = this.userService.retrieveUserById(uid);
-
-        if (optional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("User not found", "id"));
-        }
-
-        User user = optional.get();
-
-        if (user.isAdministrator() && !isAdministrator) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResult("Administrator can't be deleted", "userId"));
-        }
-
-        this.userService.deleteUser(uid);
-
-        return ResponseEntity.ok().build();
-    }
-
-    // TODO - add check for company and retrieve the jwt from the request in order to obtain company id instead of the request param
-    @GetMapping("/options")
-    public ResponseEntity<?> getUserOptions(
-            @RequestParam("offset") Integer offset,
-            @RequestParam("limit") Integer limit,
-            @RequestParam(value = "userType") UserType userType,
-            @RequestParam(value = "company", required = false) String companyId,
-            @CookieValue("access_token") String accessToken) {
-
-        int convertedOffset = UserInputHandler.validInteger(offset) ? offset : this.defaultOffset;
-        int convertedLimit = UserInputHandler.validInteger(limit) ? limit : this.defaultLimit;
-
-        Optional<UUID> optional = this.jwtHandler.extractUserId(accessToken);
-
-        if (optional.isEmpty()) {
-            throw new IllegalArgumentException("accessToken is required");
-        }
-
-        boolean isAdministrator = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(Authority.ADMINISTRATOR.name()));
-
-        UUID companyUid = companyId == null || companyId.isBlank() ? this.userService.getCompanyFromUser(optional.get()) : UUID.fromString(companyId);
-
-        if (!this.userService.isUserAssociatedWithCompany(optional.get(), companyUid) && !isAdministrator) {
-            throw new IllegalArgumentException("companyId is required for non administrator");
-        }
-
-        Page<OptionData<String>> page = this.userService.getUsersByCompanyAndUserType(companyUid, userType, convertedLimit, convertedOffset);
-
-        return ResponseEntity.ok(new QueryResult<>(page.getTotalElements(), convertedLimit, convertedOffset, page.getContent()));
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        this.userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }

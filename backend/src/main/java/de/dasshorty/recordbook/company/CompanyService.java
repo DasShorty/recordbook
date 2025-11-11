@@ -1,13 +1,14 @@
 package de.dasshorty.recordbook.company;
 
+import de.dasshorty.recordbook.company.dto.CompanyDto;
+import de.dasshorty.recordbook.company.dto.CreateCompanyDto;
 import de.dasshorty.recordbook.exception.AlreadyExistingException;
 import de.dasshorty.recordbook.http.result.OptionData;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,46 +17,42 @@ public class CompanyService {
 
     private final CompanyRepository companyRepository;
 
-    @Autowired
     public CompanyService(CompanyRepository companyRepository) {
         this.companyRepository = companyRepository;
     }
 
-    public Company createCompany(Company company) throws AlreadyExistingException {
-
-        boolean existsCompanyName = this.existsCompanyName(company.getCompanyName());
-
-        if (existsCompanyName) {
-            throw new AlreadyExistingException("companyName", company.getCompanyName());
-        }
-
-        Company save = this.companyRepository.save(company);
-        this.companyRepository.analyse();
-        return save;
+    @Transactional(readOnly = true)
+    public Page<CompanyDto> getAllCompanies(Pageable pageable) {
+        return this.companyRepository.findAll(pageable).map(Company::toDto);
     }
 
+    @Transactional
+    public CompanyDto createCompany(CreateCompanyDto dto) {
+        if (this.existsCompanyName(dto.companyName())) {
+            throw new AlreadyExistingException("companyName", dto.companyName());
+        }
+
+        return this.companyRepository.save(Company.fromDto(dto)).toDto();
+    }
+
+    @Transactional(readOnly = true)
     public boolean existsCompanyName(String companyName) {
         return this.companyRepository.existsByCompanyName(companyName);
     }
 
+    @Transactional
     public void deleteCompany(UUID companyId) {
         this.companyRepository.deleteById(companyId);
     }
 
-    public List<Company> retrieveCompanies(int limit, int offset) {
-        return this.companyRepository.findCompanies(offset, limit);
+    @Transactional(readOnly = true)
+    public Optional<CompanyDto> retrieveCompanyById(UUID id) {
+        return this.companyRepository.findById(id).map(Company::toDto);
     }
 
-    public Optional<Company> retrieveCompanyById(UUID id) {
-        return this.companyRepository.findById(id);
-    }
-
-    public long count() {
-        return this.companyRepository.getAnalyzedCount();
-    }
-
-    protected Page<OptionData<String>> getCompanyOptions(String companyName, int offset, int limit) {
-        return this.companyRepository.getCompaniesAsOptions(companyName, Pageable.ofSize(limit).withPage(offset / limit));
+    @Transactional(readOnly = true)
+    protected Page<OptionData<String>> getCompanyOptions(String companyName, Pageable pageable) {
+        return this.companyRepository.getCompaniesAsOptions(companyName, pageable);
     }
 
 }

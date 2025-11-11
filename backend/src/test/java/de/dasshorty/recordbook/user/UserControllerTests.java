@@ -1,14 +1,11 @@
 package de.dasshorty.recordbook.user;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import de.dasshorty.recordbook.company.Company;
 import de.dasshorty.recordbook.company.CompanyRepository;
-import de.dasshorty.recordbook.user.dto.AdvancedUserDto;
+import de.dasshorty.recordbook.user.dto.UserDto;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -292,7 +289,7 @@ public class UserControllerTests {
                 .andExpect(status().isCreated())
                 .andReturn();
 
-        AdvancedUserDto createdUser = gson.fromJson(result.getResponse().getContentAsString(), AdvancedUserDto.class);
+        UserDto createdUser = gson.fromJson(result.getResponse().getContentAsString(), UserDto.class);
 
         mockMvc.perform(get("/users/" + createdUser.id())
                         .cookie(new Cookie("access_token", adminAccessToken)))
@@ -384,7 +381,7 @@ public class UserControllerTests {
                 .andExpect(status().isCreated())
                 .andReturn();
 
-        AdvancedUserDto userToDelete = gson.fromJson(createResult.getResponse().getContentAsString(), AdvancedUserDto.class);
+        UserDto userToDelete = gson.fromJson(createResult.getResponse().getContentAsString(), UserDto.class);
 
         mockMvc.perform(delete("/users/" + userToDelete.id())
                         .cookie(new Cookie("access_token", adminAccessToken)))

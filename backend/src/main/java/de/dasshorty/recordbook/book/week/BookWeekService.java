@@ -1,7 +1,10 @@
 package de.dasshorty.recordbook.book.week;
 
 import de.dasshorty.recordbook.book.week.day.BookDay;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -21,22 +24,27 @@ public class BookWeekService {
         this.bookWeekRepository = bookWeekRepository;
     }
 
-    public List<BookWeek> getBookWeeks(int limit, int offset) {
-        return this.bookWeekRepository.getWeeks(limit, offset);
+    @Transactional(readOnly = true)
+    public Page<BookWeek> getBookWeeks(Pageable pageable) {
+        return this.bookWeekRepository.findAll(pageable);
     }
 
+    @Transactional(readOnly = true)
     public Optional<BookWeek> getWeekById(UUID id) {
         return this.bookWeekRepository.findById(id);
     }
 
-    public List<BookWeek> getWeeksByBookId(UUID bookId) {
-        return bookWeekRepository.findWeeksByBookId(bookId);
+    @Transactional(readOnly = true)
+    public Page<BookWeek> getWeeksByBookId(UUID bookId, Pageable pageable) {
+        return bookWeekRepository.findWeeksByBookId(bookId, pageable);
     }
 
+    @Transactional(readOnly = true)
     public Optional<BookWeek> getByCalenderWeek(int calenderWeek, int year, UUID bookId) {
         return bookWeekRepository.findByCalendarWeekAndBookId(calenderWeek, year, bookId);
     }
 
+    @Transactional
     public BookWeek createWeek(int calendarWeek, int year) {
 
         if (this.bookWeekRepository.existsByCalendarWeekAndYear(calendarWeek, year)) {
@@ -47,7 +55,7 @@ public class BookWeekService {
         bookWeek.setDays(this.createBookDays(calendarWeek, year));
 
 
-        return bookWeek;
+        return this.bookWeekRepository.save(bookWeek);
     }
 
     private List<BookDay> createBookDays(int calendarWeek, int year) {

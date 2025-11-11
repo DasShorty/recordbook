@@ -1,15 +1,20 @@
 package de.dasshorty.recordbook.job.qualifications;
 
+import de.dasshorty.recordbook.job.qualifications.dto.QualificationDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "qualifications")
+@Getter
+@Setter
 public class Qualification {
 
     @Id
@@ -42,19 +47,7 @@ public class Qualification {
         this.minimumDuration = minimumDuration;
     }
 
-    public double getMinimumDuration() {
-        return minimumDuration;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
+    public QualificationDto toDto() {
+        return new QualificationDto(this.id, this.name, this.description, this.minimumDuration);
     }
 }

@@ -5,12 +5,16 @@ import de.dasshorty.recordbook.book.week.BookWeek;
 import de.dasshorty.recordbook.job.Job;
 import de.dasshorty.recordbook.user.User;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "books")
+@Getter
+@Setter
 public class Book {
 
     @Id
@@ -34,27 +38,12 @@ public class Book {
     public Book() {
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public User getTrainee() {
-        return trainee;
-    }
-
-    public List<User> getTrainers() {
-        return trainers;
-    }
-
-    public Job getQualifiedJob() {
-        return qualifiedJob;
-    }
-
-    public List<BookWeek> getWeeks() {
-        return weeks;
-    }
-
     public BookDto toDto() {
-        return new BookDto(this.id, this.trainee.transformToDto(), trainers.stream().map(User::transformToDto).toList(), qualifiedJob);
+        return new BookDto(
+                this.id,
+                this.trainee.toDto(),
+                this.trainers.stream().map(User::toDto).toList(),
+                this.qualifiedJob.toDto()
+        );
     }
 }

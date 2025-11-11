@@ -1,28 +1,28 @@
 package de.dasshorty.recordbook.book.week;
 
 import de.dasshorty.recordbook.authentication.jwt.JwtHandler;
-import de.dasshorty.recordbook.book.Book;
 import de.dasshorty.recordbook.book.BookService;
+import de.dasshorty.recordbook.book.dto.BookDto;
 import de.dasshorty.recordbook.book.week.dto.BookWeekDto;
 import de.dasshorty.recordbook.book.week.dto.CreateWeekDto;
 import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.ErrorResult;
-import de.dasshorty.recordbook.user.User;
 import de.dasshorty.recordbook.user.UserService;
 import de.dasshorty.recordbook.user.dto.UserDto;
 import jakarta.validation.Valid;
 import jdk.jshell.spi.ExecutionControl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@RestController("/books/{bookId}/weeks")
+@RestController
+@RequestMapping("/books/{bookId}/weeks")
 public class BookWeekController {
 
     private final BookService bookService;
@@ -30,8 +30,8 @@ public class BookWeekController {
     private final JwtHandler jwtHandler;
     private final UserService userService;
 
-    @Autowired
-    public BookWeekController(BookService bookService, BookWeekService bookWeekService, JwtHandler jwtHandler, UserService userService) {
+    public BookWeekController(BookService bookService, BookWeekService bookWeekService,
+                             JwtHandler jwtHandler, UserService userService) {
         this.bookService = bookService;
         this.bookWeekService = bookWeekService;
         this.jwtHandler = jwtHandler;
@@ -40,57 +40,77 @@ public class BookWeekController {
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINER', 'TRAINEE')")
-    public ResponseEntity<?> getWeeks(@PathVariable("bookId") String bookId) {
-        return ResponseEntity.ok(bookService.getBookWeeks(UUID.fromString(bookId)).stream()
-                .map(week -> new BookWeekDto(week.getId(), UserDto.fromUser(week.getSignedFromTrainer()), week.getDays())).toList());
+    public ResponseEntity<List<BookWeekDto>> getWeeks(@PathVariable UUID bookId) {
+        List<BookWeekDto> weeks = bookService.getBookWeeks(bookId).stream()
+                .map(week -> new BookWeekDto(
+                        week.getId(),
+                        week.getSignedFromTrainer() != null ? week.getSignedFromTrainer().toDto() : null,
+                        week.getDays()
+                ))
+                .toList();
+        return ResponseEntity.ok(weeks);
     }
 
     @GetMapping("/{year}/{cw}")
     @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINER', 'TRAINEE')")
-    public ResponseEntity<?> getWeekByCalendarWeek(@PathVariable("bookId") String bookId, @PathVariable("cw") Integer calendarWeek,
-                                                   @PathVariable("year") Integer year) {
+    public ResponseEntity<?> getWeekByCalendarWeek(
+            @PathVariable UUID bookId,
+            @PathVariable("cw") Integer calendarWeek,
+            @PathVariable Integer year) {
 
         int convertedCalenderWeek = UserInputHandler.validInteger(calendarWeek) ? calendarWeek : -1;
-        int convertedYear = UserInputHandler.validInteger(calendarWeek) ? calendarWeek : Calendar.getInstance().get(Calendar.YEAR);
+        int convertedYear = UserInputHandler.validInteger(year) ? year : Calendar.getInstance().get(Calendar.YEAR);
 
-        if (convertedCalenderWeek < 0 && convertedCalenderWeek >= Calendar.getInstance().getWeeksInWeekYear()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResult("invalid calendar week", "week"));
+        if (convertedCalenderWeek < 0 || convertedCalenderWeek >= Calendar.getInstance().getWeeksInWeekYear()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResult("invalid calendar week", "week"));
         }
 
-        return ResponseEntity.of(this.bookWeekService.getByCalenderWeek(convertedCalenderWeek, convertedYear, UUID.fromString(bookId)));
+        Optional<BookWeek> week = this.bookWeekService.getByCalenderWeek(
+                convertedCalenderWeek, convertedYear, bookId);
+
+        return ResponseEntity.of(week.map(bookWeek -> new BookWeekDto(
+                bookWeek.getId(),
+                bookWeek.getSignedFromTrainer() != null ? bookWeek.getSignedFromTrainer().toDto() : null,
+                bookWeek.getDays()
+        )));
     }
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINEE')")
-    public ResponseEntity<?> createWeek(@PathVariable("bookId") String bookId, @CookieValue("access_token") String accessToken,
-                                        @RequestBody @Valid CreateWeekDto createWeekBody) throws ExecutionControl.NotImplementedException {
+    public ResponseEntity<?> createWeek(
+            @PathVariable UUID bookId,
+            @CookieValue("access_token") String accessToken,
+            @RequestBody @Valid CreateWeekDto createWeekBody) throws ExecutionControl.NotImplementedException {
 
         Optional<UUID> optional = this.jwtHandler.extractUserId(accessToken);
 
         if (optional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("not found", "access_token"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResult("not found", "access_token"));
         }
 
-        UUID uuid = optional.get();
-
-        Optional<User> optionalUser = this.userService.retrieveUserById(uuid);
+        UUID userId = optional.get();
+        Optional<UserDto> optionalUser = this.userService.retrieveUserById(userId);
 
         if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("not found", "user"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResult("not found", "user"));
         }
 
-        User user = optionalUser.get();
-
-        Optional<Book> optionalBook = this.bookService.getBookById(UUID.fromString(bookId));
+        UserDto user = optionalUser.get();
+        Optional<BookDto> optionalBook = this.bookService.getBookById(bookId);
 
         if (optionalBook.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("not found", "book"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResult("not found", "book"));
         }
 
-        Book book = optionalBook.get();
+        BookDto book = optionalBook.get();
 
-        if (book.getTrainee() != user) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResult("invalid book id provided", "bookId"));
+        if (!book.trainee().id().equals(user.id())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ErrorResult("invalid book id provided", "bookId"));
         }
 
         throw new ExecutionControl.NotImplementedException("Creating a week is not existing at the time!");
