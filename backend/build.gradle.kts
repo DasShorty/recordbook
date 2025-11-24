@@ -68,18 +68,20 @@ fun exitValueFromCommand(vararg command: String): Boolean {
     }
 }
 
-val containerCmd = when {
-    exitValueFromCommand("podman", "--version") -> "podman"
-    exitValueFromCommand("docker", "--version") -> "docker"
-    else -> throw GradleException("Neither podman nor docker is installed.")
+val containerCmd = providers.provider {
+    when {
+        exitValueFromCommand("podman", "--version") -> "podman"
+        exitValueFromCommand("docker", "--version") -> "docker"
+        else -> throw GradleException("Neither podman nor docker is installed.")
+    }
 }
 
 tasks.register<Exec>("startPostgres") {
-    commandLine(containerCmd, "compose", "-f", "./test-compose.yml", "up", "-d")
+    commandLine(containerCmd.get(), "compose", "-f", "./test-compose.yml", "up", "-d")
 }
 
 tasks.register<Exec>("stopPostgres") {
-    commandLine(containerCmd, "compose", "-f", "./test-compose.yml", "down", "--volumes")
+    commandLine(containerCmd.get(), "compose", "-f", "./test-compose.yml", "down", "--volumes")
 }
 
 tasks.test {
