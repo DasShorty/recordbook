@@ -5,6 +5,8 @@ import de.dasshorty.recordbook.exception.NotExistingException;
 import de.dasshorty.recordbook.user.dto.CreateUserDto;
 import de.dasshorty.recordbook.user.dto.UserDto;
 import de.dasshorty.recordbook.user.exception.UserAlreadyExistingException;
+import java.util.Optional;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,9 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-import java.util.UUID;
-
 @Service
 public class UserService implements UserDetailsService {
 
@@ -27,21 +26,29 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(
+        UserRepository userRepository,
+        PasswordEncoder passwordEncoder
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     private static Specification<User> hasUserType(UserType userType) {
-        return ((root, query, criteriaBuilder) ->
-                userType == null ? null : criteriaBuilder.equal(root.get("userType"), userType));
+        return (
+            (root, query, criteriaBuilder) ->
+                userType == null
+                    ? null
+                    : criteriaBuilder.equal(root.get("userType"), userType)
+        );
     }
 
     @Transactional
     public UserDto createUser(CreateUserDto userDto) {
-
         if (this.userRepository.findByEmail(userDto.email()).isPresent()) {
-            throw new UserAlreadyExistingException("User with email, already exists");
+            throw new UserAlreadyExistingException(
+                "User with email, already exists"
+            );
         }
 
         var user = User.fromDto(userDto);
@@ -51,22 +58,30 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public void deleteUser(UUID id) {
-        var user = this.userRepository.findById(id)
-                .orElseThrow(() -> new NotExistingException("User not found"));
+        var user = this.userRepository.findById(id).orElseThrow(() ->
+            new NotExistingException("User not found")
+        );
 
-        var isAdministrator = SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-                .stream()
-                .anyMatch(a -> a.getAuthority().equals(Authority.ADMINISTRATOR.name()));
+        var isAdministrator = SecurityContextHolder.getContext()
+            .getAuthentication()
+            .getAuthorities()
+            .stream()
+            .anyMatch(a ->
+                a.getAuthority().equals(Authority.ADMINISTRATOR.name())
+            );
 
         if (user.isAdministrator() && !isAdministrator) {
-            throw new ForbiddenException("Only administrators can delete administrator accounts");
+            throw new ForbiddenException(
+                "Only administrators can delete administrator accounts"
+            );
         }
 
         this.userRepository.deleteById(id);
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username)
+        throws UsernameNotFoundException {
         var optional = this.retrieveUserByEmail(username);
 
         if (optional.isEmpty()) {
@@ -90,18 +105,25 @@ public class UserService implements UserDetailsService {
     }
 
     public Page<UserDto> retrieveUsers(Pageable pageable, UserType userType) {
-        var isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-                .stream()
-                .anyMatch(a -> a.getAuthority().equals("ADMINISTRATOR"));
+        var isAdmin = SecurityContextHolder.getContext()
+            .getAuthentication()
+            .getAuthorities()
+            .stream()
+            .anyMatch(a -> a.getAuthority().equals("ADMINISTRATOR"));
 
         if (userType == null && !isAdmin) {
-            throw new ForbiddenException("Only administrators can retrieve all users");
+            throw new ForbiddenException(
+                "Only administrators can retrieve all users"
+            );
         }
 
         if (userType == null) {
             return this.userRepository.findAll(pageable).map(User::toDto);
         }
 
-        return this.userRepository.findAll(UserService.hasUserType(userType), pageable).map(User::toDto);
+        return this.userRepository.findAll(
+            UserService.hasUserType(userType),
+            pageable
+        ).map(User::toDto);
     }
 }

@@ -18,7 +18,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @AutoConfigureMockMvc
 public class AuthenticationControllerTests {
 
-    private static TokenBody tokenBody;
     @Autowired
     private MockMvc mockMvc;
 
@@ -36,7 +35,7 @@ public class AuthenticationControllerTests {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
 
-        tokenBody = new Gson().fromJson(result.getResponse().getContentAsString(), TokenBody.class);
+        new Gson().fromJson(result.getResponse().getContentAsString(), TokenBody.class);
     }
 
     @Test
