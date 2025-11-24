@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface JobRepository extends JpaRepository<Job, UUID> {
@@ -17,7 +18,7 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
 
     Optional<Job> findByName(String name);
 
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     @Query(
         "SELECT new de.dasshorty.recordbook.http.result.OptionData(j.id, j.name) FROM Job j WHERE j.name LIKE concat('%', :name, '%')"
     )
