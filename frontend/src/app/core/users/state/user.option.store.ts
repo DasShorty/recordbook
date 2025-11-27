@@ -71,11 +71,6 @@ export const UserOptionStore = signalStore(
               trainerOffset: res.body.offset
             })
             break;
-
-          case UserType.COMPANY:
-            // can be ignored
-            break;
-
         }
 
         return true;

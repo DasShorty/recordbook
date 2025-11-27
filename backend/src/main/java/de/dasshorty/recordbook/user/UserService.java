@@ -7,7 +7,10 @@ import de.dasshorty.recordbook.user.dto.UserDto;
 import de.dasshorty.recordbook.user.exception.UserAlreadyExistingException;
 import java.util.Optional;
 import java.util.UUID;
+
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -25,6 +28,18 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${administrator.user.email}")
+    private String administratorUserEmail;
+
+    @Value("${administrator.user.forename}")
+    private String administratorUserForename;
+
+    @Value("${administrator.user.surname}")
+    private String administratorUserSurname;
+
+    @Value("${administrator.password}")
+    private String administratorUserPassword;
+
     @Autowired
     public UserService(
         UserRepository userRepository,
@@ -32,6 +47,15 @@ public class UserService implements UserDetailsService {
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+    }
+
+    @PostConstruct
+    private void initFirstUser() {
+        CreateUserDto createUserDto = new CreateUserDto(administratorUserForename, administratorUserSurname,
+                administratorUserEmail, administratorUserPassword, UserType.TRAINER);
+
+        User user = User.fromDto(createUserDto);
+        user.setAuthority(Authority.ADMINISTRATOR);
     }
 
     private static Specification<User> hasUserType(UserType userType) {

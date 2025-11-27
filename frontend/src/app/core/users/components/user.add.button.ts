@@ -6,8 +6,6 @@ import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/
 import {Select} from 'primeng/select';
 import {UserType} from '@core/users/models/users.model';
 import {AdminUserStore} from '@core/users/state/admin.user.store';
-import {CompanyOptionStore} from '@features/company/state/company.option.store';
-import {SelectOption} from '@shared/http/model/select.option.model';
 
 @Component({
   selector: 'user-add-button',
@@ -103,31 +101,6 @@ import {SelectOption} from '@shared/http/model/select.option.model';
             }
           }
         </div>
-
-        <div class="flex items-center gap-4 mb-4">
-          <label for="companyId" class="font-semibold w-24">Unternehmen</label>
-          <p-select
-            fluid
-            [options]="this.companyOptionStore.companies()"
-            formControlName="companyId"
-            (onShow)="this.companyOptionStore.retrieveCompanies()"
-            (onLazyLoad)="this.companyOptionStore.retrieveCompaniesLazy()"
-            appendTo="body">
-            <ng-template #selectedItem #item let-data>
-              <span>{{ data.companyName }}</span>
-            </ng-template>
-          </p-select>
-        </div>
-        <div class="flex flex-col gap-0.5">
-          @if (httpError()) {
-            <span>Ein Fehler ist bei der Übertragung der Daten aufgetreten. Bitte versuche es erneut!</span>
-          }
-          @if (formGroup().controls['companyId'].touched) {
-            @if (formGroup().controls['companyId'].hasError("required")) {
-              <span>Der Benutzer benötigt eine E-Mail</span>
-            }
-          }
-        </div>
       </form>
       <ng-template #footer>
         <p-button label="Cancel" severity="secondary" (click)="closeForm()"/>
@@ -142,7 +115,6 @@ export class UserAddButton {
   readonly userStore = inject(AdminUserStore);
   readonly httpError = signal(false);
   readonly dialogVisible = signal<boolean>(false);
-  readonly companyOptionStore = inject(CompanyOptionStore);
 
   readonly formGroup = signal(new FormGroup({
     forename: new FormControl<string | null>(null, {
@@ -169,9 +141,6 @@ export class UserAddButton {
         Validators.email
       ],
       updateOn: "change"
-    }),
-    companyId: new FormControl<SelectOption<String> | null>(null, {
-      updateOn: "change"
     })
   }));
   protected readonly Object = Object;
@@ -197,7 +166,7 @@ export class UserAddButton {
       return;
     }
 
-    this.userStore.createUser(formContent.forename, formContent.surname, formContent.email, formContent.userType, formContent.companyId?.id).then(() => {
+    this.userStore.createUser(formContent.forename, formContent.surname, formContent.email, formContent.userType).then(() => {
 
       if (this.userStore.error()) {
         this.httpError.set(true);
