@@ -1,11 +1,14 @@
-export type UserBody = {
-  id: string,
+export type User = CreateUser & {
+  id: string
+}
+
+export type CreateUser = {
   forename: string,
   surname: string,
   userType: UserType
 }
 
-export type AdvancedUser = UserBody & {
+export type AdvancedUser = User & {
   authorities: Authority[],
 }
 

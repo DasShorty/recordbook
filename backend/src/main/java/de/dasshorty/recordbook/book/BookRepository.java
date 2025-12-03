@@ -28,7 +28,7 @@ public interface BookRepository extends JpaRepository<Book, UUID> {
     Optional<Book> getBookByTrainee(User trainee);
 
     @Query(
-        "SELECT DISTINCT b FROM Book b JOIN b.trainers t WHERE t.id = :trainerId"
+        "SELECT DISTINCT b FROM Book b JOIN b.trainer t WHERE t.id = :trainerId"
     )
     Page<Book> getBooksByTrainersContaining(UUID trainerId, Pageable pageable);
 }

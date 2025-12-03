@@ -1,4 +1,3 @@
-import {Qualification} from '@features/job/models/qualification.model';
 import {Presence, PresenceType} from '@features/book/models/presence.type';
 
 export type BookDay = {
@@ -6,6 +5,5 @@ export type BookDay = {
   date: Date,
   duration: number,
   presence: Presence,
-  presenceLocation: PresenceType,
-  qualifications: Qualification[]
+  presenceLocation: PresenceType
 }

@@ -5,9 +5,6 @@ import de.dasshorty.recordbook.exception.NotExistingException;
 import de.dasshorty.recordbook.user.dto.CreateUserDto;
 import de.dasshorty.recordbook.user.dto.UserDto;
 import de.dasshorty.recordbook.user.exception.UserAlreadyExistingException;
-import java.util.Optional;
-import java.util.UUID;
-
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +18,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -42,36 +42,43 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     public UserService(
-        UserRepository userRepository,
-        PasswordEncoder passwordEncoder
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
+    private static Specification<User> hasUserType(UserType userType) {
+        return (
+                (root, query, criteriaBuilder) ->
+                        userType == null
+                                ? null
+                                : criteriaBuilder.equal(root.get("userType"), userType)
+        );
+    }
+
     @PostConstruct
     private void initFirstUser() {
+
+        if (this.userRepository.count() != 0) {
+            return;
+        }
+
         CreateUserDto createUserDto = new CreateUserDto(administratorUserForename, administratorUserSurname,
-                administratorUserEmail, administratorUserPassword, UserType.TRAINER);
+                administratorUserEmail, passwordEncoder.encode(administratorUserPassword), UserType.TRAINER);
 
         User user = User.fromDto(createUserDto);
         user.setAuthority(Authority.ADMINISTRATOR);
-    }
 
-    private static Specification<User> hasUserType(UserType userType) {
-        return (
-            (root, query, criteriaBuilder) ->
-                userType == null
-                    ? null
-                    : criteriaBuilder.equal(root.get("userType"), userType)
-        );
+        this.userRepository.save(user);
     }
 
     @Transactional
     public UserDto createUser(CreateUserDto userDto) {
         if (this.userRepository.findByEmail(userDto.email()).isPresent()) {
             throw new UserAlreadyExistingException(
-                "User with email, already exists"
+                    "User with email, already exists"
             );
         }
 
@@ -83,20 +90,20 @@ public class UserService implements UserDetailsService {
     @Transactional
     public void deleteUser(UUID id) {
         var user = this.userRepository.findById(id).orElseThrow(() ->
-            new NotExistingException("User not found")
+                new NotExistingException("User not found")
         );
 
         var isAdministrator = SecurityContextHolder.getContext()
-            .getAuthentication()
-            .getAuthorities()
-            .stream()
-            .anyMatch(a ->
-                a.getAuthority().equals(Authority.ADMINISTRATOR.name())
-            );
+                .getAuthentication()
+                .getAuthorities()
+                .stream()
+                .anyMatch(a ->
+                        a.getAuthority().equals(Authority.ADMINISTRATOR.name())
+                );
 
         if (user.isAdministrator() && !isAdministrator) {
             throw new ForbiddenException(
-                "Only administrators can delete administrator accounts"
+                    "Only administrators can delete administrator accounts"
             );
         }
 
@@ -105,7 +112,7 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username)
-        throws UsernameNotFoundException {
+            throws UsernameNotFoundException {
         var optional = this.retrieveUserByEmail(username);
 
         if (optional.isEmpty()) {
@@ -130,14 +137,14 @@ public class UserService implements UserDetailsService {
 
     public Page<UserDto> retrieveUsers(Pageable pageable, UserType userType) {
         var isAdmin = SecurityContextHolder.getContext()
-            .getAuthentication()
-            .getAuthorities()
-            .stream()
-            .anyMatch(a -> a.getAuthority().equals("ADMINISTRATOR"));
+                .getAuthentication()
+                .getAuthorities()
+                .stream()
+                .anyMatch(a -> a.getAuthority().equals("ADMINISTRATOR"));
 
         if (userType == null && !isAdmin) {
             throw new ForbiddenException(
-                "Only administrators can retrieve all users"
+                    "Only administrators can retrieve all users"
             );
         }
 
@@ -146,8 +153,8 @@ public class UserService implements UserDetailsService {
         }
 
         return this.userRepository.findAll(
-            UserService.hasUserType(userType),
-            pageable
+                UserService.hasUserType(userType),
+                pageable
         ).map(User::toDto);
     }
 }

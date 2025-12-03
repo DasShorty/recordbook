@@ -1,19 +1,16 @@
 import {Component, inject, signal} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {UserBody, UserType} from '@core/users/models/users.model';
+import {User, UserType} from '@core/users/models/users.model';
 import {UserOptionStore} from '@core/users/state/user.option.store';
-import {JobOptionStore} from '@features/job/state/job.option.store';
 import {BookManagerStore} from '@features/book/state/book.manager.store';
-import {SelectOption} from '@shared/http/model/select.option.model';
 import {SelectComponent} from '@shared/select/select.component';
-import {MultiSelectComponent} from '@shared/select/multi.select.component';
 import {Button} from 'primeng/button';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'record-book-manager-dialog',
-  imports: [ReactiveFormsModule, SelectComponent, SelectComponent, MultiSelectComponent, Button, ProgressSpinner],
+  imports: [ReactiveFormsModule, SelectComponent, SelectComponent, Button, ProgressSpinner],
   template: `
     @defer (on viewport) {
       <form [formGroup]="formGroup" class="flex flex-col gap-2">
@@ -32,34 +29,18 @@ import {DynamicDialogRef} from 'primeng/dynamicdialog';
             }
           </ng-template>
         </select-component>
-        <multi-select-component
+        <select-component
           placeholder="Ausbildungskraft wählen"
           (onLazyLoad)="lazyLoadMoreTrainers()"
           (onShow)="this.userOptionStore.retrieveTrainers()"
-          [control]="formGroup.controls['trainers']"
+          [control]="formGroup.controls['trainer']"
           [data]="this.userOptionStore.trainers()"
           label="Ausbildungskräfte*">
           <ng-template errors>
-            @if (formGroup.controls['trainee'].errors && formGroup.dirty) {
-              @if (formGroup.controls['trainee'].hasError('required')) {
+            @if (formGroup.controls['trainer'].errors && formGroup.dirty) {
+              @if (formGroup.controls['trainer'].hasError('required')) {
                 <span>Das Berichtsheft benötigt einen Azubi</span>
               }
-            }
-          </ng-template>
-        </multi-select-component>
-        <select-component
-          placeholder="Beruf wählen"
-          (onLazyLoad)="this.jobOptionStore.retrieveJobsLazy()"
-          (onShow)="this.jobOptionStore.retrieveJobs()"
-          [control]="formGroup.controls['job']"
-          [data]="this.jobOptionStore.jobs()"
-          label="Beruf*">
-          <ng-template errors>
-            @if (formGroup.controls['job'].errors && formGroup.dirty) {
-              @if (formGroup.controls['job'].hasError('required')) {
-                <span>Das Berichtsheft benötigt einen Azubi</span>
-              }d
-
             }
           </ng-template>
         </select-component>
@@ -84,21 +65,17 @@ import {DynamicDialogRef} from 'primeng/dynamicdialog';
 })
 export class CreateRecordBookComponent {
 
-  readonly error = signal(false);
   readonly loading = signal(false);
-  readonly jobOptionStore = inject(JobOptionStore);
   readonly userOptionStore = inject(UserOptionStore);
   readonly bookManagerStore = inject(BookManagerStore);
   readonly dialogRef = inject(DynamicDialogRef);
   protected readonly formGroup = new FormGroup({
     id: new FormControl(''),
-    trainee: new FormControl<UserBody | null>(null, {
+    trainee: new FormControl<User | null>(null, {
       validators: [Validators.required], updateOn: 'change',
-    }), trainers: new FormControl<UserBody[] | null>(null, {
+    }), trainer: new FormControl<User | null>(null, {
       validators: [Validators.required], updateOn: 'change',
-    }), job: new FormControl<SelectOption<String> | null>(null, {
-      validators: [Validators.required], updateOn: 'change',
-    }),
+    })
   });
 
   closeForm() {
@@ -115,14 +92,13 @@ export class CreateRecordBookComponent {
     const value = this.formGroup.value;
 
     const traineeId = value.trainee?.id;
-    const trainerIds = value.trainers?.map(value => value.id);
-    const jobId = value.job?.id;
+    const trainerIds = value.trainer?.id;
 
-    if (traineeId == undefined || trainerIds == undefined || jobId == undefined) {
+    if (traineeId == undefined || trainerIds == undefined) {
       return; // throw an error?
     }
 
-    this.bookManagerStore.createBook(traineeId, trainerIds, jobId).then(value1 => {
+    this.bookManagerStore.createBook(traineeId, trainerIds).then(value1 => {
       if (value1.isEmpty()) {
         return;
       }

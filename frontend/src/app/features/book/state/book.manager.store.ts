@@ -62,12 +62,11 @@ export const BookManagerStore = signalStore(
 
       },
 
-      async createBook(traineeId: string, trainerIds: string[], jobId: string): Promise<Optional<Book>> {
+      async createBook(traineeId: string, trainerId: string): Promise<Optional<Book>> {
 
         const res = await firstValueFrom(httpClient.post<Book>(httpConfig.baseUrl + "books", {
           trainee: traineeId,
-          trainers: trainerIds,
-          job: jobId
+          trainer: trainerId,
         }, {
           withCredentials: true,
           observe: 'response'

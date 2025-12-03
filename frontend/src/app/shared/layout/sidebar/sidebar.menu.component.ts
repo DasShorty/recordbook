@@ -53,18 +53,11 @@ export class SidebarMenuComponent {
     {
       label: 'Berichtsheft', items: [
         {label: 'Wochenansicht', icon: 'pi pi-file-arrow-up', routerLink: ['/record-book/week']},
-        {label: 'Jahresansicht', icon: 'pi pi-file-arrow-up', routerLink: ['/record-book/year']},
-        {label: 'Statistik', icon: 'pi pi-file-arrow-up', routerLink: ['/record-book/statistic']},
         {label: 'Verwalten', icon: 'pi pi-file-arrow-up', routerLink: ['/record-book/manage']},
       ]
     },
     {
       label: 'Administration', items: [
-        {label: 'Azubis', icon: 'pi pi-file-arrow-up', routerLink: ['/trainees']},
-        {label: 'Ausbildungskraft', icon: 'pi pi-file-arrow-up', routerLink: ['/trainers']},
-        {label: 'Unternehmen', icon: 'pi pi-file-arrow-up', routerLink: ['/company']},
-        {label: 'Berufe', icon: 'pi pi-file-arrow-up', routerLink: ['/jobs']},
-        {label: 'Qualifikationen', icon: 'pi pi-file-arrow-up', routerLink: ['/jobs/qualifications']},
         {label: 'Admin', icon: 'pi pi-file-arrow-up', routerLink: ['/admin']}
       ]
     },

@@ -6,6 +6,7 @@ import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/
 import {Select} from 'primeng/select';
 import {UserType} from '@core/users/models/users.model';
 import {AdminUserStore} from '@core/users/state/admin.user.store';
+import {Password} from 'primeng/password';
 
 @Component({
   selector: 'user-add-button',
@@ -14,7 +15,8 @@ import {AdminUserStore} from '@core/users/state/admin.user.store';
     Dialog,
     InputText,
     ReactiveFormsModule,
-    Select
+    Select,
+    Password
   ],
   template: `
     <p-button severity="success" (click)="toggleDialog()" [outlined]="true">
@@ -101,6 +103,27 @@ import {AdminUserStore} from '@core/users/state/admin.user.store';
             }
           }
         </div>
+
+        <div class="flex items-center gap-4 mb-4">
+          <label for="password" class="font-semibold w-24">Password*</label>
+          <p-password formControlName="password" [toggleMask]="true" id="password" class="flex-auto" autocomplete="off"/>
+        </div>
+        <div class="flex flex-col gap-0.5">
+          @if (httpError()) {
+            <span>Ein Fehler ist bei der Übertragung der Daten aufgetreten. Bitte versuche es erneut!</span>
+          }
+          @if (formGroup().controls['password'].touched) {
+            @if (formGroup().controls['password'].hasError("required")) {
+              <span>Der Benutzer benötigt eine E-Mail</span>
+            }
+            @if (formGroup().controls['password'].hasError("maxlength")) {
+              <span>Das Passwort ist zu lang!</span>
+            }
+            @if (formGroup().controls['password'].hasError("minlength")) {
+              <span>Das Passwort ist zu kurz!</span>
+            }
+          }
+        </div>
       </form>
       <ng-template #footer>
         <p-button label="Cancel" severity="secondary" (click)="closeForm()"/>
@@ -141,7 +164,8 @@ export class UserAddButton {
         Validators.email
       ],
       updateOn: "change"
-    })
+    }),
+    password: new FormControl<string | null>(null, Validators.compose([Validators.required, Validators.maxLength(20), Validators.minLength(6)]))
   }));
   protected readonly Object = Object;
   protected readonly UserType = UserType;
@@ -166,7 +190,11 @@ export class UserAddButton {
       return;
     }
 
-    this.userStore.createUser(formContent.forename, formContent.surname, formContent.email, formContent.userType).then(() => {
+    if (formContent.password === null || formContent.password === undefined) {
+      return;
+    }
+
+    this.userStore.createUser(formContent.forename, formContent.surname, formContent.email, formContent.userType, formContent.password).then(() => {
 
       if (this.userStore.error()) {
         this.httpError.set(true);

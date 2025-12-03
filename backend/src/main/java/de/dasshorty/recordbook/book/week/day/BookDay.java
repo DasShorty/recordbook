@@ -1,15 +1,12 @@
 package de.dasshorty.recordbook.book.week.day;
 
 import de.dasshorty.recordbook.book.week.day.dto.BookDayDto;
-import de.dasshorty.recordbook.job.qualifications.Qualification;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -35,14 +32,6 @@ public class BookDay {
     @Enumerated(EnumType.STRING)
     private PresenceLocation presenceLocation;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "day_qualifications",
-            joinColumns = @JoinColumn(name = "day_id"),
-            inverseJoinColumns = @JoinColumn(name = "qualification_id")
-    )
-    private List<Qualification> qualifications = new ArrayList<>();
-
     public BookDay(LocalDate date) {
         this.date = date;
     }
@@ -53,10 +42,7 @@ public class BookDay {
                 this.date,
                 this.duration,
                 this.presence,
-                this.presenceLocation,
-                this.qualifications.stream()
-                        .map(Qualification::toDto)
-                        .toList()
+                this.presenceLocation
         );
     }
 }

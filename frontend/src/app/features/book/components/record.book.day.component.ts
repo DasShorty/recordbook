@@ -2,17 +2,14 @@ import {Component, signal} from '@angular/core';
 import {Select} from 'primeng/select';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Presence, PresenceDisplay, PresenceType} from '@features/book/models/presence.type';
-import {Qualification} from '@features/job/models/qualification.model';
 import {InputNumber} from 'primeng/inputnumber';
-import {MultiSelect} from 'primeng/multiselect';
 
 @Component({
   selector: 'record-book-day-component',
   imports: [
     Select,
     ReactiveFormsModule,
-    InputNumber,
-    MultiSelect
+    InputNumber
   ],
   template: `
     <tr>
@@ -44,9 +41,6 @@ import {MultiSelect} from 'primeng/multiselect';
         <td>
           <p-input-number formControlName="duration"></p-input-number>
         </td>
-        <td>
-          <p-multiSelect [options]="[]" formControlName="qualifications" optionLabel="Qualifikationen"></p-multiSelect>
-        </td>
       </form>
     </tr>
   `
@@ -61,8 +55,7 @@ export class RecordBookDayComponent {
       Validators.max(24)
     ])),
     presence: new FormControl<Presence | null>(null, Validators.required),
-    presenceLocation: new FormControl<PresenceType | null>(null, Validators.required),
-    qualifications: new FormControl<Qualification[] | null>(null, Validators.required)
+    presenceLocation: new FormControl<PresenceType | null>(null, Validators.required)
   }))
 
   protected readonly Object = Object;
