@@ -1,20 +1,15 @@
 import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
-import {AdvancedUser} from '@core/users/models/users.model';
+import {User} from '@core/users/models/users.model';
 import {inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {firstValueFrom} from 'rxjs';
 import {httpConfig} from '@environment/environment';
+import {Page} from '@shared/http/model/page.model';
 
 export const UserStore = signalStore(
   {providedIn: 'root'},
   withState({
-    activeUser: {} as AdvancedUser,
-    users: [] as AdvancedUser[],
-    limit: 10,
-    offset: 0,
-    totalCount: 0,
-    loading: false,
-    error: false
+    activeUser: {} as User,
+    users: {} as Page<User>
   }),
 
   withMethods((store) => {
@@ -25,23 +20,15 @@ export const UserStore = signalStore(
 
       async retrieveActiveUser() {
 
-        const response = await firstValueFrom(httpClient.get<AdvancedUser>(httpConfig.baseUrl + 'authentication/me', {
-          withCredentials: true,
-          observe: 'response'
-        }));
-
-        if (!response.ok) {
-          return null;
-        }
-
-        return response.body;
+        httpClient.get<User>(httpConfig.baseUrl + 'authentication/me', {
+          withCredentials: true
+        }).subscribe(res => {
+          patchState(store, {
+            activeUser: res
+          })
+        })
       },
 
-      setActiveUser(user: AdvancedUser) {
-        patchState(store, {
-          activeUser: user
-        });
-      },
 
       getActiveUser() {
         return store.activeUser();

@@ -1,9 +1,9 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, effect, inject} from '@angular/core';
 import {Button} from 'primeng/button';
 import {ConfirmDialog} from 'primeng/confirmdialog';
 import {TableModule} from 'primeng/table';
 import {Toast} from 'primeng/toast';
-import {AdvancedUser} from '@core/users/models/users.model';
+import {User} from '@core/users/models/users.model';
 import {AdminUserStore} from '@core/users/state/admin.user.store';
 
 @Component({
@@ -17,7 +17,7 @@ import {AdminUserStore} from '@core/users/state/admin.user.store';
   template: `
     <p-toast/>
     <p-confirm-dialog/>
-    <p-table [value]="this.userStore.users()">
+    <p-table [value]="this.userStore.data().content">
       <ng-template #header>
         <tr>
           <th>Vorname</th>
@@ -39,17 +39,17 @@ import {AdminUserStore} from '@core/users/state/admin.user.store';
     </p-table>
   `
 })
-export class UsersListComponent implements OnInit {
+export class UsersListComponent {
 
   readonly userStore = inject(AdminUserStore);
 
-  ngOnInit() {
-
-    this.userStore.getUsers(this.userStore.limit(), this.userStore.offset()).then();
-
+  constructor() {
+    effect(() => {
+      this.userStore.getUsers();
+    });
   }
 
-  deleteItem(user: AdvancedUser, $event: Event) {
+  deleteItem(user: User, $event: Event) {
 
   }
 

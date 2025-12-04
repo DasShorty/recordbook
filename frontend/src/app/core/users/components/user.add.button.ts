@@ -4,7 +4,7 @@ import {Dialog} from 'primeng/dialog';
 import {InputText} from 'primeng/inputtext';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Select} from 'primeng/select';
-import {UserType} from '@core/users/models/users.model';
+import {CreateUser, UserType} from '@core/users/models/users.model';
 import {AdminUserStore} from '@core/users/state/admin.user.store';
 import {Password} from 'primeng/password';
 
@@ -46,9 +46,6 @@ import {Password} from 'primeng/password';
           </p-select>
         </div>
         <div class="flex flex-col gap-0.5">
-          @if (httpError()) {
-            <span>Ein Fehler ist bei der Übertragung der Daten aufgetreten. Bitte versuche es erneut!</span>
-          }
           @if (formGroup().controls['userType'].touched) {
             @if (formGroup().controls['userType'].hasError("required")) {
               <span>Der Benutzer benötigt einen Nachnamen</span>
@@ -61,9 +58,6 @@ import {Password} from 'primeng/password';
           <input pInputText formControlName="forename" id="forename" class="flex-auto" autocomplete="off"/>
         </div>
         <div class="flex flex-col gap-0.5">
-          @if (httpError()) {
-            <span>Ein Fehler ist bei der Übertragung der Daten aufgetreten. Bitte versuche es erneut!</span>
-          }
           @if (formGroup().controls['forename'].touched) {
             @if (formGroup().controls['forename'].hasError("required")) {
               <span>Der Benutzer benötigt einen Vornamen</span>
@@ -76,9 +70,6 @@ import {Password} from 'primeng/password';
           <input pInputText formControlName="surname" id="surname" class="flex-auto" autocomplete="off"/>
         </div>
         <div class="flex flex-col gap-0.5">
-          @if (httpError()) {
-            <span>Ein Fehler ist bei der Übertragung der Daten aufgetreten. Bitte versuche es erneut!</span>
-          }
           @if (formGroup().controls['surname'].touched) {
             @if (formGroup().controls['surname'].hasError("required")) {
               <span>Der Benutzer benötigt einen Nachnamen</span>
@@ -91,9 +82,6 @@ import {Password} from 'primeng/password';
           <input pInputText formControlName="email" id="email" class="flex-auto" autocomplete="off"/>
         </div>
         <div class="flex flex-col gap-0.5">
-          @if (httpError()) {
-            <span>Ein Fehler ist bei der Übertragung der Daten aufgetreten. Bitte versuche es erneut!</span>
-          }
           @if (formGroup().controls['email'].touched) {
             @if (formGroup().controls['email'].hasError("required")) {
               <span>Der Benutzer benötigt eine E-Mail</span>
@@ -106,12 +94,10 @@ import {Password} from 'primeng/password';
 
         <div class="flex items-center gap-4 mb-4">
           <label for="password" class="font-semibold w-24">Password*</label>
-          <p-password formControlName="password" [toggleMask]="true" id="password" class="flex-auto" autocomplete="off"/>
+          <p-password formControlName="password" [toggleMask]="true" id="password" class="flex-auto"
+                      autocomplete="off"/>
         </div>
         <div class="flex flex-col gap-0.5">
-          @if (httpError()) {
-            <span>Ein Fehler ist bei der Übertragung der Daten aufgetreten. Bitte versuche es erneut!</span>
-          }
           @if (formGroup().controls['password'].touched) {
             @if (formGroup().controls['password'].hasError("required")) {
               <span>Der Benutzer benötigt eine E-Mail</span>
@@ -127,7 +113,7 @@ import {Password} from 'primeng/password';
       </form>
       <ng-template #footer>
         <p-button label="Cancel" severity="secondary" (click)="closeForm()"/>
-        <p-button [disabled]="formGroup().invalid" [loading]="this.userStore.loading()" label="Save"
+        <p-button [disabled]="formGroup().invalid" [loading]="this.loading()" label="Save"
                   (click)="submitForm()"/>
       </ng-template>
     </p-dialog>
@@ -136,8 +122,8 @@ import {Password} from 'primeng/password';
 export class UserAddButton {
 
   readonly userStore = inject(AdminUserStore);
-  readonly httpError = signal(false);
   readonly dialogVisible = signal<boolean>(false);
+  readonly loading = signal<boolean>(false);
 
   readonly formGroup = signal(new FormGroup({
     forename: new FormControl<string | null>(null, {
@@ -172,36 +158,13 @@ export class UserAddButton {
 
   submitForm() {
 
-    const formContent = this.formGroup().value;
+    const formContent = this.formGroup().value as CreateUser;
 
-    if (formContent.forename === null || formContent.forename === undefined) {
-      return;
-    }
+    this.loading.set(true);
 
-    if (formContent.surname === null || formContent.surname === undefined) {
-      return;
-    }
-
-    if (formContent.userType === null || formContent.userType === undefined) {
-      return;
-    }
-
-    if (formContent.email === null || formContent.email === undefined) {
-      return;
-    }
-
-    if (formContent.password === null || formContent.password === undefined) {
-      return;
-    }
-
-    this.userStore.createUser(formContent.forename, formContent.surname, formContent.email, formContent.userType, formContent.password).then(() => {
-
-      if (this.userStore.error()) {
-        this.httpError.set(true);
-      } else {
-        this.closeForm();
-      }
-
+    this.userStore.createUser(formContent, () => {
+      this.loading.set(false);
+      this.closeForm();
     });
 
   }

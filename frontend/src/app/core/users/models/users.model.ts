@@ -1,14 +1,11 @@
 export type User = CreateUser & {
-  id: string
+  id: string,
 }
 
 export type CreateUser = {
   forename: string,
   surname: string,
-  userType: UserType
-}
-
-export type AdvancedUser = User & {
+  userType: UserType,
   authorities: Authority[],
 }
 
