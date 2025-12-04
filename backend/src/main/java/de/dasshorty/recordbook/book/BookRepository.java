@@ -1,45 +1,34 @@
 package de.dasshorty.recordbook.book;
 
+import de.dasshorty.recordbook.book.week.BookWeek;
 import de.dasshorty.recordbook.user.User;
 import jakarta.transaction.Transactional;
+import java.util.Optional;
+import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 @Repository
 public interface BookRepository extends JpaRepository<Book, UUID> {
-
     String TABLE_NAME = "books";
 
+    // PostgreSQL-specific command - must use native query
     @Modifying
     @Transactional
     @Query(nativeQuery = true, value = "ANALYZE " + TABLE_NAME)
     void analyze();
 
-    @Transactional
-    @NativeQuery("SELECT reltuples::bigint FROM pg_class WHERE relname = '" + TABLE_NAME + "'")
-    long getAnalyzedCount();
-
-    @NativeQuery("SELECT * FROM " + TABLE_NAME + " LIMIT ?1 OFFSET ?2")
-    List<Book> getBooks(int limit, int offset);
-
-    @NativeQuery("SELECT weeks_id FROM books_weeks WHERE book_dto_id = ?1")
-    List<String> getWeeks(UUID bookId);
+    @Query("SELECT w FROM Book b JOIN b.weeks w WHERE b.id = :bookId")
+    Page<BookWeek> getWeeks(UUID bookId, Pageable pageable);
 
     Optional<Book> getBookByTrainee(User trainee);
 
-    @NativeQuery("SELECT * FROM books book LEFT JOIN books_trainers trainer ON book.id = trainer.book_id WHERE trainer.trainers_id = ?1 LIMIT ?2 OFFSET ?3")
-    List<Book> getBooksByTrainersContaining(UUID trainerId, int limit, int offset);
-
-    @Transactional
-    @NativeQuery("SELECT count(id) FROM books book LEFT JOIN books_trainers trainer ON book.id = trainer.book_id")
-    long getBooksByTrainersCount(UUID trainerId);
-
-
+    @Query(
+        "SELECT DISTINCT b FROM Book b JOIN b.trainer t WHERE t.id = :trainerId"
+    )
+    Page<Book> getBooksByTrainersContaining(UUID trainerId, Pageable pageable);
 }

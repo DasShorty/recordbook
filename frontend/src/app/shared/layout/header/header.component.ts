@@ -1,6 +1,6 @@
 import {Component, inject} from '@angular/core';
-import ProfileComponent from '@shared/layout/header/profile.component';
 import {LayoutStore} from '@shared/layout/layout.store';
+import {ProfileComponent} from '@shared/layout/header/profile.component';
 
 @Component({
   selector: 'header-component',

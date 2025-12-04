@@ -2,6 +2,8 @@ package de.dasshorty.recordbook.exception;
 
 import de.dasshorty.recordbook.http.result.ErrorResult;
 import io.jsonwebtoken.JwtException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,8 +16,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResult> handleValidation(MethodArgumentNotValidException ex) {
-        String field = ex.getFieldError() != null ? ex.getFieldError().getField() : "unknown";
-        String message = ex.getFieldError() != null ? ex.getFieldError().getDefaultMessage() : "Validation error";
+        var field = ex.getFieldError() != null ? ex.getFieldError().getField() : "unknown";
+        var message = ex.getFieldError() != null ? ex.getFieldError().getDefaultMessage() : "Validation error";
         return ResponseEntity.badRequest().body(new ErrorResult(message, field));
     }
 
@@ -42,6 +44,20 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<ErrorResult> handleNoSuchElementException(NoSuchElementException ex) {
         return ResponseEntity.badRequest().body(new ErrorResult(ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResult> handleForbiddenException(ForbiddenException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResult(ex.getMessage(), "Authorization"));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResult> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        var message = ex.getMessage();
+        if (message != null && message.toLowerCase().contains("email")) {
+            return ResponseEntity.badRequest().body(new ErrorResult("User with this email already exists", "email"));
+        }
+        return ResponseEntity.badRequest().body(new ErrorResult("Database constraint violation", null));
     }
 
 }

@@ -84,7 +84,7 @@ public class AuthenticationController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("account not found", "access_token cookie"));
         }
 
-        return ResponseEntity.ok(optional.get().transformToBody());
+        return ResponseEntity.ok(optional.get().toDto());
     }
 
     @PostMapping("/logout")

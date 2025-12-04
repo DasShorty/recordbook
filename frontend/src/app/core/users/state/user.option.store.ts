@@ -1,19 +1,16 @@
 import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
-import {UserType} from '@core/users/models/users.model';
+import {User, UserType} from '@core/users/models/users.model';
 import {inject} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {QueryResult} from '@core/http/http.model';
 import {httpConfig} from '@environment/environment';
-import {firstValueFrom} from 'rxjs';
 import {SelectOption} from '@shared/http/model/select.option.model';
+import {Page} from '@shared/http/model/page.model';
 
 export const UserOptionStore = signalStore(
   {providedIn: 'root'},
   withState({
-    trainees: [] as SelectOption<String>[],
-    traineeOffset: 0,
-    trainers: [] as SelectOption<String>[],
-    trainerOffset: 0
+    traineePage: {} as Page<SelectOption<String>>,
+    trainersPage: {} as Page<SelectOption<String>>,
   }),
   withMethods(store => {
 
@@ -21,64 +18,81 @@ export const UserOptionStore = signalStore(
 
     return {
 
+      getPage(type: UserType): number {
+
+        switch (type) {
+          case UserType.TRAINER:
+            return store.trainersPage().page ? store.trainersPage().page.number : 0;
+          case UserType.TRAINEE:
+            return store.traineePage().page ? store.traineePage().page.number : 0;
+        }
+
+      },
+
       retrieveTrainers() {
 
-        if (store.trainers().length == 0) {
-          this.loadOptions(UserType.TRAINER, false).then();
+        const page = store.trainersPage().page;
+
+        if (!page || page.totalElements == 0) {
+          this.loadOptions(UserType.TRAINER, false)
+          return;
         }
+
+        this.loadOptions(UserType.TRAINER, true);
 
       },
 
       retrieveTrainees() {
 
-        if (store.trainees().length == 0) {
-          this.loadOptions(UserType.TRAINEE, false).then();
+        const page = store.traineePage().page;
+
+        if (!page || page.totalElements == 0) {
+          this.loadOptions(UserType.TRAINEE, false)
+          return;
         }
+
+        this.loadOptions(UserType.TRAINEE, true);
 
       },
 
-      async loadOptions(userType: UserType, next: boolean = true) {
+      loadOptions(userType: UserType, next: boolean = true) {
 
-        const offset = userType == UserType.TRAINER ? store.trainerOffset() : store.traineeOffset();
+        const page = this.getPage(userType);
         const params = new HttpParams()
           .set("userType", userType.toLowerCase())
-          .set("limit", 50)
-          .set("offset", String(offset + (next ? 50 : 0)))
+          .set("size", 50)
+          .set("page", page)
 
 
-        const res = await firstValueFrom(httpClient.get<QueryResult<SelectOption<String>[]>>(httpConfig.baseUrl + "users/options", {
+        httpClient.get<Page<User>>(httpConfig.baseUrl + "users", {
           withCredentials: true,
-          params: params,
-          observe: 'response'
-        }));
+          params: params
+        }).subscribe(res => {
 
-        if (!res.ok || res.body == null) {
-          return false;
-        }
+          const dataObj: Page<SelectOption<string>> = {
+            content: res.content.map(value => {
+              return {
+                id: value.id,
+                name: value.forename + " " + value.surname
+              } as SelectOption<string>
+            }),
+            page: res.page
+          }
 
-        switch (userType) {
+          switch (userType) {
+            case UserType.TRAINEE:
+              patchState(store, {
+                traineePage: dataObj
+              })
+              break;
 
-          case UserType.TRAINEE:
-            patchState(store, {
-              trainees: res.body.data,
-              traineeOffset: res.body.offset
-            })
-            break;
-
-          case UserType.TRAINER:
-            patchState(store, {
-              trainers: res.body.data,
-              trainerOffset: res.body.offset
-            })
-            break;
-
-          case UserType.COMPANY:
-            // can be ignored
-            break;
-
-        }
-
-        return true;
+            case UserType.TRAINER:
+              patchState(store, {
+                trainersPage: dataObj
+              })
+              break;
+          }
+        })
       }
 
     }

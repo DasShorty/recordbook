@@ -1,5 +1,8 @@
 package de.dasshorty.recordbook.exception;
 
+import lombok.Getter;
+
+@Getter
 public class AlreadyExistingException extends RuntimeException {
 
     private final Object value;
@@ -9,7 +12,4 @@ public class AlreadyExistingException extends RuntimeException {
         this.value = value;
     }
 
-    public Object getValue() {
-        return value;
-    }
 }

@@ -58,7 +58,7 @@ public class AuthenticationService {
             return Optional.empty();
         }
 
-        return this.userService.retrieveUserById(optionalId.get());
+        return this.userService.retrieveUserEntityById(optionalId.get());
     }
 
     protected String obtainAccessToken(User user) {

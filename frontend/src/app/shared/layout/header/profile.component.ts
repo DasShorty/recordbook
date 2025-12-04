@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnInit} from '@angular/core';
+import {Component, computed, effect, inject, OnInit} from '@angular/core';
 import {Menu} from 'primeng/menu';
 import {Ripple} from 'primeng/ripple';
 import {MenuItem} from 'primeng/api';
@@ -55,7 +55,7 @@ import {Authority} from '@core/users/models/users.model';
     }
   `
 })
-class ProfileComponent implements OnInit {
+export class ProfileComponent {
 
   private readonly userStore = inject(UserStore);
   protected readonly authenticationService = inject(AuthenticationService);
@@ -101,18 +101,10 @@ class ProfileComponent implements OnInit {
     menu.toggle(event);
   }
 
-  ngOnInit() {
-    this.userStore.retrieveActiveUser().then(body => {
-
-      if (body === null) {
-        return;
-      }
-
-      this.userStore.setActiveUser(body);
-
-    })
+  constructor() {
+    effect(() => {
+      this.userStore.retrieveActiveUser()
+    });
   }
 
 }
-
-export default ProfileComponent

@@ -2,15 +2,22 @@ package de.dasshorty.recordbook.book;
 
 import de.dasshorty.recordbook.book.dto.BookDto;
 import de.dasshorty.recordbook.book.week.BookWeek;
-import de.dasshorty.recordbook.job.Job;
 import de.dasshorty.recordbook.user.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "books")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Book {
 
     @Id
@@ -18,43 +25,21 @@ public class Book {
     private UUID id;
     @ManyToOne
     private User trainee;
-    @ManyToMany(fetch = FetchType.LAZY)
-    private List<User> trainers;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Job qualifiedJob;
+    @ManyToOne
+    private User trainer;
     @ManyToMany(fetch = FetchType.LAZY)
     private List<BookWeek> weeks;
 
-    public Book(User trainee, List<User> trainers, Job qualifiedJob) {
+    public Book(User trainee, User trainer) {
         this.trainee = trainee;
-        this.trainers = trainers;
-        this.qualifiedJob = qualifiedJob;
-    }
-
-    public Book() {
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public User getTrainee() {
-        return trainee;
-    }
-
-    public List<User> getTrainers() {
-        return trainers;
-    }
-
-    public Job getQualifiedJob() {
-        return qualifiedJob;
-    }
-
-    public List<BookWeek> getWeeks() {
-        return weeks;
+        this.trainer = trainer;
     }
 
     public BookDto toDto() {
-        return new BookDto(this.id, this.trainee.transformToDto(), trainers.stream().map(User::transformToDto).toList(), qualifiedJob);
+        return new BookDto(
+                this.id,
+                this.trainee.toDto(),
+                this.trainer.toDto()
+        );
     }
 }
