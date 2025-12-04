@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, inject, OnInit, signal, effect, ChangeDetectionStrategy} from '@angular/core';
 import {LayoutComponent} from '@shared/layout/layout.component';
 import {BoxComponent} from '@shared/layout/box.component';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -6,6 +6,8 @@ import {WeekService} from '@features/book/services/week.service';
 import {RecordBookWeekComponent} from '@features/book/components/record.book.week.component';
 import {Optional} from '@shared/data/optional';
 import {BookWeek} from '@features/book/models/book.week.model';
+import {BookStore} from '@features/book/state/book.store';
+import {BookWeekStore} from '@features/book/state/book.week.store';
 
 @Component({
   selector: 'record-book-week-page',
@@ -14,6 +16,7 @@ import {BookWeek} from '@features/book/models/book.week.model';
     BoxComponent,
     RecordBookWeekComponent
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <layout-component>
       <box-component>
@@ -36,15 +39,28 @@ export class RecordBookWeekPage implements OnInit {
   private readonly router = inject(Router);
   private readonly weekService = inject(WeekService);
   private readonly currentWeek = signal<number | undefined>(undefined);
-  protected readonly week = computed<Optional<BookWeek>>(() => {
+  private readonly bookStore = inject(BookStore);
+  private readonly bookWeekStore = inject(BookWeekStore);
 
-    if (this.currentWeek() == undefined) {
+  protected readonly week = computed<Optional<BookWeek>>(() => {
+    const bw = this.bookWeekStore.week();
+    if (!bw) {
       return Optional.empty();
     }
-
-    return Optional.empty();
-
+    return Optional.of(bw);
   })
+
+  constructor() {
+    // when we have a book and a selected week, load the week
+    effect(() => {
+      const bookId = this.bookStore.activeBook().id;
+      const cw = this.currentWeek();
+      if (bookId && cw != undefined) {
+        const year = new Date().getFullYear();
+        this.bookWeekStore.getWeek(cw, year, bookId);
+      }
+    });
+  }
 
   ngOnInit() {
 
@@ -60,7 +76,9 @@ export class RecordBookWeekPage implements OnInit {
 
         }
 
-        this.currentWeek.set(param);
+        this.currentWeek.set(Number(param));
+        // ensure we have the user's book
+        this.bookStore.getOwnBook();
 
       })
 

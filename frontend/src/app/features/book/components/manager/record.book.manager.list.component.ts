@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {TableModule} from 'primeng/table';
 import {Button} from 'primeng/button';
 import {BookManagerStore} from '@features/book/state/book.manager.store';
@@ -11,6 +11,7 @@ import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
     TableModule,
     Button
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <p-table [value]="this.bookManagerStore.books()">
       <ng-template #caption>
@@ -22,15 +23,13 @@ import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
       </ng-template>
       <ng-template #header>
         <tr>
-          <th>Beruf</th>
           <th>Azubi</th>
-          <th>Ausbildungskräfte</th>
+          <th>Ausbildungskraft</th>
           <th></th>
         </tr>
       </ng-template>
       <ng-template #body let-book>
         <tr>
-          <td>{{ book.job.name }}</td>
           <td>{{ book.trainee.forename }} {{ book.trainee.surname }}</td>
           <td>{{ book.trainee.forename }} {{ book.trainee.surname }}</td>
         </tr>

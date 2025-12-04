@@ -17,6 +17,7 @@ import SidebarItemComponent from '@shared/layout/sidebar/sidebar.item.component'
     </li>
   `,
   imports: [
+    SidebarItemComponent,
     SidebarItemComponent
   ],
   styles: `

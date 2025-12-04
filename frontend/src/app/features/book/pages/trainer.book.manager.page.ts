@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {LayoutComponent} from '@shared/layout/layout.component';
 import {BoxComponent} from '@shared/layout/box.component';
 import {RecordBookManagerListComponent} from '@features/book/components/manager/record.book.manager.list.component';
@@ -10,6 +10,7 @@ import {RecordBookManagerListComponent} from '@features/book/components/manager/
     BoxComponent,
     RecordBookManagerListComponent
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <layout-component>
       <box-component>

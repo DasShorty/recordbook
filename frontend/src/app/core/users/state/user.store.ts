@@ -18,14 +18,14 @@ export const UserStore = signalStore(
 
     return {
 
-      async retrieveActiveUser() {
+      retrieveActiveUser() {
 
         httpClient.get<User>(httpConfig.baseUrl + 'authentication/me', {
           withCredentials: true
         }).subscribe(res => {
           patchState(store, {
             activeUser: res
-          })
+          });
         })
       },
 

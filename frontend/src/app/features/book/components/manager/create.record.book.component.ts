@@ -1,4 +1,4 @@
-import {Component, inject, signal} from '@angular/core';
+import {Component, inject, signal, ChangeDetectionStrategy} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {User, UserType} from '@core/users/models/users.model';
 import {UserOptionStore} from '@core/users/state/user.option.store';
@@ -10,7 +10,8 @@ import {DynamicDialogRef} from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'record-book-manager-dialog',
-  imports: [ReactiveFormsModule, SelectComponent, SelectComponent, Button, ProgressSpinner],
+  imports: [ReactiveFormsModule, SelectComponent, Button, ProgressSpinner],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @defer (on viewport) {
       <form [formGroup]="formGroup" class="flex flex-col gap-2">
@@ -19,7 +20,7 @@ import {DynamicDialogRef} from 'primeng/dynamicdialog';
           (onLazyLoad)="lazyLoadMoreTrainees()"
           (onShow)="this.userOptionStore.retrieveTrainees()"
           [control]="formGroup.controls['trainee']"
-          [data]="this.userOptionStore.trainees()"
+          [data]="this.userOptionStore.traineePage().content"
           label="Azubis*">
           <ng-template errors>
             @if (formGroup.controls['trainee'].errors && formGroup.dirty) {
@@ -34,7 +35,7 @@ import {DynamicDialogRef} from 'primeng/dynamicdialog';
           (onLazyLoad)="lazyLoadMoreTrainers()"
           (onShow)="this.userOptionStore.retrieveTrainers()"
           [control]="formGroup.controls['trainer']"
-          [data]="this.userOptionStore.trainers()"
+          [data]="this.userOptionStore.trainersPage().content"
           label="Ausbildungskräfte*">
           <ng-template errors>
             @if (formGroup.controls['trainer'].errors && formGroup.dirty) {
@@ -98,8 +99,13 @@ export class CreateRecordBookComponent {
       return; // throw an error?
     }
 
-    this.bookManagerStore.createBook(traineeId, trainerIds).then(value1 => {
-      if (value1.isEmpty()) {
+    this.loading.set(true);
+
+    this.bookManagerStore.createBook(traineeId, trainerIds, (created) => {
+      this.loading.set(false);
+
+      if (!created) {
+        // creation failed or returned null
         return;
       }
 
@@ -108,10 +114,10 @@ export class CreateRecordBookComponent {
   }
 
   protected lazyLoadMoreTrainees() {
-    this.userOptionStore.loadOptions(UserType.TRAINEE).then(); // TODO - error handling
+    this.userOptionStore.loadOptions(UserType.TRAINEE); // TODO - error handling
   }
 
   protected lazyLoadMoreTrainers() {
-    this.userOptionStore.loadOptions(UserType.TRAINER).then(); // TODO - error handling
+    this.userOptionStore.loadOptions(UserType.TRAINER); // TODO - error handling
   }
 }

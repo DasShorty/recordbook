@@ -9,3 +9,10 @@ export type PageableObject = {
   totalElements: number,
   totalPages: number
 };
+
+export type Pageable = {
+  page: number;
+  size: number;
+  sort?: Array<string>;
+};
+

@@ -69,11 +69,6 @@ import {UserStore} from '@core/users/state/user.store';
 })
 export class LoginPage {
 
-  private readonly authenticationService = inject(AuthenticationService);
-  private readonly router = inject(Router);
-  private readonly messageService = inject(MessageService);
-  private readonly userStore = inject(UserStore);
-
   protected formGroup = computed(() => {
     return new FormGroup({
       email: new FormControl<string | null>(null, Validators.compose([
@@ -85,6 +80,10 @@ export class LoginPage {
       ]))
     });
   });
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly router = inject(Router);
+  private readonly messageService = inject(MessageService);
+  private readonly userStore = inject(UserStore);
 
   protected async login() {
 
@@ -100,15 +99,7 @@ export class LoginPage {
 
       if (success) {
         this.router.navigate(['/']).then();
-        this.userStore.retrieveActiveUser().then(activeUser => {
-
-          if (activeUser != null) {
-            this.userStore.setActiveUser(activeUser);
-          }
-
-        })
-      } else {
-
+        this.userStore.retrieveActiveUser();
       }
 
     });

@@ -1,6 +1,6 @@
 export type QueryResult<T> = {
   total: number,
-  limit: number,
-  offset: number,
-  data: T
+  page: number,
+  size: number,
+  content: T
 }

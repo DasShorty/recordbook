@@ -1,4 +1,4 @@
-import {Component, signal} from '@angular/core';
+import {Component, signal, ChangeDetectionStrategy} from '@angular/core';
 import {Select} from 'primeng/select';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Presence, PresenceDisplay, PresenceType} from '@features/book/models/presence.type';
@@ -11,6 +11,7 @@ import {InputNumber} from 'primeng/inputnumber';
     ReactiveFormsModule,
     InputNumber
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <tr>
       <form [formGroup]="form()">
@@ -48,7 +49,8 @@ import {InputNumber} from 'primeng/inputnumber';
 export class RecordBookDayComponent {
 
   protected readonly form = signal(new FormGroup({
-    date: new FormControl<Date | null>(null, Validators.required),
+    // date is ISO string (yyyy-MM-dd) from backend
+    date: new FormControl<string | null>(null, Validators.required),
     duration: new FormControl<number>(0, Validators.compose([
       Validators.required,
       Validators.min(1),

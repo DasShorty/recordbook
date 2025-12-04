@@ -2,7 +2,6 @@ import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
 import {BookWeek} from '@features/book/models/book.week.model';
 import {inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {firstValueFrom} from 'rxjs';
 import {httpConfig} from '@environment/environment';
 
 export const BookWeekStore = signalStore(
@@ -18,42 +17,57 @@ export const BookWeekStore = signalStore(
 
     return {
 
-      async createWeek(week: number, year: number, bookId: string) {
+      createWeek(week: number, year: number, bookId: string) {
 
-        const res = await firstValueFrom(httpClient.post<BookWeek>(httpConfig.baseUrl + "books/" + bookId + "/weeks", {
+        httpClient.post<BookWeek>(httpConfig.baseUrl + "books/" + bookId + "/weeks", {
           calendarWeek: week,
           year: year
         }, {
           withCredentials: true,
           observe: 'response'
-        }));
+        }).subscribe({
+          next: () => {
+            // created - consumers can call getWeek afterwards
+          },
+          error: () => {
+            // noop - creation failure should be handled by caller via side-channels
+          }
+        });
 
       },
 
-      async getWeek(week: number, year: number, bookId: string) {
+      getWeek(week: number, year: number, bookId: string) {
 
         patchState(store, {
           loading: true,
           error: undefined
         });
 
-        const res = await firstValueFrom(httpClient.get<BookWeek>(httpConfig.baseUrl + "books/" + bookId + "/weeks/" + year + "/" + week, {
+        httpClient.get<BookWeek>(httpConfig.baseUrl + "books/" + bookId + "/weeks/" + year + "/" + week, {
           observe: "response",
           withCredentials: true
-        }));
+        }).subscribe({
+          next: (res) => {
+            if (!res.ok || res.body === null) {
+              patchState(store, {
+                loading: false,
+                error: res.status
+              });
+              return;
+            }
 
-        if (!res.ok || res.body === null) {
-          patchState(store, {
-            loading: false,
-            error: res.status
-          });
-          return;
-        }
-
-        patchState(store, {
-          loading: false,
-          error: undefined,
-          week: res.body
+            patchState(store, {
+              loading: false,
+              error: undefined,
+              week: res.body
+            });
+          },
+          error: (err) => {
+            patchState(store, {
+              loading: false,
+              error: err?.status ?? 500
+            });
+          }
         });
 
       }

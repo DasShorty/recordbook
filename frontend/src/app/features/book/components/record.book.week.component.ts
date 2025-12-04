@@ -1,4 +1,4 @@
-import {Component, input} from '@angular/core';
+import {Component, input, ChangeDetectionStrategy} from '@angular/core';
 import {TableModule} from 'primeng/table';
 import {BookWeek} from '@features/book/models/book.week.model';
 import {JsonPipe} from '@angular/common';
@@ -6,6 +6,7 @@ import {JsonPipe} from '@angular/common';
 @Component({
   selector: 'record-book-week-component',
   imports: [TableModule, JsonPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <p-table [value]="recordBookWeek().days">
       <ng-template #caption>
@@ -32,5 +33,6 @@ import {JsonPipe} from '@angular/common';
   `,
 })
 export class RecordBookWeekComponent {
+  // prefer a signal-wrapped input to follow core/users style
   public readonly recordBookWeek = input.required<BookWeek>();
 }

@@ -26,22 +26,15 @@ public class UserController {
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('COMPANY', 'ADMINISTRATOR')")
-    public ResponseEntity<UserDto> create(
-            @RequestBody @Valid CreateUserDto body
-    ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                this.userService.createUser(body)
-        ); // TODO - check for possible issues
+    public ResponseEntity<UserDto> create(@RequestBody @Valid CreateUserDto body) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.createUser(body));
     }
 
     @GetMapping
     public ResponseEntity<Page<UserDto>> getUsers(
             @PageableDefault Pageable pageable,
-            @RequestParam(value = "userType", required = false) UserType userType
-    ) {
-        return ResponseEntity.ok(
-                this.userService.retrieveUsers(pageable, userType)
-        );
+            @RequestParam(value = "userType", required = false) UserType userType) {
+        return ResponseEntity.ok(this.userService.retrieveUsers(pageable, userType));
     }
 
     @GetMapping("/{id}")

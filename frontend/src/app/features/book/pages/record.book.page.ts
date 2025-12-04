@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {LayoutComponent} from '@shared/layout/layout.component';
 
 @Component({
@@ -6,6 +6,7 @@ import {LayoutComponent} from '@shared/layout/layout.component';
   imports: [
     LayoutComponent
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <layout-component>
 

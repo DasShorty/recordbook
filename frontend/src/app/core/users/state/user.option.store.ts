@@ -1,5 +1,5 @@
 import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
-import {UserType} from '@core/users/models/users.model';
+import {User, UserType} from '@core/users/models/users.model';
 import {inject} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {httpConfig} from '@environment/environment';
@@ -64,21 +64,31 @@ export const UserOptionStore = signalStore(
           .set("page", page)
 
 
-        httpClient.get<Page<SelectOption<String>>>(httpConfig.baseUrl + "users/options", {
+        httpClient.get<Page<User>>(httpConfig.baseUrl + "users", {
           withCredentials: true,
           params: params
         }).subscribe(res => {
-          switch (userType) {
 
+          const dataObj: Page<SelectOption<string>> = {
+            content: res.content.map(value => {
+              return {
+                id: value.id,
+                name: value.forename + " " + value.surname
+              } as SelectOption<string>
+            }),
+            page: res.page
+          }
+
+          switch (userType) {
             case UserType.TRAINEE:
               patchState(store, {
-                traineePage: res
+                traineePage: dataObj
               })
               break;
 
             case UserType.TRAINER:
               patchState(store, {
-                trainersPage: res
+                trainersPage: dataObj
               })
               break;
           }
