@@ -3,7 +3,7 @@ import {LayoutComponent} from '@shared/layout/layout.component';
 import {BoxComponent} from '@shared/layout/box.component';
 import {ActivatedRoute, Router} from '@angular/router';
 import {WeekService} from '@features/book/services/week.service';
-import {RecordBookWeekComponent} from '@features/book/components/record.book.week.component';
+import {BookWeekComponent} from '@features/book/components/book.week.component';
 import {Optional} from '@shared/data/optional';
 import {BookWeek} from '@features/book/models/book.week.model';
 import {BookStore} from '@features/book/state/book.store';
@@ -14,7 +14,7 @@ import {BookWeekStore} from '@features/book/state/book.week.store';
   imports: [
     LayoutComponent,
     BoxComponent,
-    RecordBookWeekComponent
+    BookWeekComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -26,7 +26,7 @@ import {BookWeekStore} from '@features/book/state/book.week.store';
           <span>Kein Berichtsheft vorhanden. <br>Die Ausbildungskraft muss zuerst ein Berichtsheft für dich erstellen!</span>
 
         } @else {
-          <record-book-week-component [recordBookWeek]="this.week().get()"></record-book-week-component>
+          <book-week [bookWeek]="this.week().get()"></book-week>
         }
 
       </box-component>

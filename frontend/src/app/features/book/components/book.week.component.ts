@@ -4,15 +4,15 @@ import {BookWeek} from '@features/book/models/book.week.model';
 import {JsonPipe} from '@angular/common';
 
 @Component({
-  selector: 'record-book-week-component',
+  selector: 'book-week',
   imports: [TableModule, JsonPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <p-table [value]="recordBookWeek().days">
+    <p-table [value]="bookWeek().days">
       <ng-template #caption>
         <div class="flex items-center justify-items-start">
           <span class="text-xl font-bold">
-            Woche {{ recordBookWeek().year }}/{{ recordBookWeek().calendarWeek }}
+            Woche {{ bookWeek().year }}/{{ bookWeek().calendarWeek }}
           </span>
         </div>
       </ng-template>
@@ -32,7 +32,7 @@ import {JsonPipe} from '@angular/common';
     </p-table>
   `,
 })
-export class RecordBookWeekComponent {
-  // prefer a signal-wrapped input to follow core/users style
-  public readonly recordBookWeek = input.required<BookWeek>();
+export class BookWeekComponent {
+  public readonly bookWeek = input.required<BookWeek>();
 }
+

@@ -1,12 +1,12 @@
 import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {TableModule} from 'primeng/table';
 import {Button} from 'primeng/button';
-import {BookManagerStore} from '@features/book/state/book.manager.store';
-import {CreateRecordBookComponent} from '@features/book/components/manager/create.record.book.component';
+import {BookStore} from '@features/book/state/book.store';
+import {BookCreateComponent} from '@features/book/components/manager/book.create.component';
 import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
 
 @Component({
-  selector: 'record-book-manager-list-component',
+  selector: 'book-manager-list',
   imports: [
     TableModule,
     Button
@@ -31,18 +31,21 @@ import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
       <ng-template #body let-book>
         <tr>
           <td>{{ book.trainee.forename }} {{ book.trainee.surname }}</td>
-          <td>{{ book.trainee.forename }} {{ book.trainee.surname }}</td>
+          <td>{{ book.trainers?.length ? (book.trainers[0].forename + ' ' + book.trainers[0].surname) : '-' }}</td>
+          <td>
+            <p-button icon="pi pi-eye" (onClick)="openBook(book)"></p-button>
+          </td>
         </tr>
       </ng-template>
     </p-table>
   `
 })
-export class RecordBookManagerListComponent implements OnInit {
+export class BookManagerListComponent implements OnInit {
 
   readonly loading = signal(false);
   readonly error = signal(false);
   readonly dialogService = inject(DialogService);
-  readonly bookManagerStore = inject(BookManagerStore);
+  readonly bookManagerStore = inject(BookStore);
   private readonly dialogRef = signal<DynamicDialogRef | null>(null);
 
   ngOnInit() {
@@ -50,7 +53,7 @@ export class RecordBookManagerListComponent implements OnInit {
   }
 
   openDialog() {
-    this.dialogRef.set(this.dialogService.open(CreateRecordBookComponent, {
+    this.dialogRef.set(this.dialogService.open(BookCreateComponent, {
       appendTo: 'body',
       header: 'Berichtsheft erstellen',
       width: '50vw',
@@ -71,4 +74,9 @@ export class RecordBookManagerListComponent implements OnInit {
     });
   }
 
+  openBook(book: any) {
+    // TODO: navigate to book detail / open page
+  }
+
 }
+

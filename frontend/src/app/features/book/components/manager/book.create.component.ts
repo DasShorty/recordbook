@@ -2,14 +2,14 @@ import {Component, inject, signal, ChangeDetectionStrategy} from '@angular/core'
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {User, UserType} from '@core/users/models/users.model';
 import {UserOptionStore} from '@core/users/state/user.option.store';
-import {BookManagerStore} from '@features/book/state/book.manager.store';
+import {BookStore} from '@features/book/state/book.store';
 import {SelectComponent} from '@shared/select/select.component';
 import {Button} from 'primeng/button';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
 
 @Component({
-  selector: 'record-book-manager-dialog',
+  selector: 'book-create',
   imports: [ReactiveFormsModule, SelectComponent, Button, ProgressSpinner],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -64,11 +64,11 @@ import {DynamicDialogRef} from 'primeng/dynamicdialog';
     }
   `
 })
-export class CreateRecordBookComponent {
+export class BookCreateComponent {
 
   readonly loading = signal(false);
   readonly userOptionStore = inject(UserOptionStore);
-  readonly bookManagerStore = inject(BookManagerStore);
+  readonly bookManagerStore = inject(BookStore);
   readonly dialogRef = inject(DynamicDialogRef);
   protected readonly formGroup = new FormGroup({
     id: new FormControl(''),
@@ -121,3 +121,4 @@ export class CreateRecordBookComponent {
     this.userOptionStore.loadOptions(UserType.TRAINER); // TODO - error handling
   }
 }
+

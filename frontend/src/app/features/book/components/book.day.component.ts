@@ -5,7 +5,7 @@ import {Presence, PresenceDisplay, PresenceType} from '@features/book/models/pre
 import {InputNumber} from 'primeng/inputnumber';
 
 @Component({
-  selector: 'record-book-day-component',
+  selector: 'book-day',
   imports: [
     Select,
     ReactiveFormsModule,
@@ -46,7 +46,7 @@ import {InputNumber} from 'primeng/inputnumber';
     </tr>
   `
 })
-export class RecordBookDayComponent {
+export class BookDayComponent {
 
   protected readonly form = signal(new FormGroup({
     // date is ISO string (yyyy-MM-dd) from backend
@@ -65,3 +65,4 @@ export class RecordBookDayComponent {
   protected readonly PresenceType = PresenceType;
   protected readonly PresenceDisplay = PresenceDisplay;
 }
+
