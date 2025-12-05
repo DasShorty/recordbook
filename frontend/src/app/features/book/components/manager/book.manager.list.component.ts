@@ -31,7 +31,7 @@ import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
       <ng-template #body let-book>
         <tr>
           <td>{{ book.trainee.forename }} {{ book.trainee.surname }}</td>
-          <td>{{ book.trainers?.length ? (book.trainers[0].forename + ' ' + book.trainers[0].surname) : '-' }}</td>
+          <td>{{ book.trainer.forename }} {{ book.trainer.surname }}</td>
           <td>
             <p-button icon="pi pi-eye" (onClick)="openBook(book)"></p-button>
           </td>

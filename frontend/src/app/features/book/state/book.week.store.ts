@@ -17,25 +17,6 @@ export const BookWeekStore = signalStore(
 
     return {
 
-      createWeek(week: number, year: number, bookId: string) {
-
-        httpClient.post<BookWeek>(httpConfig.baseUrl + "books/" + bookId + "/weeks", {
-          calendarWeek: week,
-          year: year
-        }, {
-          withCredentials: true,
-          observe: 'response'
-        }).subscribe({
-          next: () => {
-            // created - consumers can call getWeek afterwards
-          },
-          error: () => {
-            // noop - creation failure should be handled by caller via side-channels
-          }
-        });
-
-      },
-
       getWeek(week: number, year: number, bookId: string) {
 
         patchState(store, {

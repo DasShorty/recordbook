@@ -6,7 +6,7 @@ export type CreateUser = {
   forename: string,
   surname: string,
   userType: UserType,
-  authorities: Authority[],
+  authority: Authority,
 }
 
 export enum UserType {

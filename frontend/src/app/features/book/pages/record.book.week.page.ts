@@ -26,7 +26,7 @@ import {BookWeekStore} from '@features/book/state/book.week.store';
           <span>Kein Berichtsheft vorhanden. <br>Die Ausbildungskraft muss zuerst ein Berichtsheft für dich erstellen!</span>
 
         } @else {
-          <book-week [bookWeek]="this.week().get()"></book-week>
+          <book-week-component [bookWeek]="this.week().get()"></book-week-component>
         }
 
       </box-component>

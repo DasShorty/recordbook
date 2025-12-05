@@ -11,10 +11,10 @@ import {ProfileComponent} from '@shared/layout/header/profile.component';
     <header>
       <div class="inner-header">
         <div class="logo-menu">
-          <button (click)="toggleMenu()">
-            <i class="pi pi-bars"></i> <!--TODO - add menu toggle-->
+          <button (click)="toggleMenu()" aria-label="Toggle menu">
+            <i class="pi pi-bars"></i>
           </button>
-          <p>LOGO</p>
+          <p>RECORDBOOK v1.0</p>
         </div>
         <div>
           <profile-component></profile-component>
@@ -24,14 +24,22 @@ import {ProfileComponent} from '@shared/layout/header/profile.component';
   `,
   styles: `
     header {
-      padding: 0.5rem 5rem 0.5rem 5rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4rem;
+      padding: 0 2rem;
       background-color: var(--color-white);
+      z-index: 50;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 
       .inner-header {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
+        height: 100%;
       }
 
       .logo-menu {

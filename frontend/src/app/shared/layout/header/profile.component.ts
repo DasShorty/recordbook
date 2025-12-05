@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject, OnInit} from '@angular/core';
+import {Component, computed, effect, inject} from '@angular/core';
 import {Menu} from 'primeng/menu';
 import {Ripple} from 'primeng/ripple';
 import {MenuItem} from 'primeng/api';
@@ -8,12 +8,7 @@ import {Router} from '@angular/router';
 import {Authority} from '@core/users/models/users.model';
 
 @Component({
-  selector: 'profile-component',
-  imports: [
-    Menu,
-    Ripple
-  ],
-  template: `
+  selector: 'profile-component', imports: [Menu, Ripple], template: `
     <button class="cursor-pointer bg-white m-5" (click)="toggleAccountMenu(menu, $event)">
       <i class="pi pi-user" style="font-size: 1.3rem;"></i>
     </button>
@@ -44,8 +39,7 @@ import {Authority} from '@core/users/models/users.model';
         }
       </ng-template>
     </p-menu>
-  `,
-  styles: `
+  `, styles: `
     .p-menu-item-content {
       background-color: rgba(255, 0, 0, 0.25);
 
@@ -57,54 +51,38 @@ import {Authority} from '@core/users/models/users.model';
 })
 export class ProfileComponent {
 
-  private readonly userStore = inject(UserStore);
   protected readonly authenticationService = inject(AuthenticationService);
-  private readonly router = inject(Router);
-
-  protected items: MenuItem[] = [
-    {
-      separator: true
-    },
-    {
-      icon: 'pi pi-id-card',
-      label: 'Account Details'
-    },
-    {
-      icon: 'pi pi-eye',
-      label: 'View Company'
-    },
-    {
-      label: 'Logout',
-      icon: 'pi pi-sign-out',
-      command: () => {
-        this.authenticationService.logout().then(() => {
-          this.router.navigateByUrl("/login").then(); // TODO - add a confirm dialog for logout
-        });
-      },
-      delete: true
-    }
-  ];
-
-  public user = computed(() => this.userStore.getActiveUser());
   protected userName = computed(() => this.user().forename + " " + this.user().surname);
   protected userType = computed(() => {
 
-    if (this.user().authorities.includes(Authority.ADMINISTRATOR)) {
+    if (this.user().authority == Authority.ADMINISTRATOR) {
       return "ADMINISTRATOR"
     } else {
       return this.user().userType;
     }
 
   });
-
-  protected toggleAccountMenu(menu: Menu, event: Event) {
-    menu.toggle(event);
-  }
+  private readonly userStore = inject(UserStore);
+  public user = computed(() => this.userStore.getActiveUser());
+  private readonly router = inject(Router);
+  protected items: MenuItem[] = [{
+    separator: true
+  }, {
+    label: 'Logout', icon: 'pi pi-sign-out', command: () => {
+      this.authenticationService.logout().then(() => {
+        this.router.navigateByUrl("/login").then(); // TODO - add a confirm dialog for logout
+      });
+    }, delete: true
+  }];
 
   constructor() {
     effect(() => {
       this.userStore.retrieveActiveUser()
     });
+  }
+
+  protected toggleAccountMenu(menu: Menu, event: Event) {
+    menu.toggle(event);
   }
 
 }

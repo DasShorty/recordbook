@@ -6,6 +6,7 @@ import {httpConfig} from '@environment/environment';
 import {HttpParams} from '@angular/common/http';
 import {QueryResult} from '@core/http/http.model';
 import {Consumer} from '@shared/data/consumer';
+import {Page} from '@shared/http/model/page.model';
 
 export const BookStore = signalStore(
   {providedIn: 'root'},
@@ -69,16 +70,16 @@ export const BookStore = signalStore(
           .set('page', String(page))
           .set('size', String(size));
 
-        httpClient.get<QueryResult<Book[]>>(httpConfig.baseUrl + "books", {
+        httpClient.get<Page<Book>>(httpConfig.baseUrl + "books", {
           withCredentials: true,
           params: params
         }).subscribe({
           next: (res) => {
             patchState(store, {
               books: res.content,
-              page: res.page,
-              size: res.size,
-              total: res.total
+              page: res.page.number,
+              size: res.page.size,
+              total: res.page.totalElements
             });
           },
           error: () => {

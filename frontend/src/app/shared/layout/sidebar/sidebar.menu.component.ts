@@ -21,24 +21,26 @@ import {NgClass} from '@angular/common';
   `,
   styles: `
     .sidebar-navigation {
-
-      position: fixed;
+      /* participate in layout instead of being fixed */
+      position: relative;
       width: 20rem;
       overflow: hidden !important;
       opacity: 1;
-      transition: transform 0.3s, left 0.3s;
+      transition: width 0.3s ease, opacity 0.3s ease, padding 0.2s ease;
       background-color: white;
       padding: 1rem;
       box-sizing: border-box;
-      height: 100dvh;
+      height: 100%;
       border-radius: 5px;
-
     }
 
+    /* fully hide sidebar when collapsed */
     .menu-invisible {
-      transform: translateX(-20rem) !important;
+      width: 0 !important;
+      padding: 0 !important;
       opacity: 0 !important;
-      display: none;
+      overflow: hidden !important;
+      pointer-events: none !important;
     }
   `
 })
