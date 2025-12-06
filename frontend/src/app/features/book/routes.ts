@@ -1,7 +1,7 @@
 import {Routes} from '@angular/router';
 import {AuthGuard} from '@core/auth/auth.guard';
 import {OnlyTraineeGuard} from '@shared/authentication/only.trainee.guard';
-import {OnlyTrainerGuard} from '@shared/authentication/only.trainer.guard';
+import {onlyTrainerGuard} from '@shared/authentication/only.trainer.guard';
 
 export const routes: Routes = [
 
@@ -13,7 +13,7 @@ export const routes: Routes = [
   {
     path: 'manage',
     loadComponent: () => import('@features/book/pages/book.manager.page').then(m => m.BookManagerPage),
-    canActivate: [AuthGuard, OnlyTrainerGuard]
+    canActivate: [AuthGuard, onlyTrainerGuard]
   },
   {
     path: '',
