@@ -4,11 +4,12 @@ import de.dasshorty.recordbook.book.week.day.Presence;
 import de.dasshorty.recordbook.book.week.day.PresenceLocation;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
 public record UpdateBookDayDto(
-        UUID id,
+        @NotNull UUID id,
         @Min(value = 0, message = "duration must be at least 0")
         @Max(value = 24, message = "duration must not exceed 24 hours")
         double duration,

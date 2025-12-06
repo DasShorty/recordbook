@@ -9,6 +9,7 @@ import {BookDay} from '@features/book/models/book.day.model';
 import {Presence, PresenceDisplay, PresenceType} from '@features/book/models/presence.type';
 import {BookWeekStore} from '@features/book/state/book.week.store';
 import {BookStore} from '@features/book/state/book.store';
+import {DateFormatService} from '@features/book/services/date.format.service';
 
 @Component({
   selector: 'book-week-content',
@@ -42,11 +43,11 @@ import {BookStore} from '@features/book/state/book.store';
         </ng-template>
 
         <ng-template #body let-day let-i="rowIndex">
-          <tr [formGroup]="forms[i]" [class.weekend]="isWeekend(day.date)">
+          <tr [formGroup]="forms[i]" [class.weekend]="dateFormatService.isWeekend(day.date)">
             <td class="px-2 py-1">
               <div class="flex flex-col">
-                <span class="font-medium">{{ getWeekdayName(day.date) }}</span>
-                <span class="text-sm text-gray-600">{{ formatDate(day.date) }}</span>
+                <span class="font-medium">{{ dateFormatService.getWeekdayName(day.date) }}</span>
+                <span class="text-sm text-gray-600">{{ dateFormatService.formatDate(day.date) }}</span>
               </div>
             </td>
             <td class="px-2 py-1">
@@ -114,6 +115,7 @@ export class BookWeekContentComponent implements OnChanges {
   private originalDays: BookDay[] = [];
   private readonly bookWeekStore = inject(BookWeekStore);
   private readonly bookStore = inject(BookStore);
+  protected readonly dateFormatService = inject(DateFormatService);
 
   constructor() {
     // React to store loading state
@@ -164,7 +166,7 @@ export class BookWeekContentComponent implements OnChanges {
       if (form.dirty) {
         if (form.invalid) {
           const date = this.originalDays[i].date;
-          this.validationError.set(`Der Tag ${this.formatDate(date)} hat ungültige Werte. Bitte überprüfen Sie die Eingaben.`);
+          this.validationError.set(`Der Tag ${this.dateFormatService.formatDate(date)} hat ungültige Werte. Bitte überprüfen Sie die Eingaben.`);
           return false;
         }
       }
@@ -203,21 +205,5 @@ export class BookWeekContentComponent implements OnChanges {
     // reset forms to original
     this.forms.forEach((f, i) => f.reset(this.originalDays[i] as any));
     this.validationError.set(null);
-  }
-
-  public getWeekdayName(dateStr: string): string {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('de-DE', { weekday: 'long' });
-  }
-
-  public formatDate(dateStr: string): string {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  }
-
-  public isWeekend(dateStr: string): boolean {
-    const date = new Date(dateStr);
-    const day = date.getDay();
-    return day === 0 || day === 6; // 0 = Sunday, 6 = Saturday
   }
 }
