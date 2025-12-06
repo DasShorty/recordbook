@@ -8,7 +8,7 @@ export const routes: Routes = [
   {
     path: 'week',
     loadComponent: () => import('@features/book/pages/record.book.week.page').then(m => m.RecordBookWeekPage),
-    canActivate: [AuthGuard, OnlyTraineeGuard]
+    canActivate: [AuthGuard]
   },
   {
     path: 'manage',
