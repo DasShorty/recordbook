@@ -1,0 +1,30 @@
+#file: noinspection SpellCheckingInspection
+services:
+  postgres:
+    image: 'postgres:latest'
+    shm_size: 128mb
+    environment:
+      - 'POSTGRES_USER=root'
+      - 'POSTGRES_PASSWORD=mysecretpassword'
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root"]
+      interval: 10s
+      timeout: 30s
+      retries: 5
+  redis:
+    image: 'redis:latest'
+    ports:
+      - '6379:6379'
+    environment:
+      - 'REDIS_PASSWORD=secret'
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'auth ${REDIS_PASSWORD}\nping' | redis-cli | grep PONG"]
+      interval: 10s
+      timeout: 30s
+      retries: 5
+volumes:
+  postgres:
