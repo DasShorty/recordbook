@@ -1,5 +1,6 @@
 import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
 import {BookWeek} from '@features/book/models/book.week.model';
+import {BookDay} from '@features/book/models/book.day.model';
 import {inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {httpConfig} from '@environment/environment';
@@ -51,6 +52,50 @@ export const BookWeekStore = signalStore(
           }
         });
 
+      },
+
+      updateWeek(weekId: string, bookId: string, days: BookDay[]) {
+        patchState(store, {
+          loading: true,
+          error: undefined
+        });
+
+        const updatePayload = {
+          id: weekId,
+          days: days.map(d => ({
+            id: d.id,
+            duration: d.duration,
+            presence: d.presence,
+            presenceLocation: d.presenceLocation
+          }))
+        };
+
+        httpClient.put<BookWeek>(httpConfig.baseUrl + "books/" + bookId + "/weeks/" + weekId, updatePayload, {
+          observe: "response",
+          withCredentials: true
+        }).subscribe({
+          next: (res) => {
+            if (!res.ok || res.body === null) {
+              patchState(store, {
+                loading: false,
+                error: res.status
+              });
+              return;
+            }
+
+            patchState(store, {
+              loading: false,
+              error: undefined,
+              week: res.body
+            });
+          },
+          error: (err) => {
+            patchState(store, {
+              loading: false,
+              error: err?.status ?? 500
+            });
+          }
+        });
       }
 
     }
