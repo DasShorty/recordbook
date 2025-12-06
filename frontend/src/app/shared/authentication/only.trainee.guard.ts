@@ -9,7 +9,7 @@ export class OnlyTraineeGuard implements CanActivate {
   private readonly userStore = inject(UserStore);
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    return this.userStore.activeUser().authority == Authority.TRAINEE;
+    return this.userStore.activeUser().authority === Authority.TRAINEE;
   }
 
 }

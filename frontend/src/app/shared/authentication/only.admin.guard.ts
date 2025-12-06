@@ -9,7 +9,7 @@ export class OnlyAdminGuard implements CanActivate {
   private readonly userStore = inject(UserStore);
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    return this.userStore.activeUser().authority == Authority.ADMINISTRATOR;
+    return this.userStore.activeUser().authority === Authority.ADMINISTRATOR;
   }
 
 }
