@@ -1,16 +1,10 @@
-import {inject, Injectable} from '@angular/core';
-import {ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot} from '@angular/router';
+import {inject} from '@angular/core';
+import {CanActivateFn} from '@angular/router';
 import {UserStore} from '@core/users/state/user.store';
 import {Authority} from '@core/users/models/users.model';
 
-@Injectable({providedIn: 'root'})
-export class OnlyTrainerGuard implements CanActivate {
-
-  private readonly userStore = inject(UserStore);
-
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    const authority = this.userStore.activeUser().authority;
-    return authority === Authority.TRAINER || authority === Authority.ADMINISTRATOR;
-  }
-
-}
+export const onlyTrainerGuard: CanActivateFn = () => {
+  const userStore = inject(UserStore);
+  return userStore.activeUser().authority === Authority.TRAINER ||
+         userStore.activeUser().authority === Authority.ADMINISTRATOR;
+};
