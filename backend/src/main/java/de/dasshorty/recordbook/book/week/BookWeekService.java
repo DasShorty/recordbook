@@ -137,9 +137,19 @@ public class BookWeekService {
     }
 
     @Transactional
-    public Optional<BookWeekDto> updateWeek(UUID weekId, UpdateBookWeekDto updateDto) {
+    public Optional<BookWeekDto> updateWeek(UUID bookId, UUID weekId, UpdateBookWeekDto updateDto) {
         BookWeek week = this.bookWeekRepository.findById(weekId)
                 .orElseThrow(() -> new NotExistingException("week not found"));
+
+        // Verify the week belongs to the specified book by checking if it exists in the book's weeks
+        boolean weekBelongsToBook = this.bookWeekRepository
+                .findByCalendarWeekAndBookId(week.getCalendarWeek(), week.getYear(), bookId)
+                .map(w -> w.getId().equals(weekId))
+                .orElse(false);
+        
+        if (!weekBelongsToBook) {
+            throw new NotExistingException("week does not belong to the specified book");
+        }
 
         // Update each day
         for (UpdateBookDayDto dayDto : updateDto.days()) {

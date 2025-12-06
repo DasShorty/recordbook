@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, input, OnChanges, output, signal, SimpleChanges, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, input, OnChanges, output, signal, SimpleChanges, inject, effect} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {TableModule} from 'primeng/table';
 import {Select} from 'primeng/select';
@@ -115,6 +115,25 @@ export class BookWeekContentComponent implements OnChanges {
   private readonly bookWeekStore = inject(BookWeekStore);
   private readonly bookStore = inject(BookStore);
 
+  constructor() {
+    // React to store loading state
+    effect(() => {
+      const loading = this.bookWeekStore.loading();
+      if (!loading && this.isSaving()) {
+        // Update completed
+        this.isSaving.set(false);
+        const error = this.bookWeekStore.error();
+        if (error) {
+          this.validationError.set('Fehler beim Speichern der Woche. Bitte versuchen Sie es erneut.');
+        } else {
+          // Success - mark forms as pristine
+          this.forms.forEach(f => f.markAsPristine());
+          this.validationError.set(null);
+        }
+      }
+    });
+  }
+
   ngOnChanges(changes: SimpleChanges) {
     // build forms from bookWeek
     this.originalDays = this.bookWeek().days.map(d => ({...d}));
@@ -166,16 +185,18 @@ export class BookWeekContentComponent implements OnChanges {
       duration: f.get('duration')!.value,
     }));
 
-    const bookId = this.bookStore.activeBook().id;
+    const activeBook = this.bookStore.activeBook();
+    if (!activeBook?.id) {
+      this.validationError.set('Kein aktives Berichtsheft gefunden.');
+      this.isSaving.set(false);
+      return;
+    }
+
+    const bookId = activeBook.id;
     const weekId = this.bookWeek().id;
 
     // Call the store to update the week
     this.bookWeekStore.updateWeek(weekId, bookId, updatedDays);
-
-    // after emit, mark forms pristine
-    this.forms.forEach(f => f.markAsPristine());
-    this.isSaving.set(false);
-    this.validationError.set(null);
   }
 
   public onCancel() {

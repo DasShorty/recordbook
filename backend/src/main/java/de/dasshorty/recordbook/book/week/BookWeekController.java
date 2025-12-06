@@ -58,7 +58,7 @@ public class BookWeekController {
     @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINER', 'TRAINEE')")
     public ResponseEntity<?> updateWeek(@PathVariable UUID bookId, @PathVariable UUID weekId, @Valid @RequestBody UpdateBookWeekDto updateDto) {
         try {
-            var updatedWeek = this.bookWeekService.updateWeek(weekId, updateDto);
+            var updatedWeek = this.bookWeekService.updateWeek(bookId, weekId, updateDto);
             return ResponseEntity.of(updatedWeek);
         } catch (NotExistingException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("not found", e.getMessage()));

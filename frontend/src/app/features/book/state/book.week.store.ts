@@ -25,7 +25,8 @@ export const BookWeekStore = signalStore(
           error: undefined
         });
 
-        httpClient.get<BookWeek>(httpConfig.baseUrl + "books/" + bookId + "/weeks/" + year + "/" + week, {
+        const url = `${httpConfig.baseUrl}books/${bookId}/weeks/${year}/${week}`;
+        httpClient.get<BookWeek>(url, {
           observe: "response",
           withCredentials: true
         }).subscribe({
@@ -70,7 +71,8 @@ export const BookWeekStore = signalStore(
           }))
         };
 
-        httpClient.put<BookWeek>(httpConfig.baseUrl + "books/" + bookId + "/weeks/" + weekId, updatePayload, {
+        const url = `${httpConfig.baseUrl}books/${bookId}/weeks/${weekId}`;
+        httpClient.put<BookWeek>(url, updatePayload, {
           observe: "response",
           withCredentials: true
         }).subscribe({
