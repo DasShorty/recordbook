@@ -11,7 +11,9 @@ import SidebarItemComponent from '@shared/layout/sidebar/sidebar.item.component'
       </div>
       <ul class="mt-2 mb-2">
         @for (item of menuItem().items; track item) {
-          <sidebar-item-component [menuItem]="item"></sidebar-item-component>
+          @if (item.visible) {
+            <sidebar-item-component [menuItem]="item"></sidebar-item-component>
+          }
         }
       </ul>
     </li>

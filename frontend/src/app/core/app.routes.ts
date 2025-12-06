@@ -1,5 +1,6 @@
 import {Routes} from '@angular/router';
 import {AuthGuard} from '@core/auth/auth.guard';
+import {OnlyAdminGuard} from '@shared/authentication/only.admin.guard';
 
 export const routes: Routes = [
   {
@@ -19,7 +20,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     loadComponent: () => import('@core/admin/admin.page').then(m => m.AdminPage),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, OnlyAdminGuard]
   },
   {
     path: '',

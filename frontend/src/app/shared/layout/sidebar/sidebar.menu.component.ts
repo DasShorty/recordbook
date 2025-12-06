@@ -3,6 +3,8 @@ import {MenuItem} from 'primeng/api';
 import {SidebarGroupComponent} from '@shared/layout/sidebar/sidebar.group.component';
 import {LayoutStore} from '@shared/layout/layout.store';
 import {NgClass} from '@angular/common';
+import {UserStore} from '@core/users/state/user.store';
+import {Authority} from '@core/users/models/users.model';
 
 @Component({
   selector: 'sidebar-menu-component',
@@ -13,8 +15,10 @@ import {NgClass} from '@angular/common';
   template: `
     <nav class="sidebar-navigation" [ngClass]="isMenuOpen() ? '' : 'menu-invisible'">
       <ul>
-        @for (item of model; track item) {
-          <sidebar-group-component [menuItem]="item"></sidebar-group-component>
+        @for (item of menuItems(); track item) {
+          @if (item.visible) {
+            <sidebar-group-component [menuItem]="item"></sidebar-group-component>
+          }
         }
       </ul>
     </nav>
@@ -46,26 +50,54 @@ import {NgClass} from '@angular/common';
 })
 export class SidebarMenuComponent {
 
-  model: MenuItem[] = [
-    {
-      label: 'Home', items: [
-        {label: 'Dashboard', icon: 'pi pi-home', routerLink: ['/dashboard']}
-      ]
-    },
-    {
-      label: 'Berichtsheft', items: [
-        {label: 'Wochenansicht', icon: 'pi pi-file-arrow-up', routerLink: ['/record-book/week']},
-        {label: 'Verwalten', icon: 'pi pi-file-arrow-up', routerLink: ['/record-book/manage']},
-      ]
-    },
-    {
-      label: 'Administration', items: [
-        {label: 'Admin', icon: 'pi pi-file-arrow-up', routerLink: ['/admin']}
-      ]
-    },
-  ];
+  protected readonly menuItems = computed(() => {
+    return [
+      {
+        label: 'Home', visible: true, items: [
+          {label: 'Dashboard', icon: 'pi pi-home', routerLink: ['/dashboard'], visible: true}
+        ]
+      },
+      {
+        label: 'Berichtsheft', visible: true, items: [
+          {
+            label: 'Wochenansicht',
+            icon: 'pi pi-file-arrow-up',
+            routerLink: ['/record-book/week'],
+            visible: this.isUserTrainee()
+          },
+          {
+            label: 'Verwalten',
+            icon: 'pi pi-file-arrow-up',
+            routerLink: ['/record-book/manage'],
+            visible: this.isUserTrainer() || this.isUserAdmin()
+          },
+        ]
+      },
+      {
+        visible: this.isUserAdmin(),
+        label: 'Administration',
+        items: [
+          {label: 'Admin', icon: 'pi pi-file-arrow-up', visible: this.isUserAdmin(), routerLink: ['/admin']}
+        ]
+      },
+    ] as MenuItem[];
+  })
 
   private readonly layoutStore = inject(LayoutStore);
   protected readonly isMenuOpen = computed(() => this.layoutStore.isMenuVisible());
+
+  private readonly userStore = inject(UserStore);
+
+  isUserAdmin() {
+    return this.userStore.activeUser().authority == Authority.ADMINISTRATOR;
+  }
+
+  isUserTrainer() {
+    return this.userStore.activeUser().authority == Authority.TRAINER;
+  }
+
+  isUserTrainee() {
+    return this.userStore.activeUser().authority == Authority.TRAINEE;
+  }
 
 }
