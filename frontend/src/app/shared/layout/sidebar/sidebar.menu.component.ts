@@ -88,16 +88,16 @@ export class SidebarMenuComponent {
 
   private readonly userStore = inject(UserStore);
 
-  isUserAdmin() {
-    return this.userStore.activeUser().authority == Authority.ADMINISTRATOR;
-  }
+  private readonly isUserAdmin = computed(() =>
+    this.userStore.activeUser().authority === Authority.ADMINISTRATOR
+  );
 
-  isUserTrainer() {
-    return this.userStore.activeUser().authority == Authority.TRAINER;
-  }
+  private readonly isUserTrainer = computed(() =>
+    this.userStore.activeUser().authority === Authority.TRAINER
+  );
 
-  isUserTrainee() {
-    return this.userStore.activeUser().authority == Authority.TRAINEE;
-  }
+  private readonly isUserTrainee = computed(() =>
+    this.userStore.activeUser().authority === Authority.TRAINEE
+  );
 
 }
