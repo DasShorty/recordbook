@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, input, OnChanges, output, signal, SimpleChanges} from '@angular/core';
+import {ChangeDetectionStrategy, Component, input, OnChanges, output, signal, SimpleChanges, inject, effect} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {TableModule} from 'primeng/table';
 import {Select} from 'primeng/select';
@@ -7,6 +7,9 @@ import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/
 import {BookWeek} from '@features/book/models/book.week.model';
 import {BookDay} from '@features/book/models/book.day.model';
 import {Presence, PresenceDisplay, PresenceType} from '@features/book/models/presence.type';
+import {BookWeekStore} from '@features/book/state/book.week.store';
+import {BookStore} from '@features/book/state/book.store';
+import {DateFormatService} from '@features/book/services/date.format.service';
 
 @Component({
   selector: 'book-week-content',
@@ -19,23 +22,34 @@ import {Presence, PresenceDisplay, PresenceType} from '@features/book/models/pre
           <div class="flex items-center justify-between">
             <div class="text-xl font-bold">Woche {{ bookWeek().year }}/{{ bookWeek().calendarWeek }}</div>
             <div class="flex gap-2">
-              <button (click)="onSave()" [disabled]="!hasChanges() || isSaving()" class="btn btn-primary">Save Week
+              <button (click)="onSave()" [disabled]="!canSave() || isSaving()" class="btn btn-primary">
+                {{ isSaving() ? 'Saving...' : 'Save Week' }}
               </button>
               <button (click)="onCancel()" [disabled]="!hasChanges() || isSaving()" class="btn">Cancel</button>
             </div>
           </div>
+          @if (validationError()) {
+            <div class="text-red-600 mt-2">{{ validationError() }}</div>
+          }
         </ng-template>
 
         <ng-template #header>
           <tr>
+            <th>Tag / Datum</th>
             <th>Anwesenheit</th>
             <th>Ort</th>
             <th>Stunden</th>
           </tr>
         </ng-template>
 
-        <ng-template #body let-i="rowIndex">
-          <tr [formGroup]="forms[i]">
+        <ng-template #body let-day let-i="rowIndex">
+          <tr [formGroup]="forms[i]" [class.weekend]="dateFormatService.isWeekend(day.date)">
+            <td class="px-2 py-1">
+              <div class="flex flex-col">
+                <span class="font-medium">{{ dateFormatService.getWeekdayName(day.date) }}</span>
+                <span class="text-sm text-gray-600">{{ dateFormatService.formatDate(day.date) }}</span>
+              </div>
+            </td>
             <td class="px-2 py-1">
               <p-select
                 class="w-full"
@@ -67,6 +81,7 @@ import {Presence, PresenceDisplay, PresenceType} from '@features/book/models/pre
                 class="w-20 text-right"
                 formControlName="duration"
                 [min]="0"
+                [max]="24"
                 [step]="0.25"
                 mode="decimal"
                 ariaLabel="Stunden"
@@ -77,12 +92,18 @@ import {Presence, PresenceDisplay, PresenceType} from '@features/book/models/pre
       </p-table>
     </div>
   `,
+  styles: [`
+    :host ::ng-deep tr.weekend {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+  `]
 })
 export class BookWeekContentComponent implements OnChanges {
   public readonly bookWeek = input.required<BookWeek>();
   public readonly weekSaved = output<BookWeek>();
   public forms: FormGroup[] = [];
   public isSaving = signal(false);
+  public validationError = signal<string | null>(null);
   public readonly presenceOptions = Object.values(Presence).map(v => ({
     value: v,
     label: PresenceDisplay.getPresenceDisplay(v as Presence)
@@ -92,6 +113,28 @@ export class BookWeekContentComponent implements OnChanges {
     label: PresenceDisplay.getPresenceType(v as PresenceType)
   }));
   private originalDays: BookDay[] = [];
+  private readonly bookWeekStore = inject(BookWeekStore);
+  private readonly bookStore = inject(BookStore);
+  protected readonly dateFormatService = inject(DateFormatService);
+
+  constructor() {
+    // React to store loading state
+    effect(() => {
+      const loading = this.bookWeekStore.loading();
+      if (!loading && this.isSaving()) {
+        // Update completed
+        this.isSaving.set(false);
+        const error = this.bookWeekStore.error();
+        if (error) {
+          this.validationError.set('Fehler beim Speichern der Woche. Bitte versuchen Sie es erneut.');
+        } else {
+          // Success - mark forms as pristine
+          this.forms.forEach(f => f.markAsPristine());
+          this.validationError.set(null);
+        }
+      }
+    });
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     // build forms from bookWeek
@@ -99,9 +142,9 @@ export class BookWeekContentComponent implements OnChanges {
     this.forms = this.originalDays.map(d => new FormGroup({
       id: new FormControl(d.id),
       date: new FormControl(d.date),
-      presence: new FormControl(d.presence, {validators: [Validators.required]}),
+      presence: new FormControl(d.presence),
       presenceLocation: new FormControl(d.presenceLocation),
-      duration: new FormControl(d.duration, {validators: [Validators.min(0)]}),
+      duration: new FormControl(d.duration, {validators: [Validators.min(0), Validators.max(24)]}),
     }));
   }
 
@@ -109,8 +152,32 @@ export class BookWeekContentComponent implements OnChanges {
     return this.forms.some(f => f.dirty);
   }
 
+  public canSave(): boolean {
+    return this.hasChanges() && this.validateTouchedDays();
+  }
+
+  private validateTouchedDays(): boolean {
+    this.validationError.set(null);
+    
+    for (let i = 0; i < this.forms.length; i++) {
+      const form = this.forms[i];
+      
+      // If the form is touched/dirty, it must be valid
+      if (form.dirty) {
+        if (form.invalid) {
+          const date = this.originalDays[i].date;
+          this.validationError.set(`Der Tag ${this.dateFormatService.formatDate(date)} hat ungültige Werte. Bitte überprüfen Sie die Eingaben.`);
+          return false;
+        }
+      }
+    }
+    
+    return true;
+  }
+
   public onSave() {
-    if (!this.hasChanges()) return;
+    if (!this.canSave()) return;
+    
     this.isSaving.set(true);
     const updatedDays: BookDay[] = this.forms.map(f => ({
       id: f.get('id')!.value,
@@ -120,18 +187,23 @@ export class BookWeekContentComponent implements OnChanges {
       duration: f.get('duration')!.value,
     }));
 
-    const updatedWeek: BookWeek = {...this.bookWeek(), days: updatedDays} as BookWeek;
+    const activeBook = this.bookStore.activeBook();
+    if (!activeBook?.id) {
+      this.validationError.set('Kein aktives Berichtsheft gefunden.');
+      this.isSaving.set(false);
+      return;
+    }
 
-    // emit up; the signal store / parent should handle the actual save
-    this.weekSaved.emit(updatedWeek);
+    const bookId = activeBook.id;
+    const weekId = this.bookWeek().id;
 
-    // after emit, mark forms pristine
-    this.forms.forEach(f => f.markAsPristine());
-    this.isSaving.set(false);
+    // Call the store to update the week
+    this.bookWeekStore.updateWeek(weekId, bookId, updatedDays);
   }
 
   public onCancel() {
     // reset forms to original
     this.forms.forEach((f, i) => f.reset(this.originalDays[i] as any));
+    this.validationError.set(null);
   }
 }

@@ -6,6 +6,8 @@ import de.dasshorty.recordbook.book.BookService;
 import de.dasshorty.recordbook.book.week.day.BookDay;
 import de.dasshorty.recordbook.book.week.day.BookDayRepository;
 import de.dasshorty.recordbook.book.week.dto.BookWeekDto;
+import de.dasshorty.recordbook.book.week.dto.UpdateBookWeekDto;
+import de.dasshorty.recordbook.book.week.day.dto.UpdateBookDayDto;
 import de.dasshorty.recordbook.exception.NotExistingException;
 import de.dasshorty.recordbook.user.UserService;
 import org.springframework.stereotype.Service;
@@ -132,5 +134,38 @@ public class BookWeekService {
 
     private BookDay createBookDay(int day, int month, int year) {
         return new BookDay(LocalDate.of(year, month, day));
+    }
+
+    @Transactional
+    public Optional<BookWeekDto> updateWeek(UUID bookId, UUID weekId, UpdateBookWeekDto updateDto) {
+        BookWeek week = this.bookWeekRepository.findById(weekId)
+                .orElseThrow(() -> new NotExistingException("week not found"));
+
+        // Verify the week belongs to the specified book by checking if it exists in the book's weeks
+        boolean weekBelongsToBook = this.bookWeekRepository
+                .findByCalendarWeekAndBookId(week.getCalendarWeek(), week.getYear(), bookId)
+                .map(w -> w.getId().equals(weekId))
+                .orElse(false);
+        
+        if (!weekBelongsToBook) {
+            throw new NotExistingException("week does not belong to the specified book");
+        }
+
+        // Update each day
+        for (UpdateBookDayDto dayDto : updateDto.days()) {
+            BookDay day = week.getDays().stream()
+                    .filter(d -> d.getId().equals(dayDto.id()))
+                    .findFirst()
+                    .orElseThrow(() -> new NotExistingException("day not found"));
+
+            day.setDuration(dayDto.duration());
+            day.setPresence(dayDto.presence());
+            day.setPresenceLocation(dayDto.presenceLocation());
+            this.bookDayRepository.save(day);
+        }
+
+        // Save the updated week
+        week = this.bookWeekRepository.save(week);
+        return Optional.of(week.toDto());
     }
 }

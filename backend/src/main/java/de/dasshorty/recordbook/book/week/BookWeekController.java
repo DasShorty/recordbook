@@ -2,9 +2,11 @@ package de.dasshorty.recordbook.book.week;
 
 import de.dasshorty.recordbook.book.BookService;
 import de.dasshorty.recordbook.book.week.dto.BookWeekDto;
+import de.dasshorty.recordbook.book.week.dto.UpdateBookWeekDto;
 import de.dasshorty.recordbook.exception.NotExistingException;
 import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.ErrorResult;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -47,6 +49,17 @@ public class BookWeekController {
         try {
             var week = this.bookWeekService.getOrCreateWeekForBook(bookId, calendarWeek, convertedYear, accessToken);
             return ResponseEntity.of(week);
+        } catch (NotExistingException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("not found", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/{weekId}")
+    @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINER', 'TRAINEE')")
+    public ResponseEntity<?> updateWeek(@PathVariable UUID bookId, @PathVariable UUID weekId, @Valid @RequestBody UpdateBookWeekDto updateDto) {
+        try {
+            var updatedWeek = this.bookWeekService.updateWeek(bookId, weekId, updateDto);
+            return ResponseEntity.of(updatedWeek);
         } catch (NotExistingException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("not found", e.getMessage()));
         }
