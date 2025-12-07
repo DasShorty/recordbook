@@ -55,6 +55,8 @@ public class BookWeek {
         return new BookWeekDto(
                 this.id,
                 this.signedFromTrainer == null ? null : this.signedFromTrainer.toDto(),
+                this.year,
+                this.calendarWeek,
                 this.days.stream().map(BookDay::toDto).toList()
         );
     }

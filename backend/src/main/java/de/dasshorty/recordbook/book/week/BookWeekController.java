@@ -1,6 +1,7 @@
 package de.dasshorty.recordbook.book.week;
 
 import de.dasshorty.recordbook.book.BookService;
+import de.dasshorty.recordbook.book.week.day.dto.BookDayDto;
 import de.dasshorty.recordbook.book.week.dto.BookWeekDto;
 import de.dasshorty.recordbook.book.week.dto.UpdateBookWeekDto;
 import de.dasshorty.recordbook.exception.NotExistingException;
@@ -15,8 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Optional;
+import java.util.Comparator;
 import java.util.UUID;
 
 @RestController
@@ -47,7 +49,11 @@ public class BookWeekController {
         }
 
         try {
-            var week = this.bookWeekService.getOrCreateWeekForBook(bookId, calendarWeek, convertedYear, accessToken);
+            var week = this.bookWeekService.getOrCreateWeekForBook(bookId, calendarWeek, convertedYear, accessToken).map(weekDto -> {
+                var daySorted = new ArrayList<>(weekDto.days());
+                daySorted.sort(Comparator.comparing(BookDayDto::date));
+                return new BookWeekDto(weekDto.id(), weekDto.signedFromTrainer(), weekDto.year(), weekDto.calendarWeek(), daySorted);
+            });
             return ResponseEntity.of(week);
         } catch (NotExistingException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("not found", e.getMessage()));
