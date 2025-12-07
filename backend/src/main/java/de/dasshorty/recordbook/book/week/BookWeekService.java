@@ -118,7 +118,6 @@ public class BookWeekService {
         LocalDate dayOfWeek = this.getMondayOfWeek(calendarWeek, year);
 
         for (int i = 0; i < 7; i++) {
-            // Add the current day (start with Monday) then advance
             bookDays.add(this.createBookDay(dayOfWeek.getDayOfMonth(), dayOfWeek.getMonthValue(), dayOfWeek.getYear()));
             dayOfWeek = dayOfWeek.plusDays(1);
         }
