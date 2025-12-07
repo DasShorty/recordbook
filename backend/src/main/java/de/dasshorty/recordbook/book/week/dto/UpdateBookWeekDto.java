@@ -9,6 +9,7 @@ import java.util.UUID;
 
 public record UpdateBookWeekDto(
         @NotNull UUID id,
+        String text,
         @Valid List<UpdateBookDayDto> days
 ) {
 }

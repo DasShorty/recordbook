@@ -163,6 +163,8 @@ public class BookWeekService {
         }
 
         // Save the updated week
+        week.setText(updateDto.text());
+
         week = this.bookWeekRepository.save(week);
         return Optional.of(week.toDto());
     }

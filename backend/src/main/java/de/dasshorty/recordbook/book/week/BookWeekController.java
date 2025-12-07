@@ -49,11 +49,7 @@ public class BookWeekController {
         }
 
         try {
-            var week = this.bookWeekService.getOrCreateWeekForBook(bookId, calendarWeek, convertedYear, accessToken).map(weekDto -> {
-                var daySorted = new ArrayList<>(weekDto.days());
-                daySorted.sort(Comparator.comparing(BookDayDto::date));
-                return new BookWeekDto(weekDto.id(), weekDto.signedFromTrainer(), weekDto.year(), weekDto.calendarWeek(), daySorted);
-            });
+            var week = this.bookWeekService.getOrCreateWeekForBook(bookId, calendarWeek, convertedYear, accessToken);
             return ResponseEntity.of(week);
         } catch (NotExistingException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("not found", e.getMessage()));

@@ -55,7 +55,7 @@ export const BookWeekStore = signalStore(
 
       },
 
-      updateWeek(weekId: string, bookId: string, days: BookDay[]) {
+      updateWeek(weekId: string, bookId: string, text: string, days: BookDay[]) {
         patchState(store, {
           loading: true,
           error: undefined
@@ -63,6 +63,7 @@ export const BookWeekStore = signalStore(
 
         const updatePayload = {
           id: weekId,
+          text: text,
           days: days.map(d => ({
             id: d.id,
             duration: d.duration,

@@ -1,19 +1,15 @@
 package de.dasshorty.recordbook.book.week;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface BookWeekRepository extends JpaRepository<BookWeek, UUID> {
+import java.util.Optional;
+import java.util.UUID;
 
-    @Query("SELECT weeks FROM Book book JOIN book.weeks weeks WHERE book.id = :bookId")
-    Page<BookWeek> findWeeksByBookId(UUID bookId, Pageable pageable);
+public interface BookWeekRepository extends JpaRepository<@NonNull BookWeek, @NonNull UUID> {
 
-    @Query("SELECT weeks FROM Book book JOIN book.weeks weeks WHERE book.id = :bookId AND weeks.calendarWeek = :calendarWeek AND weeks.year = :year")
+    @Query("SELECT DISTINCT weeks FROM Book book JOIN book.weeks weeks WHERE book.id = :bookId AND weeks.calendarWeek = :calendarWeek AND weeks.year = :year")
     Optional<BookWeek> findByCalendarWeekAndBookId(int calendarWeek, int year, UUID bookId);
 
     boolean existsByCalendarWeekAndYear(int calendarWeek, int year);

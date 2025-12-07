@@ -26,7 +26,7 @@ export const BookStore = signalStore(
 
     return {
 
-      getOwnBook() {
+      getOwnBook(res: Consumer<Book>) {
 
         patchState(store, {
           error: undefined,
@@ -51,6 +51,8 @@ export const BookStore = signalStore(
               activeBook: response.body,
               loading: false
             });
+
+            res(response.body);
           },
           error: (err) => {
             patchState(store, {

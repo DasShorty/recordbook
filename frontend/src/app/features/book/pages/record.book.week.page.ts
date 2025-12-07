@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnInit, signal, effect, ChangeDetectionStrategy} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, OnInit} from '@angular/core';
 import {LayoutComponent} from '@shared/layout/layout.component';
 import {BoxComponent} from '@shared/layout/box.component';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -38,7 +38,6 @@ export class RecordBookWeekPage implements OnInit {
   private readonly activeRoute = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly weekService = inject(WeekService);
-  private readonly currentWeek = signal<number | undefined>(undefined);
   private readonly bookStore = inject(BookStore);
   private readonly bookWeekStore = inject(BookWeekStore);
 
@@ -50,35 +49,24 @@ export class RecordBookWeekPage implements OnInit {
     return Optional.of(bw);
   })
 
-  constructor() {
-    // when we have a book and a selected week, load the week
-    effect(() => {
-      const bookId = this.bookStore.activeBook().id;
-      const cw = this.currentWeek();
-      if (bookId && cw != undefined) {
-        const year = new Date().getFullYear();
-        this.bookWeekStore.getWeek(cw, year, bookId);
-      }
-    });
-  }
-
   ngOnInit() {
 
     this.activeRoute.queryParams
       .subscribe(params => {
 
-        const param = params['cw'];
+        const calendarWeek = params['cw'];
 
-        if (param === null || param === undefined) {
+        if (calendarWeek === null || calendarWeek === undefined) {
 
           this.router.navigateByUrl('/record-book/week?cw=' + this.weekService.getCurrentWeekNumber()).then();
           return;
 
         }
 
-        this.currentWeek.set(Number(param));
-        // ensure we have the user's book
-        this.bookStore.getOwnBook();
+        this.bookStore.getOwnBook(value => {
+          const year = new Date().getFullYear();
+          this.bookWeekStore.getWeek(calendarWeek, year, value.id);
+        });
 
       })
 

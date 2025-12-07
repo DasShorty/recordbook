@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {TableModule} from 'primeng/table';
-import {FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {BookWeek} from '@features/book/models/book.week.model';
 import {BookDay} from '@features/book/models/book.day.model';
 import {Presence, PresenceDisplay, PresenceType} from '@features/book/models/presence.type';
@@ -11,16 +11,27 @@ import {DateFormatService} from '@features/book/services/date.format.service';
 import {Button} from 'primeng/button';
 import {Select} from 'primeng/select';
 import {InputNumber} from 'primeng/inputnumber';
+import {RouterLink} from '@angular/router';
+import {FloatLabel} from 'primeng/floatlabel';
+import {Textarea} from 'primeng/textarea';
 
 @Component({
   selector: 'book-week-content',
-  imports: [CommonModule, TableModule, ReactiveFormsModule, Button, Select, InputNumber],
+  imports: [CommonModule, TableModule, ReactiveFormsModule, Button, Select, InputNumber, RouterLink, FormsModule, FloatLabel, Textarea],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="w-full h-full">
       <p-table [value]="bookWeek().days" [scrollable]="true" scrollHeight="flex" style="width:100%; height:100%;">
         <ng-template #caption>
           <div class="flex items-center justify-between">
+            <div class="flex gap-2">
+              <p-button [queryParams]="{'cw': (this.bookWeek().calendarWeek - 1)}" routerLink="/record-book/week">
+                <
+              </p-button>
+              <p-button [queryParams]="{'cw': (this.bookWeek().calendarWeek + 1)}" routerLink="/record-book/week">
+                >
+              </p-button>
+            </div>
             <div class="text-xl font-bold">Woche {{ bookWeek().year }}/{{ bookWeek().calendarWeek }}</div>
             <div class="flex gap-2">
               <p-button (click)="onSave()" [disabled]="isSaving()">
@@ -31,6 +42,13 @@ import {InputNumber} from 'primeng/inputnumber';
           @if (validationError()) {
             <div class="text-red-600 mt-2">{{ validationError() }}</div>
           }
+
+          <div style="margin-top: 2rem">
+            <p-floatlabel>
+              <textarea class="w-full my-4 p-10" pTextarea id="over-label" [(ngModel)]="weekText" rows="5" cols="50" style="resize: none"></textarea>
+              <label for="over-label">Beschreibe kurz deine Tätigkeiten dieser Woche (Aufgaben, Projekte, Besonderheiten, Probleme)</label>
+            </p-floatlabel>
+          </div>
         </ng-template>
 
         <ng-template #header>
@@ -114,6 +132,7 @@ export class BookWeekContentComponent {
     label: PresenceDisplay.getPresenceType(v as PresenceType)
   })));
   protected readonly dateFormatService = inject(DateFormatService);
+  protected readonly weekText = signal<string>('');
   private readonly bookWeekStore = inject(BookWeekStore);
   private readonly bookStore = inject(BookStore);
 
@@ -133,6 +152,8 @@ export class BookWeekContentComponent {
       if (this.bookWeek().days === undefined) {
         return;
       }
+
+      this.weekText.set(this.bookWeek().text);
 
       this.forms.set(this.bookWeek().days.map(d => BookDay.getFormGroup(d)));
     });
@@ -155,7 +176,7 @@ export class BookWeekContentComponent {
       return;
     }
 
-    this.bookWeekStore.updateWeek(this.bookWeek().id, activeBook.id, updatedDays);
+    this.bookWeekStore.updateWeek(this.bookWeek().id, activeBook.id, this.weekText(), updatedDays);
   }
 
   protected getFormGroup(rowIndex: number): FormGroup {

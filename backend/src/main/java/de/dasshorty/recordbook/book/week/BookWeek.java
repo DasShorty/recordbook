@@ -1,6 +1,7 @@
 package de.dasshorty.recordbook.book.week;
 
 import de.dasshorty.recordbook.book.week.day.BookDay;
+import de.dasshorty.recordbook.book.week.day.dto.BookDayDto;
 import de.dasshorty.recordbook.book.week.dto.BookWeekDto;
 import de.dasshorty.recordbook.user.User;
 import jakarta.persistence.*;
@@ -9,11 +10,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "weeks")
+@Table(name = "weeks",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_week_id_calendarweek_year",
+                columnNames = {"id", "calendar_week", "year"}
+        ))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -40,6 +46,9 @@ public class BookWeek {
     @Column(nullable = false)
     private int year;
 
+    @Column(nullable = true, columnDefinition = "text")
+    private String text;
+
     public BookWeek(int calendarWeek, int year) {
         this.calendarWeek = calendarWeek;
         this.year = year;
@@ -55,9 +64,10 @@ public class BookWeek {
         return new BookWeekDto(
                 this.id,
                 this.signedFromTrainer == null ? null : this.signedFromTrainer.toDto(),
+                this.text,
                 this.year,
                 this.calendarWeek,
-                this.days.stream().map(BookDay::toDto).toList()
+                this.days.stream().map(BookDay::toDto).sorted(Comparator.comparing(BookDayDto::date)).toList()
         );
     }
 }
