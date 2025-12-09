@@ -1,0 +1,15 @@
+node_modules
+dist
+.angular
+.git
+.gitignore
+*.md
+.editorconfig
+.classpath
+.project
+.settings
+*.iml
+build.gradle.kts
+settings.gradle.kts
+package-lock.json
+

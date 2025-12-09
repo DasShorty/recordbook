@@ -1,11 +1,13 @@
 #file: noinspection SpellCheckingInspection
 services:
   postgres:
+    container_name: recordbook-postgres
     image: 'postgres:latest'
     shm_size: 128mb
     environment:
       - 'POSTGRES_USER=root'
       - 'POSTGRES_PASSWORD=mysecretpassword'
+      - 'POSTGRES_DB=recordbook'
     ports:
       - '5432:5432'
     volumes:
@@ -13,18 +15,90 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U root"]
       interval: 10s
-      timeout: 30s
+      timeout: 5s
       retries: 5
+      start_period: 10s
+    networks:
+      - recordbook-network
+    restart: unless-stopped
+
   redis:
+    container_name: recordbook-redis
     image: 'redis:latest'
-    ports:
-      - '6379:6379'
     environment:
       - 'REDIS_PASSWORD=secret'
+    ports:
+      - '6379:6379'
     healthcheck:
-      test: ["CMD-SHELL", "echo 'auth ${REDIS_PASSWORD}\nping' | redis-cli | grep PONG"]
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
       interval: 10s
-      timeout: 30s
+      timeout: 5s
       retries: 5
+      start_period: 5s
+    networks:
+      - recordbook-network
+    restart: unless-stopped
+
+  backend:
+    container_name: recordbook-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - 'SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/recordbook'
+      - 'SPRING_DATASOURCE_USERNAME=root'
+      - 'SPRING_DATASOURCE_PASSWORD=mysecretpassword'
+      - 'SPRING_REDIS_HOST=redis'
+      - 'SPRING_REDIS_PORT=6379'
+      - 'SPRING_REDIS_PASSWORD=secret'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - recordbook-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/api/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  frontend:
+    container_name: recordbook-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    networks:
+      - recordbook-network
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  apache:
+    container_name: recordbook-apache
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '80:80'
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_started
+    networks:
+      - recordbook-network
+    restart: unless-stopped
+
 volumes:
   postgres:
+    name: recordbook-postgres-data
+
+networks:
+  recordbook-network:
+    name: recordbook-network
+    driver: bridge

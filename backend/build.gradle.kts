@@ -54,38 +54,38 @@ tasks.asciidoctor {
     dependsOn(tasks.test)
 }
 
-fun exitValueFromCommand(vararg command: String): Boolean {
-
-    return try {
-
-        val process = ProcessBuilder(*command)
-            .redirectErrorStream(true)
-            .start()
-
-        process.waitFor() == 0
-    } catch (e: Exception) {
-        false
-    }
-}
-
-val containerCmd = providers.provider {
-    when {
-        exitValueFromCommand("podman", "--version") -> "podman"
-        exitValueFromCommand("docker", "--version") -> "docker"
-        else -> throw GradleException("Neither podman nor docker is installed.")
-    }
-}
-
-tasks.register<Exec>("startPostgres") {
-    commandLine(containerCmd.get(), "compose", "-f", "./test-compose.yml", "up", "-d")
-}
-
-tasks.register<Exec>("stopPostgres") {
-    commandLine(containerCmd.get(), "compose", "-f", "./test-compose.yml", "down", "--volumes")
-}
-
-tasks.test {
-    outputs.dir(project.extra["snippetsDir"]!!)
-    dependsOn(tasks.named("startPostgres"))
-    finalizedBy(tasks.named("stopPostgres"))
-}
+//fun exitValueFromCommand(vararg command: String): Boolean {
+//
+//    return try {
+//
+//        val process = ProcessBuilder(*command)
+//            .redirectErrorStream(true)
+//            .start()
+//
+//        process.waitFor() == 0
+//    } catch (e: Exception) {
+//        false
+//    }
+//}
+//
+//val containerCmd = providers.provider {
+//    when {
+//        exitValueFromCommand("podman", "--version") -> "podman"
+//        exitValueFromCommand("docker", "--version") -> "docker"
+//        else -> throw GradleException("Neither podman nor docker is installed.")
+//    }
+//}
+//
+//tasks.register<Exec>("startPostgres") {
+//    commandLine(containerCmd.get(), "compose", "-f", "./test-compose.yml", "up", "-d")
+//}
+//
+//tasks.register<Exec>("stopPostgres") {
+//    commandLine(containerCmd.get(), "compose", "-f", "./test-compose.yml", "down", "--volumes")
+//}
+//
+//tasks.test {
+//    outputs.dir(project.extra["snippetsDir"]!!)
+//    dependsOn(tasks.named("startPostgres"))
+//    finalizedBy(tasks.named("stopPostgres"))
+//}
