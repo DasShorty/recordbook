@@ -5,11 +5,12 @@ import {routes} from './app.routes';
 import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
 import {providePrimeNG} from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
-import {HTTP_INTERCEPTORS, provideHttpClient, withFetch} from '@angular/common/http';
+import {HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptors} from '@angular/common/http';
 import {OptionalResponseInterceptor} from '@core/http/optional.response.interceptor';
 import {definePreset} from '@primeuix/themes';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {DialogService} from 'primeng/dynamicdialog';
+import {validateAuthenticationInterceptor} from '@core/http/interceptor/auth.interceptor';
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -59,7 +60,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
-    provideHttpClient(withFetch()),
+    provideHttpClient(withFetch(), withInterceptors([validateAuthenticationInterceptor])),
     MessageService,
     DialogService,
     ConfirmationService,
