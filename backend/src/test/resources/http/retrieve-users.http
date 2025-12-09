@@ -1,3 +1,0 @@
-### Obtain users
-GET http://localhost:8080/users?offset=0&limit=10
-Authorization: Bearer {{ACCESS_TOKEN}}
