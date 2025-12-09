@@ -6,7 +6,7 @@ import {httpConfig} from '@environment/environment';
 import {HttpParams} from '@angular/common/http';
 import {QueryResult} from '@core/http/http.model';
 import {Consumer} from '@shared/data/consumer';
-import {Page} from '@shared/http/model/page.model';
+import {Page} from '@core/http/model/page.model';
 
 export const BookStore = signalStore(
   {providedIn: 'root'},

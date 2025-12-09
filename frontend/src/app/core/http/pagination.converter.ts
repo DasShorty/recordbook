@@ -1,4 +1,4 @@
-import {Pageable} from '@shared/http/model/page.model';
+import {Pageable} from '@core/http/model/page.model';
 
 export class PaginationConverter {
 

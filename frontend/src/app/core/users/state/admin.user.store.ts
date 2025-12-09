@@ -4,7 +4,7 @@ import {inject} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {retry} from 'rxjs';
 import {httpConfig} from '@environment/environment';
-import {Page} from '@shared/http/model/page.model';
+import {Page} from '@core/http/model/page.model';
 import {Consumer} from '@shared/data/consumer';
 
 export const AdminUserStore = signalStore(

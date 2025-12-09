@@ -1,7 +1,7 @@
 import {Component, input, output} from '@angular/core';
 import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {Select, SelectLazyLoadEvent} from 'primeng/select';
-import {SelectOption} from '@shared/http/model/select.option.model';
+import {SelectOption} from '@core/http/model/select.option.model';
 
 @Component({
   selector: 'select-component', imports: [FormsModule, ReactiveFormsModule, Select], template: `

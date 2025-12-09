@@ -3,7 +3,7 @@ import {User} from '@core/users/models/users.model';
 import {inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {httpConfig} from '@environment/environment';
-import {Page} from '@shared/http/model/page.model';
+import {Page} from '@core/http/model/page.model';
 
 export const UserStore = signalStore(
   {providedIn: 'root'},

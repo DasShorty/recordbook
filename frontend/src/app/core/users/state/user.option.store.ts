@@ -3,8 +3,8 @@ import {User, UserType} from '@core/users/models/users.model';
 import {inject} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {httpConfig} from '@environment/environment';
-import {SelectOption} from '@shared/http/model/select.option.model';
-import {Page} from '@shared/http/model/page.model';
+import {SelectOption} from '@core/http/model/select.option.model';
+import {Page} from '@core/http/model/page.model';
 
 export const UserOptionStore = signalStore(
   {providedIn: 'root'},
