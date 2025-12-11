@@ -18,7 +18,7 @@ export namespace BookDay {
       date: new FormControl<string>(bookDay.date),
       presence: new FormControl<Presence>(bookDay.presence),
       presenceLocation: new FormControl<PresenceType>(bookDay.presenceLocation),
-      text: new FormControl(bookDay.text, Validators.maxLength(5000)),
+      text: new FormControl<string>(bookDay.text, Validators.maxLength(5000)),
       hours: new FormControl<number>(bookDay.hours, {validators: [Validators.min(0), Validators.max(24)]}),
       minutes: new FormControl<number>(bookDay.minutes, {validators: [Validators.min(0), Validators.max(59)]}),
     });
