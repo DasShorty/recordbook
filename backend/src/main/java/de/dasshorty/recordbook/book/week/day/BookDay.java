@@ -29,6 +29,9 @@ public class BookDay {
     @Column(name = "minutes", columnDefinition = "int")
     private int minutes;
 
+    @Column(name = "text", columnDefinition = "text")
+    private String text;
+
     @Enumerated(EnumType.STRING)
     private Presence presence;
 
@@ -43,6 +46,7 @@ public class BookDay {
         return new BookDayDto(
                 this.id,
                 this.date,
+                this.text,
                 this.hours,
                 this.minutes,
                 this.presence,
