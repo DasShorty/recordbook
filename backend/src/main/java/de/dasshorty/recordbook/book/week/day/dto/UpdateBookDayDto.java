@@ -16,6 +16,7 @@ public record UpdateBookDayDto(
         @Min(value = 0)
         @Max(value = 59)
         int minutes,
+        String text,
         Presence presence,
         PresenceLocation presenceLocation
 ) {

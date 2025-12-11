@@ -6,6 +6,7 @@ export type BookDay = {
   date: string,
   hours: number,
   minutes: number,
+  text: string,
   presence: Presence,
   presenceLocation: PresenceType
 }
@@ -17,6 +18,7 @@ export namespace BookDay {
       date: new FormControl<string>(bookDay.date),
       presence: new FormControl<Presence>(bookDay.presence),
       presenceLocation: new FormControl<PresenceType>(bookDay.presenceLocation),
+      text: new FormControl(bookDay.text),
       hours: new FormControl<number>(bookDay.hours, {validators: [Validators.min(0), Validators.max(24)]}),
       minutes: new FormControl<number>(bookDay.minutes, {validators: [Validators.min(0), Validators.max(59)]}),
     });

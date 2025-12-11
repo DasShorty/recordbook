@@ -45,8 +45,10 @@ import {Textarea} from 'primeng/textarea';
 
           <div style="margin-top: 2rem">
             <p-floatlabel>
-              <textarea class="w-full my-4 p-10" pTextarea id="over-label" [(ngModel)]="weekText" rows="5" cols="50" style="resize: none"></textarea>
-              <label for="over-label">Beschreibe kurz deine Tätigkeiten dieser Woche (Aufgaben, Projekte, Besonderheiten, Probleme)</label>
+              <textarea class="w-full my-4 p-10" pTextarea id="over-label" [(ngModel)]="weekText" rows="5" cols="50"
+                        style="resize: none"></textarea>
+              <label for="over-label">Beschreibe kurz deine Tätigkeiten dieser Woche (Aufgaben, Projekte,
+                Besonderheiten, Probleme)</label>
             </p-floatlabel>
           </div>
         </ng-template>
@@ -117,14 +119,27 @@ import {Textarea} from 'primeng/textarea';
                 ></p-input-number>
               </td>
             </tr>
+            <tr [formGroup]="getFormGroup((i))" [class.weekend]="dateFormatService.isWeekend(day.date)">
+              <td colspan="4" class="px-2 py-1">
+                <p-floatlabel>
+                  <textarea
+                    class="w-full"
+                    formControlName="text"
+                    rows="4"
+                    style="resize: none"
+                    pTextarea>
+                    </textarea>
+                  <label for="over-label">Beschreibe kurz deine Tätigkeiten an diesem Tag (Aufgaben, Projekte,
+                    Besonderheiten, Probleme)</label>
+                </p-floatlabel>
+              </td>
+            </tr>
           }
         </ng-template>
       </p-table>
     </div>
   `,
-  styles: [`` +
-  `:host ::ng-deep tr.weekend { background-color: rgba(0, 0, 0, 0.03); }`
-  ]
+  styles: [`` + `:host ::ng-deep tr.weekend { background-color: rgba(0, 0, 0, 0.03); }`]
 })
 export class BookWeekContentComponent {
   public readonly bookWeek = input.required<BookWeek>();
@@ -133,12 +148,10 @@ export class BookWeekContentComponent {
   public isSaving = signal(false);
   public validationError = signal<string | null>(null);
   public readonly presenceOptions = computed(() => Object.values(Presence).map(v => ({
-    value: v,
-    label: PresenceDisplay.getPresenceDisplay(v as Presence)
+    value: v, label: PresenceDisplay.getPresenceDisplay(v as Presence)
   })));
   public readonly presenceTypeOptions = computed(() => Object.values(PresenceType).map(v => ({
-    value: v,
-    label: PresenceDisplay.getPresenceType(v as PresenceType)
+    value: v, label: PresenceDisplay.getPresenceType(v as PresenceType)
   })));
   protected readonly dateFormatService = inject(DateFormatService);
   protected readonly weekText = signal<string>('');
@@ -175,6 +188,7 @@ export class BookWeekContentComponent {
       date: f.get('date')!.value,
       presence: f.get('presence')!.value,
       presenceLocation: f.get('presenceLocation')!.value,
+      text: f.get('text')!.value,
       hours: f.get('hours')!.value,
       minutes: f.get('minutes')!.value,
     }));
