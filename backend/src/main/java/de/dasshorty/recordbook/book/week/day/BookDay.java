@@ -23,10 +23,10 @@ public class BookDay {
     @Column(name = "date", columnDefinition = "date", nullable = false)
     private LocalDate date;
 
-    @Column(name = "hours", columnDefinition = "decimal")
+    @Column(name = "hours", columnDefinition = "int")
     private int hours;
 
-    @Column(name = "minutes", columnDefinition = "decimal")
+    @Column(name = "minutes", columnDefinition = "int")
     private int minutes;
 
     @Enumerated(EnumType.STRING)
