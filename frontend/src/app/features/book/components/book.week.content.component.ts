@@ -110,7 +110,7 @@ import {Textarea} from 'primeng/textarea';
                   class="w-20 text-right"
                   formControlName="minutes"
                   [min]="0"
-                  [max]="24"
+                  [max]="59"
                   [step]="1"
                   [showButtons]="true"
                   ariaLabel="Minuten"
