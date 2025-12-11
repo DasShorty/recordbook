@@ -99,12 +99,21 @@ import {Textarea} from 'primeng/textarea';
               <td class="px-2 py-1 text-right">
                 <p-input-number
                   class="w-20 text-right"
-                  formControlName="duration"
+                  formControlName="hours"
                   [min]="0"
                   [max]="24"
-                  [step]="0.25"
-                  mode="decimal"
+                  [step]="1"
+                  [showButtons]="true"
                   ariaLabel="Stunden"
+                ></p-input-number>
+                <p-input-number
+                  class="w-20 text-right"
+                  formControlName="minutes"
+                  [min]="0"
+                  [max]="24"
+                  [step]="1"
+                  [showButtons]="true"
+                  ariaLabel="Minuten"
                 ></p-input-number>
               </td>
             </tr>
@@ -166,7 +175,8 @@ export class BookWeekContentComponent {
       date: f.get('date')!.value,
       presence: f.get('presence')!.value,
       presenceLocation: f.get('presenceLocation')!.value,
-      duration: f.get('duration')!.value,
+      hours: f.get('hours')!.value,
+      minutes: f.get('minutes')!.value,
     }));
 
     const activeBook = this.bookStore.activeBook();

@@ -5,9 +5,9 @@ import de.dasshorty.recordbook.book.Book;
 import de.dasshorty.recordbook.book.BookService;
 import de.dasshorty.recordbook.book.week.day.BookDay;
 import de.dasshorty.recordbook.book.week.day.BookDayRepository;
+import de.dasshorty.recordbook.book.week.day.dto.UpdateBookDayDto;
 import de.dasshorty.recordbook.book.week.dto.BookWeekDto;
 import de.dasshorty.recordbook.book.week.dto.UpdateBookWeekDto;
-import de.dasshorty.recordbook.book.week.day.dto.UpdateBookDayDto;
 import de.dasshorty.recordbook.exception.NotExistingException;
 import de.dasshorty.recordbook.user.UserService;
 import org.springframework.stereotype.Service;
@@ -144,7 +144,7 @@ public class BookWeekService {
                 .findByCalendarWeekAndBookId(week.getCalendarWeek(), week.getYear(), bookId)
                 .map(w -> w.getId().equals(weekId))
                 .orElse(false);
-        
+
         if (!weekBelongsToBook) {
             throw new NotExistingException("week does not belong to the specified book");
         }
@@ -156,7 +156,8 @@ public class BookWeekService {
                     .findFirst()
                     .orElseThrow(() -> new NotExistingException("day not found"));
 
-            day.setDuration(dayDto.duration());
+            day.setHours(dayDto.hours());
+            day.setMinutes(dayDto.minutes());
             day.setPresence(dayDto.presence());
             day.setPresenceLocation(dayDto.presenceLocation());
             this.bookDayRepository.save(day);

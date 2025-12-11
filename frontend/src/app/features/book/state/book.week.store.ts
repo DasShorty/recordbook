@@ -66,7 +66,8 @@ export const BookWeekStore = signalStore(
           text: text,
           days: days.map(d => ({
             id: d.id,
-            duration: d.duration,
+            hours: d.hours,
+            minutes: d.minutes,
             presence: d.presence,
             presenceLocation: d.presenceLocation
           }))
