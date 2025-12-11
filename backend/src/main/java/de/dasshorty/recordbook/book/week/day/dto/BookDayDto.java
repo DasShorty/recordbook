@@ -9,7 +9,8 @@ import java.util.UUID;
 public record BookDayDto(
         UUID id,
         LocalDate date,
-        double duration,
+        int hours,
+        int minutes,
         Presence presence,
         PresenceLocation presenceLocation
 ) {

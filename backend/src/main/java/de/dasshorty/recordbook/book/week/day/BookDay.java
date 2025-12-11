@@ -23,8 +23,11 @@ public class BookDay {
     @Column(name = "date", columnDefinition = "date", nullable = false)
     private LocalDate date;
 
-    @Column(name = "duration", columnDefinition = "decimal")
-    private double duration;
+    @Column(name = "hours", columnDefinition = "int")
+    private int hours;
+
+    @Column(name = "minutes", columnDefinition = "int")
+    private int minutes;
 
     @Enumerated(EnumType.STRING)
     private Presence presence;
@@ -40,7 +43,8 @@ public class BookDay {
         return new BookDayDto(
                 this.id,
                 this.date,
-                this.duration,
+                this.hours,
+                this.minutes,
                 this.presence,
                 this.presenceLocation
         );

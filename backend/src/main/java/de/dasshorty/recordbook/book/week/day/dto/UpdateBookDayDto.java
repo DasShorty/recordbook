@@ -10,9 +10,12 @@ import java.util.UUID;
 
 public record UpdateBookDayDto(
         @NotNull UUID id,
-        @Min(value = 0, message = "duration must be at least 0")
-        @Max(value = 24, message = "duration must not exceed 24 hours")
-        double duration,
+        @Min(value = 0)
+        @Max(value = 24)
+        int hours,
+        @Min(value = 0)
+        @Max(value = 59)
+        int minutes,
         Presence presence,
         PresenceLocation presenceLocation
 ) {
