@@ -5,6 +5,7 @@ import de.dasshorty.recordbook.book.week.day.PresenceLocation;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.UUID;
 
@@ -16,6 +17,7 @@ public record UpdateBookDayDto(
         @Min(value = 0)
         @Max(value = 59)
         int minutes,
+        @Length(max = 5000)
         String text,
         Presence presence,
         PresenceLocation presenceLocation
