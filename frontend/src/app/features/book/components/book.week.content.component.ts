@@ -127,9 +127,10 @@ import {Textarea} from 'primeng/textarea';
                     formControlName="text"
                     rows="4"
                     style="resize: none"
-                    pTextarea>
-                    </textarea>
-                  <label for="over-label">Beschreibe kurz deine Tätigkeiten an diesem Tag (Aufgaben, Projekte,
+                    pTextarea
+                    [id]="'day-text-' + i">
+                  </textarea>
+                  <label [for]="'day-text-' + i">Beschreibe kurz deine Tätigkeiten an diesem Tag (Aufgaben, Projekte,
                     Besonderheiten, Probleme)</label>
                 </p-floatlabel>
               </td>
