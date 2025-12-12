@@ -82,6 +82,7 @@ import {Textarea} from 'primeng/textarea';
                   [showClear]="true"
                   placeholder="Unbekannt"
                   ariaLabel="Anwesenheit"
+                  fluid
                 ></p-select>
               </td>
 
@@ -95,33 +96,36 @@ import {Textarea} from 'primeng/textarea';
                   [showClear]="true"
                   placeholder="Unbekannt"
                   ariaLabel="Ort"
+                  fluid
                 ></p-select>
               </td>
 
-              <td class="px-2 py-1 text-right">
+              <td class="px-2 py-1 text-right flex gap-1 flex-row">
                 <p-input-number
-                  class="w-20 text-right"
+                  class="text-right"
                   formControlName="hours"
                   [min]="0"
                   [max]="24"
                   [step]="1"
                   [showButtons]="true"
                   ariaLabel="Stunden"
+                  fluid
                 ></p-input-number>
                 <p-input-number
-                  class="w-20 text-right"
+                  class="text-right"
                   formControlName="minutes"
                   [min]="0"
                   [max]="59"
                   [step]="1"
                   [showButtons]="true"
                   ariaLabel="Minuten"
+                  fluid
                 ></p-input-number>
               </td>
             </tr>
             <tr [formGroup]="getFormGroup((i))" [class.weekend]="dateFormatService.isWeekend(day.date)">
-              <td colspan="4" class="px-2 py-1">
-                <p-floatlabel>
+              <td colspan="4" class="px-4 py-2">
+                <p-floatlabel style="margin-top: 1rem">
                   <textarea
                     class="w-full"
                     formControlName="text"
