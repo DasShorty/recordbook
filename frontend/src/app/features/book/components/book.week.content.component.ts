@@ -123,22 +123,6 @@ import {Textarea} from 'primeng/textarea';
                 ></p-input-number>
               </td>
             </tr>
-            <tr [formGroup]="getFormGroup((i))" [class.weekend]="dateFormatService.isWeekend(day.date)">
-              <td colspan="4" class="px-4 py-2">
-                <p-floatlabel style="margin-top: 1rem">
-                  <textarea
-                    class="w-full"
-                    formControlName="text"
-                    rows="4"
-                    style="resize: none"
-                    pTextarea
-                    [id]="'day-text-' + i">
-                  </textarea>
-                  <label [for]="'day-text-' + i">Beschreibe kurz deine Tätigkeiten an diesem Tag (Aufgaben, Projekte,
-                    Besonderheiten, Probleme)</label>
-                </p-floatlabel>
-              </td>
-            </tr>
           }
         </ng-template>
       </p-table>
@@ -193,7 +177,6 @@ export class BookWeekContentComponent {
       date: f.get('date')!.value,
       presence: f.get('presence')!.value,
       presenceLocation: f.get('presenceLocation')!.value,
-      text: f.get('text')!.value,
       hours: f.get('hours')!.value,
       minutes: f.get('minutes')!.value,
     }));
