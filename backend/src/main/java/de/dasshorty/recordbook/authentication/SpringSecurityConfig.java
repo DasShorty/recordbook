@@ -3,6 +3,7 @@ package de.dasshorty.recordbook.authentication;
 import de.dasshorty.recordbook.authentication.jwt.JwtAuthenticationConverter;
 import de.dasshorty.recordbook.authentication.jwt.JwtAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -21,6 +22,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.sql.DataSource;
@@ -32,6 +34,9 @@ import java.util.List;
 public class SpringSecurityConfig implements WebMvcConfigurer {
 
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
+
+    @Value("${frontend.domain}")
+    private String frontendDomain;
 
     @Autowired
     public SpringSecurityConfig(JwtAuthenticationProvider jwtAuthenticationProvider) {
@@ -54,7 +59,7 @@ public class SpringSecurityConfig implements WebMvcConfigurer {
 
                 CorsConfiguration config = new CorsConfiguration();
 
-                config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost"));
+                config.setAllowedOrigins(List.of(this.frontendDomain));
                 config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 config.setExposedHeaders(List.of("Authorization"));
                 config.setAllowedHeaders(List.of("Access-Control-Allow-Credentials","Access-Control-Allow-Headers",

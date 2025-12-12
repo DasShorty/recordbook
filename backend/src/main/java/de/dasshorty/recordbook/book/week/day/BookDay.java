@@ -23,11 +23,11 @@ public class BookDay {
     @Column(name = "date", columnDefinition = "date", nullable = false)
     private LocalDate date;
 
-    @Column(name = "hours", columnDefinition = "int")
-    private int hours;
+    @Column(name = "hours", columnDefinition = "int DEFAULT 0")
+    private int hours = 0;
 
-    @Column(name = "minutes", columnDefinition = "int")
-    private int minutes;
+    @Column(name = "minutes", columnDefinition = "int DEFAULT 0")
+    private int minutes = 0;
 
     @Column(name = "text", columnDefinition = "text")
     private String text;
