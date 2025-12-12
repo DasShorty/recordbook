@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8"/>
+    <title>Willkommen</title>
+    <style>
+
+        body {
+            font-family: sans-serif;
+            padding: 0.5rem;
+        }
+
+        .button {
+            border: 1px solid blue;
+            background-color: blue;
+            padding: 1rem;
+            color: white;
+        }
+
+        div {
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body>
+<h1>Willkommen, <span th:text="|${user.forename} ${user.surname}|">Benutzer</span>!</h1>
+<h2>Deine Zugangsdaten</h2>
+<div>
+    <ul>
+        <li>Benutzername: <span th:text="${user.email}">email</span></li>
+        <li>Passwort: <span th:text="${password}">password</span></li>
+    </ul>
+</div>
+<p><a class="button" th:href="@{login}">Zum Login</a></p>
+</body>
+</html>

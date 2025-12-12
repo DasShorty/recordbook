@@ -2,6 +2,7 @@ package de.dasshorty.recordbook.user;
 
 import de.dasshorty.recordbook.exception.ForbiddenException;
 import de.dasshorty.recordbook.exception.NotExistingException;
+import de.dasshorty.recordbook.mail.MailService;
 import de.dasshorty.recordbook.user.dto.CreateUserDto;
 import de.dasshorty.recordbook.user.dto.UserDto;
 import de.dasshorty.recordbook.user.exception.UserAlreadyExistingException;
@@ -27,6 +28,7 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final MailService mailService;
 
     @Value("${administrator.user.email}")
     private String administratorUserEmail;
@@ -43,10 +45,11 @@ public class UserService implements UserDetailsService {
     @Autowired
     public UserService(
             UserRepository userRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder, MailService mailService
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.mailService = mailService;
     }
 
     private static Specification<User> hasUserType(UserType userType) {
@@ -83,8 +86,13 @@ public class UserService implements UserDetailsService {
         }
 
         var user = User.fromDto(userDto);
+        var previousPassword = user.getPassword();
         user.setPassword(this.passwordEncoder.encode(user.getPassword()));
-        return this.userRepository.save(user).toDto();
+        UserDto dto = this.userRepository.save(user).toDto();
+
+        this.mailService.sendNewUserMail(dto, previousPassword);
+
+        return dto;
     }
 
     @Transactional
