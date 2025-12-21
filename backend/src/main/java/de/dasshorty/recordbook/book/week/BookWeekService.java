@@ -40,14 +40,15 @@ public class BookWeekService {
     }
 
     @Transactional
-    public Optional<BookWeekDto> getOrCreateWeekForBook(UUID bookId, int calendarWeek, int year, String accessToken) {
+    public Optional<BookWeekDto> getOrCreateWeekForBook(UUID bookId, int calendarWeek, int year) {
+
         var existing = findExistingWeek(calendarWeek, year, bookId);
         if (existing.isPresent()) {
             return existing;
         }
 
-        UUID userId = extractUserIdOrThrow(accessToken);
-        Book book = getBookForUserIdOrThrow(userId);
+        Book book = getBookFromIdOrThrow(bookId);
+
         BookWeek newWeek = createAndAttachWeek(book, calendarWeek, year);
 
         return Optional.of(newWeek.toDto());
@@ -63,12 +64,9 @@ public class BookWeekService {
                 .orElseThrow(() -> new NotExistingException("user id is not existing"));
     }
 
-    private Book getBookForUserIdOrThrow(UUID userId) {
-        var user = this.userService.retrieveUserEntityById(userId).orElseThrow(
-                () -> new NotExistingException("user is not existing"));
-
-        return this.bookService.getBookEntityByTrainee(user).orElseThrow(
-                () -> new NotExistingException("book is not existing"));
+    private Book getBookFromIdOrThrow(UUID bookId) {
+        return this.bookService.getBookEntityById(bookId).orElseThrow(() ->
+                new NotExistingException("book is not existing"));
     }
 
     private BookWeek createAndAttachWeek(Book book, int calendarWeek, int year) {
