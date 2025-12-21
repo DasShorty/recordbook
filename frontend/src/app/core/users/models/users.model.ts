@@ -1,5 +1,7 @@
+export type UserId = Brand<string, "UserId">
+
 export type User = CreateUser & {
-  id: string,
+  id: UserId,
 }
 
 export type CreateUser = {

@@ -100,6 +100,41 @@ export const BookWeekStore = signalStore(
             });
           }
         });
+      },
+
+      setWeekUpdated(bookId: string, weekId: string) {
+        patchState(store, {
+          loading: true,
+          error: undefined
+        });
+
+        httpClient.patch<BookWeek>(`${httpConfig.baseUrl}books/${bookId}/weeks/${weekId}/submit`, {}, {
+          observe: "response",
+          withCredentials: true
+        })
+          .subscribe({
+            next: (res) => {
+              if (!res.ok || res.body === null) {
+                patchState(store, {
+                  loading: false,
+                  error: res.status
+                });
+                return;
+              }
+
+              patchState(store, {
+                loading: false,
+                error: undefined,
+                week: res.body
+              });
+            },
+            error: (err) => {
+              patchState(store, {
+                loading: false,
+                error: err?.status ?? 500
+              });
+            }
+          });
       }
 
     }

@@ -1,8 +1,10 @@
 import {Presence, PresenceType} from '@features/book/models/presence.type';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 
+export type BookDayId = Brand<string, "BookDayId">
+
 export type BookDay = {
-  id: string,
+  id: BookDayId,
   date: string,
   hours: number,
   minutes: number,
@@ -13,7 +15,7 @@ export type BookDay = {
 export namespace BookDay {
   export function getFormGroup(bookDay: BookDay): FormGroup {
     return new FormGroup({
-      id: new FormControl<string>(bookDay.id),
+      id: new FormControl<BookDayId>(bookDay.id),
       date: new FormControl<string>(bookDay.date),
       presence: new FormControl<Presence>(bookDay.presence),
       presenceLocation: new FormControl<PresenceType>(bookDay.presenceLocation),

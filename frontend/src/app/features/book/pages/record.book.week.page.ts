@@ -14,6 +14,7 @@ import {BookWeekStore} from '@features/book/state/book.week.store';
   imports: [
     LayoutComponent,
     BoxComponent,
+    BookWeekComponent,
     BookWeekComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
