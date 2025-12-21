@@ -1,7 +1,6 @@
 package de.dasshorty.recordbook.book.week;
 
 import de.dasshorty.recordbook.book.BookService;
-import de.dasshorty.recordbook.book.week.day.dto.BookDayDto;
 import de.dasshorty.recordbook.book.week.dto.BookWeekDto;
 import de.dasshorty.recordbook.book.week.dto.UpdateBookWeekDto;
 import de.dasshorty.recordbook.exception.NotExistingException;
@@ -16,9 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Comparator;
 import java.util.UUID;
 
 @RestController
@@ -41,7 +38,7 @@ public class BookWeekController {
 
     @GetMapping("/{year}/{cw}")
     @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINER', 'TRAINEE')")
-    public ResponseEntity<?> getWeekByCalendarWeek(@PathVariable UUID bookId, @CookieValue("access_token") String accessToken, @PathVariable("cw") @Min(1) Integer calendarWeek, @PathVariable Integer year) {
+    public ResponseEntity<?> getWeekByCalendarWeek(@PathVariable UUID bookId, @PathVariable("cw") @Min(1) Integer calendarWeek, @PathVariable Integer year) {
         int convertedYear = UserInputHandler.validInteger(year) ? year : Calendar.getInstance().get(Calendar.YEAR);
 
         if (calendarWeek < 0 || calendarWeek >= Calendar.getInstance().getWeeksInWeekYear()) {
@@ -49,7 +46,7 @@ public class BookWeekController {
         }
 
         try {
-            var week = this.bookWeekService.getOrCreateWeekForBook(bookId, calendarWeek, convertedYear, accessToken);
+            var week = this.bookWeekService.getOrCreateWeekForBook(bookId, calendarWeek, convertedYear);
             return ResponseEntity.of(week);
         } catch (NotExistingException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("not found", e.getMessage()));
@@ -57,7 +54,7 @@ public class BookWeekController {
     }
 
     @PutMapping("/{weekId}")
-    @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINER', 'TRAINEE')")
+    @PreAuthorize("hasAnyAuthority('TRAINEE')")
     public ResponseEntity<?> updateWeek(@PathVariable UUID bookId, @PathVariable UUID weekId, @Valid @RequestBody UpdateBookWeekDto updateDto) {
         try {
             var updatedWeek = this.bookWeekService.updateWeek(bookId, weekId, updateDto);
