@@ -4,12 +4,15 @@ import {Button} from 'primeng/button';
 import {BookStore} from '@features/book/state/book.store';
 import {BookCreateComponent} from '@features/book/components/manager/book.create.component';
 import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {Book} from '@features/book/models/book.model';
+import {Router, RouterLink} from '@angular/router';
 
 @Component({
   selector: 'book-manager-list',
   imports: [
     TableModule,
-    Button
+    Button,
+    RouterLink
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -33,7 +36,9 @@ import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
           <td>{{ book.trainee.forename }} {{ book.trainee.surname }}</td>
           <td>{{ book.trainer.forename }} {{ book.trainer.surname }}</td>
           <td>
-            <p-button icon="pi pi-eye" (onClick)="openBook(book)"></p-button>
+            <a [routerLink]="'/record-book/manage/view/' + book.id">
+              <i class="pi pi-eye"></i>
+            </a>
           </td>
         </tr>
       </ng-template>
@@ -47,12 +52,13 @@ export class BookManagerListComponent implements OnInit {
   readonly dialogService = inject(DialogService);
   readonly bookManagerStore = inject(BookStore);
   private readonly dialogRef = signal<DynamicDialogRef | null>(null);
+  private readonly router = inject(Router);
 
   ngOnInit() {
     this.loadBooks();
   }
 
-  openDialog() {
+  protected openDialog() {
     this.dialogRef.set(this.dialogService.open(BookCreateComponent, {
       appendTo: 'body',
       header: 'Berichtsheft erstellen',
@@ -74,9 +80,4 @@ export class BookManagerListComponent implements OnInit {
     });
   }
 
-  openBook(book: any) {
-    // TODO: navigate to book detail / open page
-  }
-
 }
-

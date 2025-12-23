@@ -44,7 +44,7 @@ public class BookWeekController {
     public ResponseEntity<?> getWeekByCalendarWeek(@PathVariable UUID bookId, @CookieValue("access_token") String accessToken, @PathVariable("cw") @Min(1) Integer calendarWeek, @PathVariable Integer year) {
         int convertedYear = UserInputHandler.validInteger(year) ? year : Calendar.getInstance().get(Calendar.YEAR);
 
-        if (calendarWeek < 0 || calendarWeek >= Calendar.getInstance().getWeeksInWeekYear()) {
+        if (calendarWeek < 0 || calendarWeek > Calendar.getInstance().getWeeksInWeekYear()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResult("invalid calendar week", "week"));
         }
 

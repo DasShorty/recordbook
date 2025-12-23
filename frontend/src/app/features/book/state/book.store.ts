@@ -66,6 +66,10 @@ export const BookStore = signalStore(
 
       // ---- Manager-like methods migrated into BookStore ----
 
+      loadBookById(bookId: string) {
+        return httpClient.get<Book>(httpConfig.baseUrl + "books/" + bookId);
+      },
+
       getBooks(page: number, size: number) {
 
         const params = new HttpParams()

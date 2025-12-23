@@ -39,38 +39,15 @@ public class BookWeekService {
         this.bookService = bookService;
     }
 
-
-//    @Transactional(readOnly = true)
-//    public Optional<BookWeekDto> getByCalenderWeek(int calenderWeek, int year, UUID bookId) {
-//        return bookWeekRepository.findByCalendarWeekAndBookId(calenderWeek, year, bookId).map(BookWeek::toDto);
-//    }
-//
-//    @Transactional
-//    public BookWeek createWeek(int calendarWeek, int year) {
-//
-//        if (this.bookWeekRepository.existsByCalendarWeekAndYear(calendarWeek, year)) {
-//            throw new IllegalArgumentException("calendarWeek and year already belong to a created week!");
-//        }
-//
-//        BookWeek bookWeek = BookWeek.createEmptyWeek(calendarWeek, year, this.createBookDays(calendarWeek, year));
-//        return this.bookWeekRepository.save(bookWeek);
-//    }
-
     @Transactional
     public Optional<BookWeekDto> getOrCreateWeekForBook(UUID bookId, int calendarWeek, int year, String accessToken) {
-        // 1) try existing week
         var existing = findExistingWeek(calendarWeek, year, bookId);
         if (existing.isPresent()) {
             return existing;
         }
 
-        // 2) extract user id from token
         UUID userId = extractUserIdOrThrow(accessToken);
-
-        // 3) load book for user
         Book book = getBookForUserIdOrThrow(userId);
-
-        // 4) create and attach new week
         BookWeek newWeek = createAndAttachWeek(book, calendarWeek, year);
 
         return Optional.of(newWeek.toDto());
@@ -94,7 +71,6 @@ public class BookWeekService {
                 () -> new NotExistingException("book is not existing"));
     }
 
-    // create and save week directly via repository to avoid calling public transactional method
     private BookWeek createAndAttachWeek(Book book, int calendarWeek, int year) {
         if (this.bookWeekRepository.existsByCalendarWeekAndYear(calendarWeek, year)) {
             throw new IllegalArgumentException("calendarWeek and year already belong to a created week!");
