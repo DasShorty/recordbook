@@ -1,9 +1,8 @@
 import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
 import {Book} from '@features/book/models/book.model';
 import {inject} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {httpConfig} from '@environment/environment';
-import {HttpParams} from '@angular/common/http';
 import {QueryResult} from '@core/http/http.model';
 import {Consumer} from '@shared/data/consumer';
 import {Page} from '@core/http/model/page.model';
@@ -106,25 +105,25 @@ export const BookStore = signalStore(
           params: params,
           observe: 'response'
         }).subscribe({
-           next: (response) => {
-             if (!response || response.body == null) {
-               onFinished(false);
-               return;
-             }
+          next: (response) => {
+            if (!response || response.body == null) {
+              onFinished(false);
+              return;
+            }
 
-             const data = response.body;
+            const data = response.body;
 
-             patchState(store, {
-               books: data.content,
-               page: data.page,
-               size: data.size,
-               total: data.total
-             });
+            patchState(store, {
+              books: data.content,
+              page: data.page,
+              size: data.size,
+              total: data.total
+            });
 
-             onFinished(true);
-           },
-           error: () => onFinished(false)
-         });
+            onFinished(true);
+          },
+          error: () => onFinished(false)
+        });
 
       },
 

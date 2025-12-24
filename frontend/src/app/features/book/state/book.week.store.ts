@@ -18,6 +18,12 @@ export const BookWeekStore = signalStore(
 
     return {
 
+      loadWeek(week: number, year: number, bookId: string) {
+        return httpClient.get<BookWeek>(`${httpConfig.baseUrl}books/${bookId}/weeks/${year}/${week}`, {
+          withCredentials: true
+        })
+      },
+
       getWeek(week: number, year: number, bookId: string) {
 
         patchState(store, {

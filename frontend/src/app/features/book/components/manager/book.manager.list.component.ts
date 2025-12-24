@@ -1,10 +1,9 @@
-import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
 import {TableModule} from 'primeng/table';
 import {Button} from 'primeng/button';
 import {BookStore} from '@features/book/state/book.store';
 import {BookCreateComponent} from '@features/book/components/manager/book.create.component';
 import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {Book} from '@features/book/models/book.model';
 import {Router, RouterLink} from '@angular/router';
 
 @Component({

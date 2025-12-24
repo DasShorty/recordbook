@@ -22,5 +22,6 @@ export namespace BookDay {
       hours: new FormControl<number>(bookDay.hours, {validators: [Validators.min(0), Validators.max(24)]}),
       minutes: new FormControl<number>(bookDay.minutes, {validators: [Validators.min(0), Validators.max(59)]}),
     });
+
   }
 }

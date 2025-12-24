@@ -16,7 +16,7 @@ import {FloatLabel} from 'primeng/floatlabel';
 import {Textarea} from 'primeng/textarea';
 
 @Component({
-  selector: 'book-week-component',
+  selector: 'book-week-edit-component',
   imports: [CommonModule, TableModule, ReactiveFormsModule, Button, Select, InputNumber, RouterLink, FormsModule, FloatLabel, Textarea],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -133,7 +133,7 @@ import {Textarea} from 'primeng/textarea';
   `,
   styles: [`` + `:host ::ng-deep tr.weekend { background-color: rgba(0, 0, 0, 0.03); }`]
 })
-export class BookWeekComponent {
+export class BookWeekEditComponent {
   public readonly bookWeek = input.required<BookWeek>();
   public forms = signal<FormGroup[]>([]);
   public isSaving = signal(false);
@@ -149,6 +149,7 @@ export class BookWeekComponent {
   protected readonly submitted = signal(false);
   private readonly bookWeekStore = inject(BookWeekStore);
   private readonly bookStore = inject(BookStore);
+  protected readonly trainerView = input<boolean>(false);
 
   constructor() {
     effect(() => {
