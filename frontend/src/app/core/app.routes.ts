@@ -23,8 +23,12 @@ export const routes: Routes = [
     canActivate: [AuthGuard, OnlyAdminGuard]
   },
   {
-    path: '**',
+    path: '',
     redirectTo: '/dashboard',
     pathMatch: 'full'
+  },
+  {
+    path: '**',
+    redirectTo: '/dashboard'
   },
 ];
