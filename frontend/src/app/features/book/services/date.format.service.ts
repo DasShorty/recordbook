@@ -5,12 +5,12 @@ export class DateFormatService {
 
   public getWeekdayName(dateStr: string): string {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('de-DE', { weekday: 'long' });
+    return date.toLocaleDateString('de-DE', {weekday: 'long'});
   }
 
   public formatDate(dateStr: string): string {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return date.toLocaleDateString('de-DE', {day: '2-digit', month: '2-digit', year: 'numeric'});
   }
 
   public isWeekend(dateStr: string): boolean {
