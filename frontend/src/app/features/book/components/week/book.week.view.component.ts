@@ -5,6 +5,7 @@ import {Button} from 'primeng/button';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterLink} from '@angular/router';
 import {DateFormatService} from '@features/book/services/date.format.service';
+import {BookId} from '@features/book/models/book.model';
 
 @Component({
   selector: 'book-week-view-component',
@@ -17,16 +18,16 @@ import {DateFormatService} from '@features/book/services/date.format.service';
   ],
   template: `
 
-    <p-table>
+    <p-table [value]="bookWeek().days" [scrollable]="true" scrollHeight="flex" style="width:100%; height:100%;">
       <ng-template #caption>
         <div class="flex items-center justify-between">
           <div class="flex gap-2">
-            <p-button [queryParams]="{'cw': (this.bookWeek().calendarWeek - 1)}"
-                      [routerLink]="'/record-book/manage/view/' + bookWeek().id">
+            <p-button [queryParams]="{cw: this.getPreviousCalendarWeek(), year: this.getPreviousYear()}"
+                      [routerLink]="'/record-book/manage/view/' + bookId().toString()">
               <
             </p-button>
-            <p-button [queryParams]="{'cw': (this.bookWeek().calendarWeek + 1)}"
-                      [routerLink]="'/record-book/manage/view/' + bookWeek().id">
+            <p-button [queryParams]="{cw: this.getNextCalendarWeek(), year: this.getNextYear()}"
+                      [routerLink]="'/record-book/manage/view/' + bookId().toString()">
               >
             </p-button>
           </div>
@@ -69,7 +70,7 @@ import {DateFormatService} from '@features/book/services/date.format.service';
             <p>{{ day.presenceLocation }}</p>
           </td>
 
-          <td class="px-2 py-1 text-right flex gap-1 flex-row">
+          <td class="px-2 py-1 text-right">
             <p>{{ day.hours }}h {{ day.minutes }}min</p>
           </td>
         </tr>
@@ -80,12 +81,41 @@ import {DateFormatService} from '@features/book/services/date.format.service';
 })
 export class BookWeekViewComponent {
 
+  public readonly bookId = input.required<BookId>();
   public readonly bookWeek = input.required<BookWeek>();
   protected isSigned = computed(() => this.bookWeek().signedFromTrainer !== '');
   protected readonly dateFormatService = inject(DateFormatService);
 
   signWeek() {
 
+  }
+
+  getNextYear(): number {
+    if (this.bookWeek().calendarWeek === 52) {
+      return this.bookWeek().year + 1;
+    }
+    return this.bookWeek().year;
+  }
+
+  getPreviousYear(): number {
+    if (this.bookWeek().calendarWeek === 1) {
+      return this.bookWeek().year - 1;
+    }
+    return this.bookWeek().year;
+  }
+
+  getNextCalendarWeek(): number {
+    if (this.bookWeek().calendarWeek === 52) {
+      return 1;
+    }
+    return this.bookWeek().calendarWeek + 1;
+  }
+
+  getPreviousCalendarWeek(): number {
+    if (this.bookWeek().calendarWeek === 1) {
+      return 52;
+    }
+    return this.bookWeek().calendarWeek - 1;
   }
 
 }

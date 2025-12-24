@@ -1,4 +1,4 @@
-import {ActivatedRouteSnapshot, RedirectCommand, ResolveFn, Router, RouterStateSnapshot} from '@angular/router';
+import {ActivatedRouteSnapshot, ResolveFn, RouterStateSnapshot} from '@angular/router';
 import {inject} from '@angular/core';
 import {of} from 'rxjs';
 import {WeekService} from '@features/book/services/week.service';
@@ -7,7 +7,6 @@ export const bookCalendarResolver: ResolveFn<number> = (
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot
 ) => {
-  const router = inject(Router);
   const weekService = inject(WeekService);
   const yearParam = route.queryParamMap.get('cw');
 
@@ -15,13 +14,5 @@ export const bookCalendarResolver: ResolveFn<number> = (
     return of(Number(yearParam));
   }
 
-  const defaultCw = weekService.getCurrentWeekNumber();
-  const urlTree = router.parseUrl(state.url);
-
-  urlTree.queryParams = {
-    ...urlTree.queryParams,
-    cw: defaultCw
-  }
-
-  return new RedirectCommand(urlTree);
+  return of(weekService.getCurrentWeekNumber());
 }

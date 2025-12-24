@@ -1,5 +1,5 @@
 import {ActivatedRouteSnapshot, RedirectCommand, ResolveFn, Router, RouterStateSnapshot} from '@angular/router';
-import {Book} from '@features/book/models/book.model';
+import {Book, BookId} from '@features/book/models/book.model';
 import {inject} from '@angular/core';
 import {BookStore} from '@features/book/state/book.store';
 import {catchError, of, switchMap} from 'rxjs';
@@ -19,7 +19,7 @@ export const bookManagerIdResolver: ResolveFn<Book> = (
     return of(cachedBook);
   }
 
-  return bookStore.loadBookById(bookId)
+  return bookStore.loadBookById(bookId as BookId)
     .pipe(
       switchMap(book => {
         if (!book) {

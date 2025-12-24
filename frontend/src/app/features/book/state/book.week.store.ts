@@ -4,6 +4,7 @@ import {BookDay} from '@features/book/models/book.day.model';
 import {inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {httpConfig} from '@environment/environment';
+import {BookId} from '@features/book/models/book.model';
 
 export const BookWeekStore = signalStore(
   {providedIn: 'root'},
@@ -18,7 +19,8 @@ export const BookWeekStore = signalStore(
 
     return {
 
-      loadWeek(week: number, year: number, bookId: string) {
+      loadWeek(week: number, year: number, bookId: BookId) {
+        console.log("Loading week", week, "year", year, "for book", bookId);
         return httpClient.get<BookWeek>(`${httpConfig.baseUrl}books/${bookId}/weeks/${year}/${week}`, {
           withCredentials: true
         })

@@ -51,7 +51,6 @@ export class BookManagerListComponent implements OnInit {
   readonly dialogService = inject(DialogService);
   readonly bookManagerStore = inject(BookStore);
   private readonly dialogRef = signal<DynamicDialogRef | null>(null);
-  private readonly router = inject(Router);
 
   ngOnInit() {
     this.loadBooks();
@@ -73,7 +72,7 @@ export class BookManagerListComponent implements OnInit {
 
   private loadBooks() {
     this.loading.set(true);
-    this.bookManagerStore.loadBooks(0, 10, (success) => {
+    this.bookManagerStore.loadBooks(0, 20, (success) => {
       this.loading.set(false);
       this.error.set(!success);
     });
