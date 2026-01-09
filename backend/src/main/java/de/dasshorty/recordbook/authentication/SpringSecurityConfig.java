@@ -60,7 +60,7 @@ public class SpringSecurityConfig implements WebMvcConfigurer {
                 CorsConfiguration config = new CorsConfiguration();
 
                 config.setAllowedOrigins(List.of(this.frontendDomain));
-                config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
                 config.setExposedHeaders(List.of("Authorization"));
                 config.setAllowedHeaders(List.of("Access-Control-Allow-Credentials","Access-Control-Allow-Headers",
                         "Access-Control-Allow-Origin",

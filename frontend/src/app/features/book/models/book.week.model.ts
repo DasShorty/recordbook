@@ -9,5 +9,5 @@ export type BookWeek = {
   signedFromTrainer: string,
   calendarWeek: number,
   year: number,
-  weekSubmitted: boolean
+  locked: boolean
 }

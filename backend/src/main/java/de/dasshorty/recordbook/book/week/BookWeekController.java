@@ -19,7 +19,7 @@ import java.util.Calendar;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/books/{bookId}/weeks")
+@RequestMapping("/books")
 public class BookWeekController {
 
     private final BookService bookService;
@@ -30,13 +30,13 @@ public class BookWeekController {
         this.bookWeekService = bookWeekService;
     }
 
-    @GetMapping
+    @GetMapping("/{bookId}/weeks")
     @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINER', 'TRAINEE')")
     public ResponseEntity<Page<BookWeekDto>> getWeeks(@PathVariable UUID bookId) {
         return ResponseEntity.ok(bookService.getBookWeeks(bookId, Pageable.ofSize(7)).map(BookWeek::toDto));
     }
 
-    @GetMapping("/{year}/{cw}")
+    @GetMapping("/{bookId}/weeks/{year}/{cw}")
     @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINER', 'TRAINEE')")
     public ResponseEntity<?> getWeekByCalendarWeek(@PathVariable UUID bookId, @PathVariable("cw") @Min(1) Integer calendarWeek, @PathVariable Integer year) {
         int convertedYear = UserInputHandler.validInteger(year) ? year : Calendar.getInstance().get(Calendar.YEAR);
@@ -53,7 +53,7 @@ public class BookWeekController {
         }
     }
 
-    @PutMapping("/{weekId}")
+    @PutMapping("/{bookId}/weeks/{weekId}")
     @PreAuthorize("hasAnyAuthority('TRAINEE')")
     public ResponseEntity<?> updateWeek(@PathVariable UUID bookId, @PathVariable UUID weekId, @Valid @RequestBody UpdateBookWeekDto updateDto) {
         try {
@@ -62,5 +62,11 @@ public class BookWeekController {
         } catch (NotExistingException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("not found", e.getMessage()));
         }
+    }
+
+    @PatchMapping("/weeks/{weekId}/submit")
+    @PreAuthorize("hasAnyAuthority('TRAINEE')")
+    public ResponseEntity<?> submitWeek(@PathVariable UUID weekId) {
+        return ResponseEntity.ok(this.bookWeekService.submitWeek(weekId));
     }
 }

@@ -143,4 +143,21 @@ public class BookWeekService {
         week = this.bookWeekRepository.save(week);
         return Optional.of(week.toDto());
     }
+
+    public BookWeekDto submitWeek(UUID weekId) {
+        var week = this.bookWeekRepository.findById(weekId).orElseThrow(() -> new NotExistingException("week not found"));
+
+        if (week.getSignedFromTrainer() != null) {
+            throw new IllegalStateException("week is already signed from the trainer");
+        }
+
+        if (week.isLocked()) {
+            throw new IllegalStateException("week is already locked");
+        }
+
+        week.setLocked(true);
+        week = this.bookWeekRepository.save(week);
+
+        return week.toDto();
+    }
 }

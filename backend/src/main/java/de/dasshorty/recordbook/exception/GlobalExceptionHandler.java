@@ -31,6 +31,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(new ErrorResult(ex.getMessage(), null));
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResult> handleIllegalStateException(IllegalStateException ex) {
+        return ResponseEntity.badRequest().body(new ErrorResult(ex.getMessage(), null));
+    }
+
     @ExceptionHandler(NotExistingException.class)
     public ResponseEntity<ErrorResult> handleNotExistingException(NotExistingException ex) {
         return ResponseEntity.badRequest().body(new ErrorResult(ex.getMessage(), null));

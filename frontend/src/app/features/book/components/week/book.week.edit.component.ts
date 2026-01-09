@@ -48,7 +48,8 @@ import {Textarea} from 'primeng/textarea';
 
           <div style="margin-top: 2rem">
             <p-floatlabel>
-              <textarea class="w-full my-4 p-10" pTextarea id="over-label" [(ngModel)]="weekText" rows="5" cols="50"
+              <textarea [disabled]="submitted()" class="w-full my-4 p-10" pTextarea id="over-label"
+                        [(ngModel)]="weekText" rows="5" cols="50"
                         style="resize: none"></textarea>
               <label for="over-label">Beschreibe kurz deine Tätigkeiten dieser Woche (Aufgaben, Projekte,
                 Besonderheiten, Probleme)</label>
@@ -169,9 +170,9 @@ export class BookWeekEditComponent {
       }
 
       this.weekText.set(this.bookWeek().text);
-      this.submitted.set(this.bookWeek().weekSubmitted);
+      this.submitted.set(this.bookWeek().locked);
 
-      this.forms.set(this.bookWeek().days.map(d => BookDay.getFormGroup(d)));
+      this.forms.set(this.bookWeek().days.map(day => BookDay.getFormGroup(day, this.bookWeek().locked)));
     });
   }
 
@@ -201,6 +202,6 @@ export class BookWeekEditComponent {
   }
 
   protected submitWeek() {
-    this.bookWeekStore.setWeekUpdated(this.bookStore.activeBook().id, this.bookWeek().id);
+    this.bookWeekStore.submitWeekToTrainer(this.bookWeek().id);
   }
 }

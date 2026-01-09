@@ -110,13 +110,13 @@ export const BookWeekStore = signalStore(
         });
       },
 
-      setWeekUpdated(bookId: string, weekId: string) {
+      submitWeekToTrainer(weekId: string) {
         patchState(store, {
           loading: true,
           error: undefined
         });
 
-        httpClient.patch<BookWeek>(`${httpConfig.baseUrl}books/${bookId}/weeks/${weekId}/submit`, {}, {
+        httpClient.patch<BookWeek>(`${httpConfig.baseUrl}books/weeks/${weekId}/submit`, {}, {
           observe: "response",
           withCredentials: true
         })

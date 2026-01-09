@@ -13,14 +13,20 @@ export type BookDay = {
 }
 
 export namespace BookDay {
-  export function getFormGroup(bookDay: BookDay): FormGroup {
+  export function getFormGroup(bookDay: BookDay, disabled: boolean): FormGroup {
     return new FormGroup({
-      id: new FormControl<BookDayId>(bookDay.id),
-      date: new FormControl<string>(bookDay.date),
-      presence: new FormControl<Presence>(bookDay.presence),
-      presenceLocation: new FormControl<PresenceType>(bookDay.presenceLocation),
-      hours: new FormControl<number>(bookDay.hours, {validators: [Validators.min(0), Validators.max(24)]}),
-      minutes: new FormControl<number>(bookDay.minutes, {validators: [Validators.min(0), Validators.max(59)]}),
+      id: new FormControl<BookDayId>({value: bookDay.id, disabled: disabled}),
+      date: new FormControl<string>({value: bookDay.date, disabled: disabled}),
+      presence: new FormControl<Presence>({value: bookDay.presence, disabled: disabled}),
+      presenceLocation: new FormControl<PresenceType>({value: bookDay.presenceLocation, disabled: disabled}),
+      hours: new FormControl<number>({
+        value: bookDay.hours,
+        disabled: disabled
+      }, {validators: [Validators.min(0), Validators.max(24)]}),
+      minutes: new FormControl<number>({
+        value: bookDay.minutes,
+        disabled: disabled
+      }, {validators: [Validators.min(0), Validators.max(59)]}),
     });
 
   }
