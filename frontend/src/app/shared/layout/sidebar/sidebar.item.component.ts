@@ -5,14 +5,14 @@ import {RouterLink, RouterLinkActive} from '@angular/router';
 @Component({
   selector: 'sidebar-item-component',
   template: `
-    <li class="sidebar-nav-item">
-      <a [routerLink]="menuItem().routerLink" routerLinkActive="nav-active">
+    <a [routerLink]="menuItem().routerLink" routerLinkActive="nav-active">
+      <li class="sidebar-nav-item">
         <i [class]="menuItem().icon"></i>
         <span>
           {{ menuItem().label }}
         </span>
-      </a>
-    </li>
+      </li>
+    </a>
   `,
   imports: [
     RouterLink,
