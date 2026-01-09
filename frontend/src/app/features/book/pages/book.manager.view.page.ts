@@ -20,7 +20,7 @@ import {BookWeek} from '@features/book/models/book.week.model';
       <box-component>
         <h1>Manage Book from {{ book().trainee.forename }} {{ book().trainee.surname }}</h1>
         @defer (when currentWeek() != undefined) {
-          <book-week-view-component [bookId]="book().id" [bookWeek]="currentWeek()!!"></book-week-view-component>
+          <book-week-view-component [bookId]="book().id" [bookWeekInput]="currentWeek()!!"></book-week-view-component>
         } @placeholder {
           <div>Loading week data...</div>
         }

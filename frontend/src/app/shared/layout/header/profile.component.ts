@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject} from '@angular/core';
+import {Component, computed, effect, inject, viewChild} from '@angular/core';
 import {Menu} from 'primeng/menu';
 import {Ripple} from 'primeng/ripple';
 import {MenuItem} from 'primeng/api';
@@ -51,6 +51,7 @@ import {Authority} from '@core/users/models/users.model';
 })
 export class ProfileComponent {
 
+  protected readonly menu = viewChild<Menu>('menu');
   protected readonly authenticationService = inject(AuthenticationService);
   protected userName = computed(() => this.user().forename + " " + this.user().surname);
   protected userType = computed(() => {
@@ -69,8 +70,11 @@ export class ProfileComponent {
     separator: true
   }, {
     label: 'Logout', icon: 'pi pi-sign-out', command: () => {
+      this.menu()!!.hide();
       this.authenticationService.logout().then(() => {
-        this.router.navigateByUrl("/login").then(); // TODO - add a confirm dialog for logout
+        this.router.navigateByUrl("/login").then(value => {
+          window.location.href = window.location.toString()
+        }); // TODO - add a confirm dialog for logout
       });
     }, delete: true
   }];

@@ -1,10 +1,11 @@
 import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
-import {BookWeek} from '@features/book/models/book.week.model';
+import {BookWeek, BookWeekId} from '@features/book/models/book.week.model';
 import {BookDay} from '@features/book/models/book.day.model';
 import {inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {httpConfig} from '@environment/environment';
 import {BookId} from '@features/book/models/book.model';
+import {Consumer} from '@shared/data/consumer';
 
 export const BookWeekStore = signalStore(
   {providedIn: 'root'},

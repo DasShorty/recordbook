@@ -69,4 +69,10 @@ public class BookWeekController {
     public ResponseEntity<?> submitWeek(@PathVariable UUID weekId) {
         return ResponseEntity.ok(this.bookWeekService.submitWeek(weekId));
     }
+
+    @PatchMapping("/weeks/{weekId}/accept")
+    @PreAuthorize("hasAnyAuthority('TRAINER', 'ADMINISTRATOR')")
+    public ResponseEntity<?> submitWeek(@PathVariable UUID weekId, @CookieValue("access_token") String accessToken) {
+        return ResponseEntity.ok(this.bookWeekService.acceptWeek(weekId, accessToken));
+    }
 }

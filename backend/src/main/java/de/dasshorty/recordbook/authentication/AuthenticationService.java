@@ -51,7 +51,7 @@ public class AuthenticationService {
         return Pair.of(accessToken, refreshToken);
     }
 
-    protected Optional<User> obtainUserByToken(String token) {
+    public Optional<User> obtainUserByToken(String token) {
         Optional<UUID> optionalId = this.jwtHandler.extractUserId(token);
 
         if (optionalId.isEmpty()) {

@@ -34,7 +34,7 @@ import {Textarea} from 'primeng/textarea';
             </div>
             <div class="text-xl font-bold">Woche {{ bookWeek().year }}/{{ bookWeek().calendarWeek }}</div>
             <div class="flex gap-2">
-              <p-button (click)="onSave()" [disabled]="isSaving()">
+              <p-button (click)="onSave()" [disabled]="submitted() || isSaving()">
                 {{ isSaving() ? 'Saving...' : 'Save Week' }}
               </p-button>
               <p-button (click)="submitWeek()" [disabled]="submitted()">

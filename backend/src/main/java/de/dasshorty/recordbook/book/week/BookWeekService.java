@@ -1,5 +1,6 @@
 package de.dasshorty.recordbook.book.week;
 
+import de.dasshorty.recordbook.authentication.AuthenticationService;
 import de.dasshorty.recordbook.authentication.jwt.JwtHandler;
 import de.dasshorty.recordbook.book.Book;
 import de.dasshorty.recordbook.book.BookService;
@@ -30,13 +31,15 @@ public class BookWeekService {
     private final JwtHandler jwtHandler;
     private final UserService userService;
     private final BookService bookService;
+    private final AuthenticationService authenticationService;
 
-    public BookWeekService(BookWeekRepository bookWeekRepository, BookDayRepository bookDayRepository, JwtHandler jwtHandler, UserService userService, BookService bookService) {
+    public BookWeekService(BookWeekRepository bookWeekRepository, BookDayRepository bookDayRepository, JwtHandler jwtHandler, UserService userService, BookService bookService, AuthenticationService authenticationService) {
         this.bookWeekRepository = bookWeekRepository;
         this.bookDayRepository = bookDayRepository;
         this.jwtHandler = jwtHandler;
         this.userService = userService;
         this.bookService = bookService;
+        this.authenticationService = authenticationService;
     }
 
     @Transactional
@@ -159,5 +162,23 @@ public class BookWeekService {
         week = this.bookWeekRepository.save(week);
 
         return week.toDto();
+    }
+
+    public BookWeekDto acceptWeek(UUID weekId, String trainerAccessToken) {
+
+        var user = this.authenticationService.obtainUserByToken(trainerAccessToken).orElseThrow(() -> new IllegalStateException("user token is not existing"));
+        var week = this.bookWeekRepository.findById(weekId).orElseThrow(() -> new NotExistingException("week not found"));
+
+        if (week.getSignedFromTrainer() != null) {
+            throw new IllegalStateException("week is already signed from the trainer");
+        }
+
+        if (!week.isLocked()) {
+            throw new IllegalStateException("week is not locked");
+        }
+
+        week.setSignedFromTrainer(user);
+
+        return this.bookWeekRepository.save(week).toDto();
     }
 }
