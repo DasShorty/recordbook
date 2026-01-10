@@ -44,3 +44,5 @@ Thumbs.db
 /.vscode/
 
 environment.prod.ts
+pnpm-lock.yaml
+package-lock.json
