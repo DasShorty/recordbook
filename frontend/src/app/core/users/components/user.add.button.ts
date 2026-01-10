@@ -165,6 +165,8 @@ export class UserAddButton {
     this.userStore.createUser(formContent, () => {
       this.loading.set(false);
       this.closeForm();
+
+      this.userStore.getUsers();
     });
 
   }

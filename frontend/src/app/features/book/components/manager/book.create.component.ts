@@ -109,6 +109,11 @@ export class BookCreateComponent {
         return;
       }
 
+      const page = this.bookManagerStore.page();
+      const size = this.bookManagerStore.size()
+
+      this.bookManagerStore.loadBooks(page, size, () => {});
+
       this.dialogRef.close();
     });
   }
