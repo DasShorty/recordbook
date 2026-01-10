@@ -38,12 +38,9 @@ testem.log
 /typings
 __screenshots__/
 
-pnpm-lock.yaml
-
 # System files
 .DS_Store
 Thumbs.db
 /.vscode/
-/pnpm-lock.yaml
 
 environment.prod.ts
