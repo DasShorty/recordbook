@@ -174,10 +174,27 @@ public class BookWeekService {
         }
 
         if (!week.isLocked()) {
-            throw new IllegalStateException("week is not locked");
+            throw new IllegalStateException("week is locked");
         }
 
         week.setSignedFromTrainer(user);
+
+        return this.bookWeekRepository.save(week).toDto();
+    }
+
+    public BookWeekDto denyWeek(UUID weekId) {
+        var week = this.bookWeekRepository.findById(weekId).orElseThrow(() -> new NotExistingException("week not found"));
+
+        if (week.getSignedFromTrainer() != null) {
+            throw new IllegalStateException("week is already signed from the trainer");
+        }
+
+        if (!week.isLocked()) {
+            throw new IllegalStateException("week is not locked");
+        }
+
+        week.setSignedFromTrainer(null);
+        week.setLocked(false);
 
         return this.bookWeekRepository.save(week).toDto();
     }

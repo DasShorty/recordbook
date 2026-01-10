@@ -93,7 +93,7 @@ export class BookWeekViewComponent {
   public readonly bookId = input.required<BookId>();
   public readonly bookWeekInput = input.required<BookWeek>();
   public readonly bookWeek = signal<BookWeek | null>(null);
-  protected isSigned = computed(() => this.bookWeek()!!.signedFromTrainer === null);
+  protected isSigned = computed(() => this.bookWeek()!!.signedFromTrainer !== null);
   protected isLocked = computed(() => this.bookWeek()?.locked);
   protected readonly dateFormatService = inject(DateFormatService);
   protected readonly loading = signal<boolean>(false);
@@ -117,12 +117,10 @@ export class BookWeekViewComponent {
 
     this.loading.set(true);
     this.bookTrainerStore.acceptWeek(this.bookWeek()!!.id, res => {
-
+      this.loading.set(false);
       if (res.data != null) {
         this.bookWeek.set(res.data!!);
       }
-
-      this.loading.set(false);
     });
   }
 
@@ -155,6 +153,12 @@ export class BookWeekViewComponent {
   }
 
   protected denyWeek() {
-
+    this.loading.set(true);
+    this.bookTrainerStore.denyWeek(this.bookWeek()!!.id, res => {
+      this.loading.set(false);
+      if (res.data != null) {
+        this.bookWeek.set(res.data!!);
+      }
+    });
   }
 }
