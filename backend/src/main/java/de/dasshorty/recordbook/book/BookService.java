@@ -31,7 +31,12 @@ public class BookService {
 
     @Transactional(readOnly = true)
     public Optional<BookDto> getBookById(UUID bookId) {
-        return bookRepository.findById(bookId).map(Book::toDto);
+        return this.getBookEntityById(bookId).map(Book::toDto);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Book> getBookEntityById(UUID bookId) {
+        return bookRepository.findById(bookId);
     }
 
     @Transactional(readOnly = true)

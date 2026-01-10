@@ -1,10 +1,8 @@
 import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
-import {Book} from '@features/book/models/book.model';
+import {Book, BookId} from '@features/book/models/book.model';
 import {inject} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {httpConfig} from '@environment/environment';
-import {HttpParams} from '@angular/common/http';
-import {QueryResult} from '@core/http/http.model';
 import {Consumer} from '@shared/data/consumer';
 import {Page} from '@core/http/model/page.model';
 
@@ -66,8 +64,10 @@ export const BookStore = signalStore(
 
       // ---- Manager-like methods migrated into BookStore ----
 
-      loadBookById(bookId: string) {
-        return httpClient.get<Book>(httpConfig.baseUrl + "books/" + bookId);
+      loadBookById(bookId: BookId) {
+        return httpClient.get<Book>(httpConfig.baseUrl + "books/" + bookId, {
+          withCredentials: true
+        });
       },
 
       getBooks(page: number, size: number) {
@@ -101,30 +101,30 @@ export const BookStore = signalStore(
           .set('page', String(page))
           .set('size', String(size));
 
-        httpClient.get<QueryResult<Book[]>>(httpConfig.baseUrl + "books", {
+        httpClient.get<Page<Book>>(httpConfig.baseUrl + "books", {
           withCredentials: true,
           params: params,
           observe: 'response'
         }).subscribe({
-           next: (response) => {
-             if (!response || response.body == null) {
-               onFinished(false);
-               return;
-             }
+          next: (response) => {
+            if (!response || response.body == null) {
+              onFinished(false);
+              return;
+            }
 
-             const data = response.body;
+            const data = response.body;
 
-             patchState(store, {
-               books: data.content,
-               page: data.page,
-               size: data.size,
-               total: data.total
-             });
+            patchState(store, {
+              books: data.content,
+              page: data.page.number,
+              size: data.page.size,
+              total: data.page.totalElements
+            });
 
-             onFinished(true);
-           },
-           error: () => onFinished(false)
-         });
+            onFinished(true);
+          },
+          error: () => onFinished(false)
+        });
 
       },
 

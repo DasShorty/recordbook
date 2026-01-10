@@ -6,9 +6,7 @@ import {Button} from 'primeng/button';
 import {AuthenticationService} from '@core/auth/authentication.service';
 import {Router, RouterLink} from '@angular/router';
 import {Toast} from 'primeng/toast';
-import {MessageService} from 'primeng/api';
 import {UserStore} from '@core/users/state/user.store';
-
 
 // @ts-ignore
 // @ts-ignore
@@ -40,7 +38,7 @@ import {UserStore} from '@core/users/state/user.store';
                           formControlName="password"
                           id="password1"
                           placeholder="Password"
-                          styleClass="mb-4"></p-password>
+                          class="mb-4"></p-password>
 
               <div class="flex items-center justify-end mt-2 mb-8 gap-8">
                 <span
@@ -82,12 +80,9 @@ export class LoginPage {
   });
   private readonly authenticationService = inject(AuthenticationService);
   private readonly router = inject(Router);
-  private readonly messageService = inject(MessageService);
   private readonly userStore = inject(UserStore);
 
   protected async login() {
-
-    await this.authenticationService.logout();
 
     let value = this.formGroup().value;
 
@@ -95,6 +90,7 @@ export class LoginPage {
       return;
     }
 
+    console.log("Logging in with", value.email);
     this.authenticationService.login(value.email, value.password).then(success => {
 
       if (success) {

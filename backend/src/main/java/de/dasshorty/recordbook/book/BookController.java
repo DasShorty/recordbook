@@ -47,11 +47,13 @@ public class BookController {
     }
 
     @GetMapping("/{bookId}")
+    @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINEE', 'TRAINER')")
     public ResponseEntity<BookDto> getBookById(@PathVariable @NotNull UUID bookId) {
         return ResponseEntity.of(this.bookService.getBookById(bookId));
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ADMINISTRATOR')")
     public ResponseEntity<BookDto> createBook(@RequestBody @Valid CreateBookDto bookBody) {
         BookDto createdBook = this.bookService.createBookFromDto(bookBody);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBook);

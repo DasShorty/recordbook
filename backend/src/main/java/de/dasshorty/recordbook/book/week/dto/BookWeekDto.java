@@ -6,5 +6,6 @@ import de.dasshorty.recordbook.user.dto.UserDto;
 import java.util.List;
 import java.util.UUID;
 
-public record BookWeekDto(UUID id, UserDto signedFromTrainer, String text, int year, int calendarWeek, List<BookDayDto> days) {
+public record BookWeekDto(UUID id, UserDto signedFromTrainer, String text, int year, int calendarWeek, boolean locked,
+                          List<BookDayDto> days) {
 }

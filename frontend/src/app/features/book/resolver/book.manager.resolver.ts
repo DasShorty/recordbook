@@ -1,8 +1,8 @@
 import {ActivatedRouteSnapshot, RedirectCommand, ResolveFn, Router, RouterStateSnapshot} from '@angular/router';
-import {Book} from '@features/book/models/book.model';
+import {Book, BookId} from '@features/book/models/book.model';
 import {inject} from '@angular/core';
 import {BookStore} from '@features/book/state/book.store';
-import {catchError, map, of} from 'rxjs';
+import {catchError, of, switchMap} from 'rxjs';
 
 export const bookManagerIdResolver: ResolveFn<Book> = (
   route: ActivatedRouteSnapshot,
@@ -19,17 +19,17 @@ export const bookManagerIdResolver: ResolveFn<Book> = (
     return of(cachedBook);
   }
 
-  return bookStore.loadBookById(bookId)
+  return bookStore.loadBookById(bookId as BookId)
     .pipe(
-      map(book => {
+      switchMap(book => {
         if (!book) {
-          return new RedirectCommand(router.parseUrl("/record-book/manage"));
+          return of(new RedirectCommand(router.parseUrl("/record-book/manage")));
         }
         console.log("Resolved book from server:", book);
-        return book;
+        return of(book);
       }),
       catchError(() => {
-        return [new RedirectCommand(router.parseUrl("/record-book/manage"))];
+        return of(new RedirectCommand(router.parseUrl("/record-book/manage")));
       })
     )
 };

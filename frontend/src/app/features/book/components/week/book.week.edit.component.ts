@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject, input, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {TableModule} from 'primeng/table';
 import {FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -16,7 +16,7 @@ import {FloatLabel} from 'primeng/floatlabel';
 import {Textarea} from 'primeng/textarea';
 
 @Component({
-  selector: 'book-week-content',
+  selector: 'book-week-edit-component',
   imports: [CommonModule, TableModule, ReactiveFormsModule, Button, Select, InputNumber, RouterLink, FormsModule, FloatLabel, Textarea],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -34,8 +34,11 @@ import {Textarea} from 'primeng/textarea';
             </div>
             <div class="text-xl font-bold">Woche {{ bookWeek().year }}/{{ bookWeek().calendarWeek }}</div>
             <div class="flex gap-2">
-              <p-button (click)="onSave()" [disabled]="isSaving()">
+              <p-button (click)="onSave()" [disabled]="submitted() || isSaving()">
                 {{ isSaving() ? 'Saving...' : 'Save Week' }}
+              </p-button>
+              <p-button (click)="submitWeek()" [disabled]="submitted()">
+                {{ submitted() ? 'Woche eingereicht' : 'Woche einreichen' }}
               </p-button>
             </div>
           </div>
@@ -45,7 +48,8 @@ import {Textarea} from 'primeng/textarea';
 
           <div style="margin-top: 2rem">
             <p-floatlabel>
-              <textarea class="w-full my-4 p-10" pTextarea id="over-label" [(ngModel)]="weekText" rows="5" cols="50"
+              <textarea [disabled]="submitted()" class="w-full my-4 p-10" pTextarea id="over-label"
+                        [(ngModel)]="weekText" rows="5" cols="50"
                         style="resize: none"></textarea>
               <label for="over-label">Beschreibe kurz deine Tätigkeiten dieser Woche (Aufgaben, Projekte,
                 Besonderheiten, Probleme)</label>
@@ -130,9 +134,8 @@ import {Textarea} from 'primeng/textarea';
   `,
   styles: [`` + `:host ::ng-deep tr.weekend { background-color: rgba(0, 0, 0, 0.03); }`]
 })
-export class BookWeekContentComponent {
+export class BookWeekEditComponent {
   public readonly bookWeek = input.required<BookWeek>();
-  public readonly weekSaved = output<BookWeek>();
   public forms = signal<FormGroup[]>([]);
   public isSaving = signal(false);
   public validationError = signal<string | null>(null);
@@ -144,8 +147,10 @@ export class BookWeekContentComponent {
   })));
   protected readonly dateFormatService = inject(DateFormatService);
   protected readonly weekText = signal<string>('');
+  protected readonly submitted = signal(false);
   private readonly bookWeekStore = inject(BookWeekStore);
   private readonly bookStore = inject(BookStore);
+  protected readonly trainerView = input<boolean>(false);
 
   constructor() {
     effect(() => {
@@ -165,8 +170,9 @@ export class BookWeekContentComponent {
       }
 
       this.weekText.set(this.bookWeek().text);
+      this.submitted.set(this.bookWeek().locked);
 
-      this.forms.set(this.bookWeek().days.map(d => BookDay.getFormGroup(d)));
+      this.forms.set(this.bookWeek().days.map(day => BookDay.getFormGroup(day, this.bookWeek().locked)));
     });
   }
 
@@ -193,5 +199,9 @@ export class BookWeekContentComponent {
 
   protected getFormGroup(rowIndex: number): FormGroup {
     return this.forms()[rowIndex];
+  }
+
+  protected submitWeek() {
+    this.bookWeekStore.submitWeekToTrainer(this.bookWeek().id);
   }
 }

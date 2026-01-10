@@ -46,7 +46,10 @@ public class BookWeek {
     @Column(nullable = false)
     private int year;
 
-    @Column(nullable = true, columnDefinition = "text")
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean locked = false;
+
+    @Column(columnDefinition = "text")
     private String text;
 
     public BookWeek(int calendarWeek, int year) {
@@ -67,6 +70,7 @@ public class BookWeek {
                 this.text,
                 this.year,
                 this.calendarWeek,
+                this.locked,
                 this.days.stream().map(BookDay::toDto).sorted(Comparator.comparing(BookDayDto::date)).toList()
         );
     }
