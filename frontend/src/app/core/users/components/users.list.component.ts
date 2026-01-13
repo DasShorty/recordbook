@@ -45,6 +45,11 @@ import {UserAddButton} from '@core/users/components/user.add.button';
         </tr>
       </ng-template>
     </p-table>
+  `,
+  styles: `
+    tr:hover {
+      background-color: var(--color-gray-100);
+    }
   `
 })
 export class UsersListComponent {

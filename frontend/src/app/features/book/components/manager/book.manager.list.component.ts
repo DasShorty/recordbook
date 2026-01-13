@@ -27,21 +27,21 @@ import {Router, RouterLink} from '@angular/router';
         <tr>
           <th>Azubi</th>
           <th>Ausbildungskraft</th>
-          <th></th>
         </tr>
       </ng-template>
       <ng-template #body let-book>
-        <tr>
+        <tr [routerLink]="'/record-book/manage/view/' + book.id">
           <td>{{ book.trainee.forename }} {{ book.trainee.surname }}</td>
           <td>{{ book.trainer.forename }} {{ book.trainer.surname }}</td>
-          <td>
-            <a [routerLink]="'/record-book/manage/view/' + book.id">
-              <i class="pi pi-eye"></i>
-            </a>
-          </td>
         </tr>
       </ng-template>
     </p-table>
+  `,
+  styles: `
+    tr:hover {
+      background-color: var(--color-gray-100);
+      cursor: pointer;
+    }
   `
 })
 export class BookManagerListComponent implements OnInit {
