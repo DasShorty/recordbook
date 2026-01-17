@@ -2,6 +2,7 @@ package de.dasshorty.recordbook.book;
 
 import de.dasshorty.recordbook.book.dto.BookDto;
 import de.dasshorty.recordbook.book.dto.CreateBookDto;
+import de.dasshorty.recordbook.book.dto.UpdateTrainerDto;
 import de.dasshorty.recordbook.exception.MissingTokenException;
 import de.dasshorty.recordbook.http.result.ErrorResult;
 import jakarta.validation.Valid;
@@ -57,6 +58,13 @@ public class BookController {
     public ResponseEntity<BookDto> createBook(@RequestBody @Valid CreateBookDto bookBody) {
         BookDto createdBook = this.bookService.createBookFromDto(bookBody);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBook);
+    }
+
+    @PutMapping("/{bookId}/trainer")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
+    public ResponseEntity<BookDto> updateBookTrainer(@PathVariable @NotNull UUID bookId,
+                                                     @RequestBody @Valid UpdateTrainerDto updateTrainerDto) {
+        return ResponseEntity.of(this.bookService.updateBookTrainer(bookId, updateTrainerDto.trainer()));
     }
 
 }

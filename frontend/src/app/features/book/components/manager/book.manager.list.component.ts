@@ -3,15 +3,20 @@ import {TableModule} from 'primeng/table';
 import {Button} from 'primeng/button';
 import {BookStore} from '@features/book/state/book.store';
 import {BookCreateComponent} from '@features/book/components/manager/book.create.component';
+import {TrainerSwapDialogComponent} from '@features/book/components/manager/trainer.swap.dialog';
 import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {Router, RouterLink} from '@angular/router';
+import {RouterLink} from '@angular/router';
+import {CommonModule} from '@angular/common';
+import {Ripple} from 'primeng/ripple';
 
 @Component({
   selector: 'book-manager-list',
   imports: [
     TableModule,
     Button,
-    RouterLink
+    RouterLink,
+    CommonModule,
+    Ripple
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -32,7 +37,18 @@ import {Router, RouterLink} from '@angular/router';
       <ng-template #body let-book>
         <tr [routerLink]="'/record-book/manage/view/' + book.id">
           <td>{{ book.trainee.forename }} {{ book.trainee.surname }}</td>
-          <td>{{ book.trainer.forename }} {{ book.trainer.surname }}</td>
+          <td class="flex items-center">
+            <span>{{ book.trainer.forename }} {{ book.trainer.surname }}</span>
+            <p-button
+              (click)="openTrainerSwapDialog($event, book)"
+              icon="pi pi-pencil"
+              [rounded]="true"
+              [text]="true"
+              [plain]="true"
+              severity="info"
+              [loading]="false"
+              pRipple/>
+          </td>
         </tr>
       </ng-template>
     </p-table>
@@ -66,6 +82,26 @@ export class BookManagerListComponent implements OnInit {
       breakpoints: {
         '960px': '75vw',
         '640px': '90vw'
+      }
+    }));
+  }
+
+  protected openTrainerSwapDialog(event: Event, book: any) {
+    event.stopPropagation();
+
+    this.dialogRef.set(this.dialogService.open(TrainerSwapDialogComponent, {
+      appendTo: 'body',
+      header: 'Ausbildungskraft ändern',
+      width: '50vw',
+      modal: true,
+      contentStyle: {overflow: 'auto'},
+      breakpoints: {
+        '960px': '75vw',
+        '640px': '90vw'
+      },
+      data: {
+        bookId: book.id,
+        currentTrainer: book.trainer
       }
     }));
   }

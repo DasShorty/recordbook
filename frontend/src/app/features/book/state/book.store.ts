@@ -141,6 +141,32 @@ export const BookStore = signalStore(
           },
           error: () => response(null as any)
         });
+      },
+
+      updateTrainer(bookId: string, trainerId: string, response: Consumer<{ok: boolean, data: Book | null}>) {
+
+        httpClient.put<Book>(httpConfig.baseUrl + "books/" + bookId + "/trainer", {
+          trainer: trainerId,
+        }, {
+          withCredentials: true
+        }).subscribe({
+          next: (res) => {
+            // Update local books array
+            const books = store.books();
+            const updatedBooks = books.map(book =>
+              book.id === bookId ? res : book
+            );
+
+            patchState(store, {
+              books: updatedBooks
+            });
+
+            response({ok: true, data: res});
+          },
+          error: (err) => {
+            response({ok: false, data: null});
+          }
+        });
       }
 
     }

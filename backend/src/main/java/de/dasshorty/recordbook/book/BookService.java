@@ -94,4 +94,21 @@ public class BookService {
     public Page<BookDto> getBooks(Pageable pageable) {
         return this.bookRepository.findAll(pageable).map(Book::toDto);
     }
+
+    @Transactional
+    public Optional<BookDto> updateBookTrainer(UUID bookId, UUID newTrainerId) {
+        var book = this.getBookEntityById(bookId);
+        if (book.isEmpty()) {
+            return Optional.empty();
+        }
+
+        var newTrainer = this.userService.retrieveUserEntityById(newTrainerId);
+        if (newTrainer.isEmpty()) {
+            throw new NotExistingException("Trainer not found");
+        }
+
+        Book bookEntity = book.get();
+        bookEntity.setTrainer(newTrainer.get());
+        return Optional.of(this.createBook(bookEntity));
+    }
 }
