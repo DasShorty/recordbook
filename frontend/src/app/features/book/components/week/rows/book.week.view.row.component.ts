@@ -57,14 +57,14 @@ export class BookWeekViewRowComponent {
 
   protected readonly dateFormatService = inject(DateFormatService);
 
-  protected getPresenceDisplay(presence: Presence | null): string {
+  protected getPresenceDisplay(presence: Presence | undefined): string {
     if (!presence) {
       return '—';
     }
     return PresenceDisplay.getPresenceDisplay(presence);
   }
 
-  protected getPresenceTypeDisplay(presenceType: PresenceType | null): string {
+  protected getPresenceTypeDisplay(presenceType: PresenceType | undefined): string {
     if (!presenceType) {
       return '—';
     }
