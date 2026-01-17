@@ -1,163 +1,167 @@
-import {Component, computed, effect, inject, input, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject, input, signal} from '@angular/core';
 import {BookWeek} from '@features/book/models/book.week.model';
 import {TableModule} from 'primeng/table';
-import {Button} from 'primeng/button';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {RouterLink} from '@angular/router';
-import {DateFormatService} from '@features/book/services/date.format.service';
 import {BookId} from '@features/book/models/book.model';
 import {BookTrainerStore} from '@features/book/state/book.trainer.store';
+import {BookWeekNavigationService} from '@features/book/services/book.week.navigation.service';
+import {CommonModule} from '@angular/common';
+import {BookWeekViewRowComponent} from './rows/book.week.view.row.component';
+import {BookWeekViewHeaderComponent} from './headers/book.week.view.header.component';
 
 @Component({
   selector: 'book-week-view-component',
   imports: [
+    CommonModule,
     TableModule,
-    Button,
-    FormsModule,
-    RouterLink,
-    ReactiveFormsModule
+    BookWeekViewRowComponent,
+    BookWeekViewHeaderComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    <div class="w-full h-full flex flex-col">
+      @if (bookWeek() === null) {
+        <div class="flex items-center justify-center h-full">
+          <p class="text-gray-500">Woche konnte nicht geladen werden</p>
+        </div>
+      } @else {
+        <book-week-view-header
+          [calendarWeek]="bookWeek()!.calendarWeek"
+          [year]="bookWeek()!.year"
+          [isSigned]="isSigned()"
+          [isLocked]="isLocked()"
+          [isLoading]="isLoading()"
+          [error]="error()"
+          [previousWeekParams]="previousWeekParams()"
+          [nextWeekParams]="nextWeekParams()"
+          [routerLinkBase]="'/record-book/manage/view/' + bookId().toString()"
+          (onSign)="signWeek()"
+          (onDeny)="denyWeek()"
+        ></book-week-view-header>
 
-    @if (bookWeek() == null) {
-      <p>Book Week is null!</p>
-    } @else {
-      <p-table [value]="bookWeek()!!.days" [scrollable]="true" scrollHeight="flex" style="width:100%; height:100%;">
-        <ng-template #caption>
-          <div class="flex items-center justify-between">
-            <div class="flex gap-2">
-              <p-button [queryParams]="{cw: this.getPreviousCalendarWeek(), year: this.getPreviousYear()}"
-                        [routerLink]="'/record-book/manage/view/' + bookId().toString()">
-                <
-              </p-button>
-              <p-button [queryParams]="{cw: this.getNextCalendarWeek(), year: this.getNextYear()}"
-                        [routerLink]="'/record-book/manage/view/' + bookId().toString()">
-                >
-              </p-button>
-            </div>
-            <div class="text-xl font-bold">Woche {{ bookWeek()?.year }}/{{ bookWeek()?.calendarWeek }}</div>
-            <div class="flex gap-2">
-              <p-button (click)="signWeek()" [disabled]="isSigned() || !isLocked()">
-                {{ loading() ? 'Saving...' : isSigned() ? 'Woche akzeptiert' : 'Woche aktzeptieren' }}
-              </p-button>
-              @if (!isSigned()) {
-                <p-button severity="warn" (click)="denyWeek()" [disabled]="!isLocked()">
-                  {{ loading() ? 'Saving...' : 'Woche ablehnen' }}
-                </p-button>
-              }
-            </div>
+        <div class="flex-none px-4 py-4 border-b border-gray-200">
+          <div class="text-sm text-gray-600 leading-relaxed">
+            {{ bookWeek()!.text }}
           </div>
+        </div>
 
-          <div style="margin-top: 2rem">
-            <p>{{ bookWeek()?.text }}</p>
-          </div>
-        </ng-template>
+        <div class="flex-1 overflow-hidden">
+          <p-table
+            [value]="bookWeek()!.days"
+            [scrollable]="true"
+            scrollHeight="flex"
+            class="p-datatable-striped"
+            [tableStyle]="{ 'width': '100%', 'height': '100%' }"
+          >
+            <ng-template #header>
+              <tr>
+                <th>Tag / Datum</th>
+                <th>Anwesenheit</th>
+                <th>Ort</th>
+                <th>Stunden</th>
+              </tr>
+            </ng-template>
 
-        <ng-template #header>
-          <tr>
-            <th>Tag / Datum</th>
-            <th>Anwesenheit</th>
-            <th>Ort</th>
-            <th>Stunden</th>
-          </tr>
-        </ng-template>
+            <ng-template #body let-day>
+              <tr book-week-view-row [bookDay]="day"></tr>
+            </ng-template>
+          </p-table>
+        </div>
+      }
+    </div>
+  `,
+  styles: [
+    `
+      :host ::ng-deep {
+        .p-datatable .p-datatable-tbody > tr.weekend {
+          background-color: rgba(0, 0, 0, 0.03);
+        }
 
-        <ng-template #body let-day let-i="rowIndex">
-          <tr [class.weekend]="dateFormatService.isWeekend(day.date)">
-            <td class="px-2 py-1">
-              <div class="flex flex-col">
-                <span class="font-medium">{{ dateFormatService.getWeekdayName(day.date) }}</span>
-                <span class="text-sm text-gray-600">{{ dateFormatService.formatDate(day.date) }}</span>
-              </div>
-            </td>
-
-            <td class="px-2 py-1">
-              <p>{{ day.presence }}</p>
-            </td>
-
-            <td class="px-2 py-1">
-              <p>{{ day.presenceLocation }}</p>
-            </td>
-
-            <td class="px-2 py-1 text-right">
-              <p>{{ day.hours }}h {{ day.minutes }}min</p>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    }
-  `
+        .p-datatable .p-datatable-tbody > tr > td {
+          padding: 0.5rem;
+        }
+      }
+    `,
+  ],
 })
 export class BookWeekViewComponent {
 
   public readonly bookId = input.required<BookId>();
   public readonly bookWeekInput = input.required<BookWeek>();
-  public readonly bookWeek = signal<BookWeek | null>(null);
-  protected isSigned = computed(() => this.bookWeek()!!.signedFromTrainer !== null);
-  protected isLocked = computed(() => this.bookWeek()?.locked);
-  protected readonly dateFormatService = inject(DateFormatService);
-  protected readonly loading = signal<boolean>(false);
+
+  public bookWeek = signal<BookWeek | null>(null);
+  public isLoading = signal<boolean>(false);
+  public error = signal<string | null>(null);
+
+  public isSigned = computed(() => this.bookWeek()?.signedFromTrainer !== null);
+  public isLocked = computed(() => this.bookWeek()?.locked ?? false);
+
   private readonly bookTrainerStore = inject(BookTrainerStore);
+  private readonly navigationService = inject(BookWeekNavigationService);
+  public previousWeekParams = computed(() => {
+    const week = this.bookWeek();
+    if (!week) {
+      return {cw: 1, year: new Date().getFullYear()};
+    }
+    const prev = this.navigationService.getPreviousWeek(
+      week.calendarWeek,
+      week.year
+    );
+    return {cw: prev.week, year: prev.year};
+  });
+  public nextWeekParams = computed(() => {
+    const week = this.bookWeek();
+    if (!week) {
+      return {cw: 1, year: new Date().getFullYear()};
+    }
+    const next = this.navigationService.getNextWeek(
+      week.calendarWeek,
+      week.year
+    );
+    return {cw: next.week, year: next.year};
+  });
 
   constructor() {
-
     effect(() => {
       this.bookWeek.set(this.bookWeekInput());
-
-      console.log("Woche " + this.isSigned());
     });
-
   }
 
-  signWeek() {
-
-    if (this.bookWeek() == null) {
+  public signWeek(): void {
+    const week = this.bookWeek();
+    if (!week) {
+      this.error.set('Woche konnte nicht gefunden werden');
       return;
     }
 
-    this.loading.set(true);
-    this.bookTrainerStore.acceptWeek(this.bookWeek()!!.id, res => {
-      this.loading.set(false);
-      if (res.data != null) {
-        this.bookWeek.set(res.data!!);
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    this.bookTrainerStore.acceptWeek(week.id, (res) => {
+      this.isLoading.set(false);
+      if (res.ok && res.data) {
+        this.bookWeek.set(res.data);
+      } else {
+        this.error.set('Fehler beim Akzeptieren der Woche. Bitte versuchen Sie es erneut.');
       }
     });
   }
 
-  getNextYear(): number {
-    if (this.bookWeek()!!.calendarWeek === 52) {
-      return this.bookWeek()!!.year + 1;
+  public denyWeek(): void {
+    const week = this.bookWeek();
+    if (!week) {
+      this.error.set('Woche konnte nicht gefunden werden');
+      return;
     }
-    return this.bookWeek()!!.year;
-  }
 
-  getPreviousYear(): number {
-    if (this.bookWeek()!!.calendarWeek === 1) {
-      return this.bookWeek()!!.year - 1;
-    }
-    return this.bookWeek()!!.year;
-  }
+    this.isLoading.set(true);
+    this.error.set(null);
 
-  getNextCalendarWeek(): number {
-    if (this.bookWeek()!!.calendarWeek === 52) {
-      return 1;
-    }
-    return this.bookWeek()!!.calendarWeek + 1;
-  }
-
-  getPreviousCalendarWeek(): number {
-    if (this.bookWeek()!!.calendarWeek === 1) {
-      return 52;
-    }
-    return this.bookWeek()!!.calendarWeek - 1;
-  }
-
-  protected denyWeek() {
-    this.loading.set(true);
-    this.bookTrainerStore.denyWeek(this.bookWeek()!!.id, res => {
-      this.loading.set(false);
-      if (res.data != null) {
-        this.bookWeek.set(res.data!!);
+    this.bookTrainerStore.denyWeek(week.id, (res) => {
+      this.isLoading.set(false);
+      if (res.ok && res.data) {
+        this.bookWeek.set(res.data);
+      } else {
+        this.error.set('Fehler beim Ablehnen der Woche. Bitte versuchen Sie es erneut.');
       }
     });
   }

@@ -1,5 +1,6 @@
 import {Presence, PresenceType} from '@features/book/models/presence.type';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {Brand} from '@shared/data/brand';
 
 export type BookDayId = Brand<string, "BookDayId">
 
@@ -8,8 +9,8 @@ export type BookDay = {
   date: string,
   hours: number,
   minutes: number,
-  presence: Presence,
-  presenceLocation: PresenceType
+  presence?: Presence,
+  presenceLocation?: PresenceType
 }
 
 export namespace BookDay {
@@ -17,8 +18,8 @@ export namespace BookDay {
     return new FormGroup({
       id: new FormControl<BookDayId>({value: bookDay.id, disabled: disabled}),
       date: new FormControl<string>({value: bookDay.date, disabled: disabled}),
-      presence: new FormControl<Presence>({value: bookDay.presence, disabled: disabled}),
-      presenceLocation: new FormControl<PresenceType>({value: bookDay.presenceLocation, disabled: disabled}),
+      presence: new FormControl<Presence | undefined>({value: bookDay.presence, disabled: disabled}),
+      presenceLocation: new FormControl<PresenceType | undefined>({value: bookDay.presenceLocation, disabled: disabled}),
       hours: new FormControl<number>({
         value: bookDay.hours,
         disabled: disabled
