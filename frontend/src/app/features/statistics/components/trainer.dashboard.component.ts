@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
-import {StatisticsStore} from '@core/statistics/state/statistics.store';
+import {StatisticsStore} from '@features/statistics/state/statistics.store';
 import {BoxComponent} from '@shared/layout/box.component';
 import {StatWidgetComponent} from '@shared/widgets/stat.widget.component';
 import {ChartModule} from 'primeng/chart';
@@ -33,7 +33,7 @@ import {ChartModule} from 'primeng/chart';
         />
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="chart-row">
         <box-component>
           <h3 class="text-lg font-semibold mb-4">Signatur-Status</h3>
           <p-chart type="doughnut" [data]="trainerSignatureChartData()" [options]="pieChartOptions"/>
@@ -44,6 +44,14 @@ import {ChartModule} from 'primeng/chart';
         <i class="pi pi-spin pi-spinner text-4xl text-gray-400"></i>
         <p class="mt-2 text-gray-500">Lade Statistiken...</p>
       </div>
+    }
+  `,
+  styles: `
+    .chart-row {
+      margin-top: 2rem;
+      display: flex;
+      flex-direction: row;
+      gap: 1rem;
     }
   `
 })

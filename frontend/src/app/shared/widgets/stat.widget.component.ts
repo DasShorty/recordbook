@@ -13,10 +13,8 @@ import {BoxComponent} from '@shared/layout/box.component';
         </div>
         <div class="flex-1">
           <p class="text-sm text-gray-500 mb-1">{{ title() }}</p>
-          <p class="text-2xl font-bold text-gray-900">{{ value() }}</p>
-          @if (subtitle()) {
-            <p class="text-xs text-gray-400 mt-1">{{ subtitle() }}</p>
-          }
+          <p class="text-2xl font-bold text-gray-900">{{ value() }} <span
+            class="text-xs font-normal text-gray-400 mt-1">{{ subtitle() }}</span></p>
         </div>
         @if (trend() !== undefined) {
           <div [class]="trend()! >= 0 ? 'text-green-500' : 'text-red-500'" class="text-sm font-medium">

@@ -6,7 +6,7 @@ import {
   AdminStatistics,
   TraineeStatistics,
   TrainerStatistics
-} from '@core/statistics/models/statistics.model';
+} from '@features/statistics/models/statistics.model';
 import {interval, Subscription} from 'rxjs';
 
 interface StatisticsState {

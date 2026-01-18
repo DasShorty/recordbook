@@ -1,11 +1,11 @@
 import {ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit} from '@angular/core';
 import {UserStore} from '@core/users/state/user.store';
 import {LayoutComponent} from '@shared/layout/layout.component';
-import {StatisticsStore} from '@core/statistics/state/statistics.store';
+import {StatisticsStore} from '@features/statistics/state/statistics.store';
 import {Authority} from '@core/users/models/users.model';
-import {TraineeDashboardComponent} from '@core/statistics/components/trainee.dashboard.component';
-import {TrainerDashboardComponent} from '@core/statistics/components/trainer.dashboard.component';
-import {AdminDashboardComponent} from '@core/statistics/components/admin.dashboard.component';
+import {TraineeDashboardComponent} from '@features/statistics/components/trainee.dashboard.component';
+import {TrainerDashboardComponent} from '@features/statistics/components/trainer.dashboard.component';
+import {AdminDashboardComponent} from '@features/statistics/components/admin.dashboard.component';
 
 @Component({
   selector: 'home-page',
