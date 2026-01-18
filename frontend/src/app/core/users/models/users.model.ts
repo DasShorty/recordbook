@@ -1,3 +1,5 @@
+import {Brand} from '@shared/data/brand';
+
 export type UserId = Brand<string, "UserId">
 
 export type User = CreateUser & {
