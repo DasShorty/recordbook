@@ -3,6 +3,7 @@ import {StatisticsStore} from '@features/statistics/state/statistics.store';
 import {BoxComponent} from '@shared/layout/box.component';
 import {StatWidgetComponent} from '@shared/widgets/stat.widget.component';
 import {ChartModule} from 'primeng/chart';
+import {deepEqual} from '@shared/utils/deep-equal';
 
 @Component({
   selector: 'trainer-dashboard',
@@ -82,5 +83,5 @@ export class TrainerDashboardComponent {
         backgroundColor: ['#22c55e', '#f59e0b']
       }]
     };
-  });
+  }, {equal: deepEqual});
 }

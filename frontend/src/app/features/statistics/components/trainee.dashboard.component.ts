@@ -3,6 +3,7 @@ import {StatisticsStore} from '@features/statistics/state/statistics.store';
 import {BoxComponent} from '@shared/layout/box.component';
 import {StatWidgetComponent} from '@shared/widgets/stat.widget.component';
 import {ChartModule} from 'primeng/chart';
+import {deepEqual} from '@shared/utils/deep-equal';
 
 @Component({
   selector: 'trainee-dashboard',
@@ -222,5 +223,5 @@ export class TraineeDashboardComponent {
         tension: 0.4
       }]
     };
-  });
+  }, {equal: deepEqual});
 }

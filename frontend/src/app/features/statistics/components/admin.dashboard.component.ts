@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
 import {StatisticsStore} from '@features/statistics/state/statistics.store';
 import {BoxComponent} from '@shared/layout/box.component';
+import {deepEqual} from '@shared/utils/deep-equal';
 import {StatWidgetComponent} from '@shared/widgets/stat.widget.component';
 import {ChartModule} from 'primeng/chart';
 
@@ -117,5 +118,5 @@ export class AdminDashboardComponent {
         backgroundColor: ['#22c55e', '#94a3b8']
       }]
     };
-  });
+  }, {equal: deepEqual});
 }
