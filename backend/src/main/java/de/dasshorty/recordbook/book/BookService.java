@@ -1,5 +1,6 @@
 package de.dasshorty.recordbook.book;
 
+import de.dasshorty.recordbook.authentication.jwt.JwtHandler;
 import de.dasshorty.recordbook.book.dto.BookDto;
 import de.dasshorty.recordbook.book.dto.CreateBookDto;
 import de.dasshorty.recordbook.book.week.BookWeek;
@@ -7,7 +8,6 @@ import de.dasshorty.recordbook.exception.MissingTokenException;
 import de.dasshorty.recordbook.exception.NotExistingException;
 import de.dasshorty.recordbook.user.User;
 import de.dasshorty.recordbook.user.UserService;
-import de.dasshorty.recordbook.authentication.jwt.JwtHandler;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
