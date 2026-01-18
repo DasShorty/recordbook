@@ -17,11 +17,6 @@ public interface BookWeekRepository extends JpaRepository<@NonNull BookWeek, @No
 
     long countByLocked(boolean locked);
 
-    long countBySignedFromTrainerIsNotNull();
-
-    @Query("SELECT weeks FROM Book book JOIN book.weeks weeks WHERE book.trainee.id = :traineeId")
-    List<BookWeek> findAllByTraineeId(UUID traineeId);
-
     @Query("SELECT weeks FROM Book book JOIN book.weeks weeks WHERE book.trainer.id = :trainerId AND weeks.locked = true AND weeks.signedFromTrainer IS NULL")
     List<BookWeek> findPendingSignatureWeeksByTrainerId(UUID trainerId);
 

@@ -11,7 +11,6 @@ import de.dasshorty.recordbook.book.week.day.PresenceLocation;
 import de.dasshorty.recordbook.statistics.dto.*;
 import de.dasshorty.recordbook.user.UserRepository;
 import de.dasshorty.recordbook.user.UserType;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -121,11 +120,6 @@ public class StatisticsService {
                 totalWeeks,
                 completedWeeks
         );
-    }
-
-    @CacheEvict(value = {"trainee-stats", "trainer-stats", "admin-stats"}, allEntries = true)
-    public void evictAllStatisticsCaches() {
-        // Cache eviction is handled by annotation
     }
 
     private TraineeStatisticsDto createEmptyTraineeStats() {

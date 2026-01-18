@@ -10,7 +10,6 @@ import de.dasshorty.recordbook.book.week.day.dto.UpdateBookDayDto;
 import de.dasshorty.recordbook.book.week.dto.BookWeekDto;
 import de.dasshorty.recordbook.book.week.dto.UpdateBookWeekDto;
 import de.dasshorty.recordbook.exception.NotExistingException;
-import de.dasshorty.recordbook.user.UserService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,15 +29,13 @@ public class BookWeekService {
     private final BookWeekRepository bookWeekRepository;
     private final BookDayRepository bookDayRepository;
     private final JwtHandler jwtHandler;
-    private final UserService userService;
     private final BookService bookService;
     private final AuthenticationService authenticationService;
 
-    public BookWeekService(BookWeekRepository bookWeekRepository, BookDayRepository bookDayRepository, JwtHandler jwtHandler, UserService userService, BookService bookService, AuthenticationService authenticationService) {
+    public BookWeekService(BookWeekRepository bookWeekRepository, BookDayRepository bookDayRepository, JwtHandler jwtHandler, BookService bookService, AuthenticationService authenticationService) {
         this.bookWeekRepository = bookWeekRepository;
         this.bookDayRepository = bookDayRepository;
         this.jwtHandler = jwtHandler;
-        this.userService = userService;
         this.bookService = bookService;
         this.authenticationService = authenticationService;
     }
@@ -59,18 +56,11 @@ public class BookWeekService {
     }
 
     private Optional<BookWeekDto> findExistingWeek(int calendarWeek, int year, UUID bookId) {
-        return this.bookWeekRepository.findByCalendarWeekAndBookId(calendarWeek, year, bookId)
-                .map(BookWeek::toDto);
-    }
-
-    private UUID extractUserIdOrThrow(String accessToken) {
-        return this.jwtHandler.extractUserId(accessToken)
-                .orElseThrow(() -> new NotExistingException("user id is not existing"));
+        return this.bookWeekRepository.findByCalendarWeekAndBookId(calendarWeek, year, bookId).map(BookWeek::toDto);
     }
 
     private Book getBookFromIdOrThrow(UUID bookId) {
-        return this.bookService.getBookEntityById(bookId).orElseThrow(() ->
-                new NotExistingException("book is not existing"));
+        return this.bookService.getBookEntityById(bookId).orElseThrow(() -> new NotExistingException("book is not existing"));
     }
 
     private BookWeek createAndAttachWeek(Book book, int calendarWeek, int year) {
@@ -104,8 +94,7 @@ public class BookWeekService {
     }
 
     private LocalDate getMondayOfWeek(int calendarWeek, int year) {
-        return LocalDate.of(year, 1, 4).with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, calendarWeek).with(
-                ChronoField.DAY_OF_WEEK, DayOfWeek.MONDAY.getValue());
+        return LocalDate.of(year, 1, 4).with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, calendarWeek).with(ChronoField.DAY_OF_WEEK, DayOfWeek.MONDAY.getValue());
     }
 
     private BookDay createBookDay(int day, int month, int year) {
@@ -114,14 +103,10 @@ public class BookWeekService {
 
     @Transactional
     public Optional<BookWeekDto> updateWeek(UUID bookId, UUID weekId, UpdateBookWeekDto updateDto) {
-        BookWeek week = this.bookWeekRepository.findById(weekId)
-                .orElseThrow(() -> new NotExistingException("week not found"));
+        BookWeek week = this.bookWeekRepository.findById(weekId).orElseThrow(() -> new NotExistingException("week not found"));
 
         // Verify the week belongs to the specified book by checking if it exists in the book's weeks
-        boolean weekBelongsToBook = this.bookWeekRepository
-                .findByCalendarWeekAndBookId(week.getCalendarWeek(), week.getYear(), bookId)
-                .map(w -> w.getId().equals(weekId))
-                .orElse(false);
+        boolean weekBelongsToBook = this.bookWeekRepository.findByCalendarWeekAndBookId(week.getCalendarWeek(), week.getYear(), bookId).map(w -> w.getId().equals(weekId)).orElse(false);
 
         if (!weekBelongsToBook) {
             throw new NotExistingException("week does not belong to the specified book");
@@ -129,10 +114,7 @@ public class BookWeekService {
 
         // Update each day
         for (UpdateBookDayDto dayDto : updateDto.days()) {
-            BookDay day = week.getDays().stream()
-                    .filter(d -> d.getId().equals(dayDto.id()))
-                    .findFirst()
-                    .orElseThrow(() -> new NotExistingException("day not found"));
+            BookDay day = week.getDays().stream().filter(d -> d.getId().equals(dayDto.id())).findFirst().orElseThrow(() -> new NotExistingException("day not found"));
 
             day.setHours(dayDto.hours());
             day.setMinutes(dayDto.minutes());
