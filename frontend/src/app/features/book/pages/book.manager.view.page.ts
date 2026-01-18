@@ -18,7 +18,7 @@ import {BookWeek} from '@features/book/models/book.week.model';
   template: `
     <layout-component>
       <box-component>
-        <h1>Manage Book from {{ book().trainee.forename }} {{ book().trainee.surname }}</h1>
+        <h1>Berichtsheft von {{ book().trainee.forename }} {{ book().trainee.surname }}</h1>
         @defer (when currentWeek() != undefined) {
           <book-week-view-component [bookId]="book().id" [bookWeekInput]="currentWeek()!!"></book-week-view-component>
         } @placeholder {
