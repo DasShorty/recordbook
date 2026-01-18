@@ -11,6 +11,7 @@ import de.dasshorty.recordbook.book.week.dto.BookWeekDto;
 import de.dasshorty.recordbook.book.week.dto.UpdateBookWeekDto;
 import de.dasshorty.recordbook.exception.NotExistingException;
 import de.dasshorty.recordbook.user.UserService;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -182,6 +183,7 @@ public class BookWeekService {
         return this.bookWeekRepository.save(week).toDto();
     }
 
+    @CacheEvict(value = {"trainee-stats", "trainer-stats", "admin-stats"}, allEntries = true)
     public BookWeekDto denyWeek(UUID weekId) {
         var week = this.bookWeekRepository.findById(weekId).orElseThrow(() -> new NotExistingException("week not found"));
 
