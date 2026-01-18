@@ -2,11 +2,7 @@ import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
 import {inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {httpConfig} from '@environment/environment';
-import {
-  AdminStatistics,
-  TraineeStatistics,
-  TrainerStatistics
-} from '@features/statistics/models/statistics.model';
+import {AdminStatistics, TraineeStatistics, TrainerStatistics} from '@features/statistics/models/statistics.model';
 import {interval, Subscription} from 'rxjs';
 
 interface StatisticsState {
