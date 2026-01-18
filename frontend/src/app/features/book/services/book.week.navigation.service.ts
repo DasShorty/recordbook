@@ -9,7 +9,7 @@ export class BookWeekNavigationService {
     calendarWeek: number,
     year: number
   ): { week: number; year: number } {
-    if (calendarWeek === this.MAX_CALENDAR_WEEK) {
+    if (this.isLastWeek(calendarWeek)) {
       return {week: this.MIN_CALENDAR_WEEK, year: year + 1};
     }
     return {week: calendarWeek + 1, year};
@@ -19,7 +19,7 @@ export class BookWeekNavigationService {
     calendarWeek: number,
     year: number
   ): { week: number; year: number } {
-    if (calendarWeek === this.MIN_CALENDAR_WEEK) {
+    if (this.isFirstWeek(calendarWeek)) {
       return {week: this.MAX_CALENDAR_WEEK, year: year - 1};
     }
     return {week: calendarWeek - 1, year};
