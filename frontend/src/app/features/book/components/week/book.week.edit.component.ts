@@ -75,8 +75,8 @@ import {BookWeekEditHeaderComponent} from './headers/book.week.edit.header.compo
           <ng-template #body let-day let-i="rowIndex">
             @defer (when forms().length > 0) {
               <tr book-week-edit-row
-                [bookDay]="day"
-                [formGroup]="getFormGroup(i)"
+                  [bookDay]="day"
+                  [formGroup]="getFormGroup(i)"
               ></tr>
             }
           </ng-template>
@@ -115,16 +115,26 @@ export class BookWeekEditComponent {
   private readonly navigationService = inject(BookWeekNavigationService);
 
   public previousWeekParams = computed(() => {
+
+    const week = this.bookWeek();
+
+    if (!week) return {cw: 1, year: new Date().getFullYear()};
+
     const prev = this.navigationService.getPreviousWeek(
-      this.bookWeek().calendarWeek,
-      this.bookWeek().year
+      week.calendarWeek,
+      week.year
     );
     return {cw: prev.week, year: prev.year};
   });
   public nextWeekParams = computed(() => {
+
+    const week = this.bookWeek();
+
+    if (!week) return { cw: 1, year: new Date().getFullYear() };
+
     const next = this.navigationService.getNextWeek(
-      this.bookWeek().calendarWeek,
-      this.bookWeek().year
+      week.calendarWeek,
+      week.year
     );
     return {cw: next.week, year: next.year};
   });

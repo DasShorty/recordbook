@@ -55,17 +55,18 @@ export class RecordBookWeekPage implements OnInit {
       .subscribe(params => {
 
         const calendarWeek = params['cw'];
+        const year = params['year'];
 
         if (calendarWeek === null || calendarWeek === undefined) {
 
-          this.router.navigateByUrl('/record-book/week?cw=' + this.weekService.getCurrentWeekNumber()).then();
+          this.router.navigateByUrl('/record-book/week?cw=' + this.weekService.getCurrentWeekNumber() + '&year=' + new Date().getFullYear()).then();
           return;
 
         }
 
         this.bookStore.getOwnBook(value => {
-          const year = new Date().getFullYear();
-          this.bookWeekStore.getWeek(calendarWeek, year, value.id);
+          const resolvedYear = year ? Number(year) : new Date().getFullYear();
+          this.bookWeekStore.getWeek(calendarWeek, resolvedYear, value.id);
         });
 
       })
