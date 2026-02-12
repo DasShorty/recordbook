@@ -30,4 +30,7 @@ public interface BookRepository extends JpaRepository<Book, UUID> {
 
     @Query("SELECT COUNT(b) FROM Book b WHERE b.trainer.id = :trainerId")
     long countByTrainerId(UUID trainerId);
+
+    @Query("SELECT book FROM Book book JOIN book.weeks week WHERE week.id = :weekId")
+    Optional<Book> findBookByWeekId(UUID weekId);
 }

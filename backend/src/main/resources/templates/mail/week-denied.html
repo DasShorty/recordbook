@@ -1,9 +1,9 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Willkommen</title>
+    <title>Woche abgelehnt</title>
     <style>
         body {
             margin: 0;
@@ -33,13 +33,6 @@
             font-weight: 700;
         }
 
-        .subtitle {
-            margin: 0 0 16px;
-            font-size: 16px;
-            font-weight: 600;
-            color: #374151;
-        }
-
         .muted {
             margin: 0 0 20px;
             color: #6b7280;
@@ -47,27 +40,7 @@
         }
 
         .content p {
-            margin: 0 0 12px;
-        }
-
-        .credentials {
             margin: 0 0 16px;
-            padding: 0 0 0 18px;
-        }
-
-        .credentials li {
-            margin-bottom: 8px;
-        }
-
-        .button {
-            display: inline-block;
-            background-color: #2563eb;
-            color: #ffffff;
-            text-decoration: none;
-            padding: 12px 18px;
-            border-radius: 10px;
-            font-weight: 600;
-            letter-spacing: 0.2px;
         }
 
         .divider {
@@ -87,18 +60,11 @@
 <div class="wrapper">
     <div class="card">
         <p class="muted">Recordbook</p>
-        <h1 class="title">Willkommen, <span th:text="|${user.forename} ${user.surname}|">Benutzer</span>!</h1>
+        <h1 class="title">Hallo <span th:text="|${trainee.forename()} ${trainee.surname()}|">Auszubildener</span>,</h1>
         <div class="content">
-            <p class="subtitle">Deine Zugangsdaten</p>
-            <ul class="credentials">
-                <li>Benutzername: <span th:text="${user.email}">email</span></li>
-                <li>Passwort: <span th:text="${password}">password</span></li>
-            </ul>
+            <p><span th:text="|${trainer.forename()} ${trainer.surname()}|">Ausbilder</span> hat die Kalenderwoche <strong><span th:text="|${week.getCalendarWeek()} ${week.getYear()}|">(Kalenderwoche)</span></strong> abgelehnt.</p>
         </div>
         <div class="divider"></div>
-        <p>
-            <a class="button" th:href="@{login}">Zum Login</a>
-        </p>
         <p class="footer">Diese E-Mail wurde automatisch erstellt.</p>
     </div>
 </div>
