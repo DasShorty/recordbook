@@ -66,6 +66,12 @@ export class SidebarMenuComponent {
             visible: this.isUserTrainee()
           },
           {
+            label: 'Übersicht',
+            icon: 'pi pi-file-arrow-up',
+            routerLink: ['/record-book/overview'],
+            visible: this.isUserTrainee() || this.isUserTrainer() || this.isUserAdmin()
+          },
+          {
             label: 'Verwalten',
             icon: 'pi pi-file-arrow-up',
             routerLink: ['/record-book/manage'],

@@ -8,6 +8,11 @@ import {yearRouteResolver} from '@shared/http/year.route.resolver';
 export const routes: Routes = [
 
   {
+    path: 'overview',
+    loadComponent: () => import('@features/book/pages/book-year-overview.page').then(m => m.BookYearOverviewPage),
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'week',
     loadComponent: () => import('@features/book/pages/record.book.week.page').then(m => m.RecordBookWeekPage),
     canActivate: [AuthGuard]
@@ -32,6 +37,6 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'week'
+    redirectTo: 'overview'
   }
 ]

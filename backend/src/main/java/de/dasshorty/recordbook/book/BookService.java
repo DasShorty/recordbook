@@ -35,6 +35,11 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
+    public Optional<Book> getBookEntityByWeekId(UUID weekId) {
+        return this.bookRepository.findBookByWeekId(weekId);
+    }
+
+    @Transactional(readOnly = true)
     public Optional<Book> getBookEntityById(UUID bookId) {
         return bookRepository.findById(bookId);
     }

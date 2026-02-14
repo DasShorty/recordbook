@@ -1,10 +1,11 @@
 import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
-import {BookWeek} from '@features/book/models/book.week.model';
+import {BookWeek, BookWeekId} from '@features/book/models/book.week.model';
 import {BookDay} from '@features/book/models/book.day.model';
 import {inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {httpConfig} from '@environment/environment';
 import {BookId} from '@features/book/models/book.model';
+import {Page} from '@core/http/model/page.model';
 
 export const BookWeekStore = signalStore(
   {providedIn: 'root'},
@@ -18,6 +19,22 @@ export const BookWeekStore = signalStore(
     const httpClient = inject(HttpClient);
 
     return {
+
+      deleteWeek(weekId: BookWeekId) {
+        return httpClient.delete(`${httpConfig.baseUrl}books/weeks/${weekId}`, {
+          withCredentials: true
+        });
+      },
+
+      getWeeks(bookId: BookId, page: number, size: number) {
+        return httpClient.get<Page<BookWeek>>(`${httpConfig.baseUrl}books/${bookId}/weeks`, {
+          withCredentials: true,
+          params: {
+            page: page,
+            size: size
+          }
+        });
+      },
 
       loadWeek(week: number, year: number, bookId: BookId) {
         console.log("Loading week", week, "year", year, "for book", bookId);

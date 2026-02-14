@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,8 +33,8 @@ public class BookWeekController {
 
     @GetMapping("/{bookId}/weeks")
     @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINER', 'TRAINEE')")
-    public ResponseEntity<Page<BookWeekDto>> getWeeks(@PathVariable UUID bookId) {
-        return ResponseEntity.ok(bookService.getBookWeeks(bookId, Pageable.ofSize(7)).map(BookWeek::toDto));
+    public ResponseEntity<Page<BookWeekDto>> getWeeks(@PathVariable UUID bookId, @PageableDefault Pageable pageable) {
+        return ResponseEntity.ok(bookService.getBookWeeks(bookId, pageable).map(BookWeek::toDto));
     }
 
     @GetMapping("/{bookId}/weeks/{year}/{cw}")
@@ -80,5 +81,12 @@ public class BookWeekController {
     @PreAuthorize("hasAnyAuthority('TRAINER', 'ADMINISTRATOR')")
     public ResponseEntity<?> denyWeek(@PathVariable UUID weekId) {
         return ResponseEntity.ok(this.bookWeekService.denyWeek(weekId));
+    }
+
+    @DeleteMapping("/weeks/{weekId}")
+    @PreAuthorize("hasAnyAuthority('TRAINEE', 'ADMINISTRATOR')")
+    public ResponseEntity<?> deleteWeek(@PathVariable UUID weekId) {
+        this.bookWeekService.deleteWeek(weekId);
+        return ResponseEntity.noContent().build();
     }
 }

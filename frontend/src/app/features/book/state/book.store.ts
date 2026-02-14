@@ -1,4 +1,4 @@
-import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
+import {patchState, signalStore, withHooks, withMethods, withState} from '@ngrx/signals';
 import {Book, BookId} from '@features/book/models/book.model';
 import {inject} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
@@ -143,7 +143,7 @@ export const BookStore = signalStore(
         });
       },
 
-      updateTrainer(bookId: string, trainerId: string, response: Consumer<{ok: boolean, data: Book | null}>) {
+      updateTrainer(bookId: string, trainerId: string, response: Consumer<{ ok: boolean, data: Book | null }>) {
 
         httpClient.put<Book>(httpConfig.baseUrl + "books/" + bookId + "/trainer", {
           trainer: trainerId,
@@ -163,7 +163,7 @@ export const BookStore = signalStore(
 
             response({ok: true, data: res});
           },
-          error: (err) => {
+          error: () => {
             response({ok: false, data: null});
           }
         });
@@ -171,5 +171,14 @@ export const BookStore = signalStore(
 
     }
 
+  }),
+  withHooks({
+    onInit(store) {
+      store.getOwnBook(book => {
+        patchState(store, {
+          activeBook: book,
+        })
+      });
+    }
   })
 )

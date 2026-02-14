@@ -58,6 +58,27 @@ public class BookWeekService {
         return Optional.of(newWeek.toDto());
     }
 
+    @Transactional
+    public void deleteWeek(UUID weekId) {
+        var week = this.bookWeekRepository.findById(weekId).orElseThrow(() -> new NotExistingException("Die Woche existiert nicht!"));
+
+        if (week.isLocked()) {
+            throw new IllegalStateException("Die Woche ist gesperrt und kann nicht gelöscht werden!");
+        }
+
+        if (week.getSignedFromTrainer() != null) {
+            throw new IllegalStateException("Die Woche ist bereits von einem Ausbilder unterschrieben und kann nicht gelöscht werden!");
+        }
+
+        this.bookService.getBookEntityByWeekId(week.getId()).ifPresent(book -> {
+            List<BookWeek> weeks = book.getWeeks();
+            weeks.remove(week);
+            book.setWeeks(weeks);
+            this.bookService.updateBookEntity(book);
+        });
+        this.bookWeekRepository.delete(week);
+    }
+
     private Optional<BookWeekDto> findExistingWeek(int calendarWeek, int year, UUID bookId) {
         return this.bookWeekRepository.findByCalendarWeekAndBookId(calendarWeek, year, bookId).map(BookWeek::toDto);
     }
