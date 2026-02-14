@@ -61,8 +61,7 @@ import {BookWeekEditHeaderComponent} from './headers/book.week.edit.header.compo
           [scrollable]="true"
           scrollHeight="flex"
           class="p-datatable-striped"
-          [tableStyle]="{ 'width': '100%', 'height': '100%' }"
-        >
+          [tableStyle]="{ 'width': '100%', 'height': '100%' }">
           <ng-template #header>
             <tr>
               <th>Tag / Datum</th>
@@ -209,6 +208,7 @@ export class BookWeekEditComponent {
   }
 
   public submitWeek(): void {
+    this.onSave();
     this.bookWeekStore.submitWeekToTrainer(this.bookWeek().id);
   }
 
