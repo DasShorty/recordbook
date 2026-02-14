@@ -60,16 +60,16 @@ export class SidebarMenuComponent {
       {
         label: 'Berichtsheft', visible: true, items: [
           {
+            label: 'Wochenübersicht',
+            icon: 'pi pi-file-arrow-up',
+            routerLink: ['/record-book/overview'],
+            visible: this.isUserTrainee()
+          },
+          {
             label: 'Wochenansicht',
             icon: 'pi pi-file-arrow-up',
             routerLink: ['/record-book/week'],
             visible: this.isUserTrainee()
-          },
-          {
-            label: 'Übersicht',
-            icon: 'pi pi-file-arrow-up',
-            routerLink: ['/record-book/overview'],
-            visible: this.isUserTrainee() || this.isUserTrainer() || this.isUserAdmin()
           },
           {
             label: 'Verwalten',
