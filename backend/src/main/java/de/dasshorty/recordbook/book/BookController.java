@@ -5,16 +5,20 @@ import de.dasshorty.recordbook.book.dto.CreateBookDto;
 import de.dasshorty.recordbook.book.dto.UpdateTrainerDto;
 import de.dasshorty.recordbook.exception.MissingTokenException;
 import de.dasshorty.recordbook.http.result.ErrorResult;
+import de.dasshorty.recordbook.pdf.PdfManager;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -65,6 +69,18 @@ public class BookController {
     public ResponseEntity<BookDto> updateBookTrainer(@PathVariable @NotNull UUID bookId,
                                                      @RequestBody @Valid UpdateTrainerDto updateTrainerDto) {
         return ResponseEntity.of(this.bookService.updateBookTrainer(bookId, updateTrainerDto.trainer()));
+    }
+
+    @GetMapping("/export")
+    @PreAuthorize("isAnonymous()")
+    public ResponseEntity<byte[]> exportBookAsPdf() throws IOException {
+        var book = this.bookService.getBookEntityById(UUID.fromString("b66ddd80-9036-4220-b62d-e17dd22f30c7")).orElseThrow();
+
+        ByteArrayOutputStream pdf = PdfManager.createPdf(book);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf.toByteArray());
     }
 
 }
