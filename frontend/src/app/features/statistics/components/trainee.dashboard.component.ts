@@ -1,16 +1,19 @@
-import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
 import {StatisticsStore} from '@features/statistics/state/statistics.store';
 import {BoxComponent} from '@shared/layout/box.component';
 import {StatWidgetComponent} from '@shared/widgets/stat.widget.component';
 import {ChartModule} from 'primeng/chart';
 import {deepEqual} from '@shared/utils/deep-equal';
+import {Button} from 'primeng/button';
+import {BookStore} from '@features/book/state/book.store';
 
 @Component({
   selector: 'trainee-dashboard',
   imports: [
     BoxComponent,
     StatWidgetComponent,
-    ChartModule
+    ChartModule,
+    Button
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -37,6 +40,11 @@ import {deepEqual} from '@shared/utils/deep-equal';
           [value]="formattedTotalHours()"
           icon="pi pi-clock"
         />
+        <box-component>
+          <p-button [disabled]="exportLoading()" [loading]="exportLoading()" (click)="exportRecordbook()">
+            Berichtsheft exportieren
+          </p-button>
+        </box-component>
       </div>
 
       <div class="chart-row">
@@ -79,6 +87,8 @@ import {deepEqual} from '@shared/utils/deep-equal';
 export class TraineeDashboardComponent {
 
   private readonly statisticsStore = inject(StatisticsStore);
+  private readonly bookStore = inject(BookStore);
+  protected readonly exportLoading = signal(false);
 
   protected readonly traineeStats = computed(() => this.statisticsStore.traineeStats());
 
@@ -224,4 +234,15 @@ export class TraineeDashboardComponent {
       }]
     };
   }, {equal: deepEqual});
+
+  protected exportRecordbook() {
+    this.exportLoading.set(true);
+    this.bookStore.getOwnBook(book => {
+      this.bookStore.exportBook(book.id).subscribe(value => {
+        const url = URL.createObjectURL(value);
+        window.open(url, '_blank');
+        this.exportLoading.set(false);
+      });
+    })
+  }
 }

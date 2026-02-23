@@ -167,6 +167,13 @@ export const BookStore = signalStore(
             response({ok: false, data: null});
           }
         });
+      },
+
+      exportBook(bookId: BookId) {
+        return httpClient.get(httpConfig.baseUrl + "books/" + bookId + "/export", {
+          withCredentials: true,
+          responseType: "blob"
+        });
       }
 
     }

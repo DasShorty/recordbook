@@ -4,6 +4,7 @@ import de.dasshorty.recordbook.book.dto.BookDto;
 import de.dasshorty.recordbook.book.dto.CreateBookDto;
 import de.dasshorty.recordbook.book.dto.UpdateTrainerDto;
 import de.dasshorty.recordbook.exception.MissingTokenException;
+import de.dasshorty.recordbook.exception.NotExistingException;
 import de.dasshorty.recordbook.http.result.ErrorResult;
 import de.dasshorty.recordbook.pdf.PdfManager;
 import jakarta.validation.Valid;
@@ -71,12 +72,13 @@ public class BookController {
         return ResponseEntity.of(this.bookService.updateBookTrainer(bookId, updateTrainerDto.trainer()));
     }
 
-    @GetMapping("/export")
-    public ResponseEntity<byte[]> exportBookAsPdf() throws IOException {
-        var book = this.bookService.getBookEntityById(UUID.fromString("a90f474b-eef3-46de-bd1d-c36632d90349")).orElseThrow();
-
+    @GetMapping("/{bookId}/export")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<byte[]> exportBookAsPdf(
+            @PathVariable @NotNull UUID bookId
+    )throws IOException {
+        var book = this.bookService.getBookEntityById(bookId).orElseThrow(() -> new NotExistingException("Das Buch mit der ID " + bookId + " existiert nicht."));
         ByteArrayOutputStream pdf = PdfManager.createPdf(book);
-
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdf.toByteArray());

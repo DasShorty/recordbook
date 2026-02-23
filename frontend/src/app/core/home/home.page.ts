@@ -28,7 +28,7 @@ import {AdminDashboardComponent} from '@features/statistics/components/admin.das
           @case ('TRAINER') {
             <trainer-dashboard />
           }
-          @default {
+          @case ('ADMINISTRATOR') {
             <admin-dashboard />
           }
         }
@@ -50,7 +50,7 @@ export class HomePage implements OnInit, OnDestroy {
       this.statisticsStore.startPolling(() => this.statisticsStore.loadTraineeStatistics());
     } else if (type === Authority.TRAINER) {
       this.statisticsStore.startPolling(() => this.statisticsStore.loadTrainerStatistics());
-    } else {
+    } else if (type === Authority.ADMINISTRATOR) {
       this.statisticsStore.startPolling(() => this.statisticsStore.loadAdminStatistics());
     }
   }
