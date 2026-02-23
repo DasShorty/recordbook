@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class PdfItemManager {
 
-    public static void drawRectangle(PDPageContentStream contentStream, int x, int y, int width, int height, Color color) throws IOException {
+    public static void drawRectangle(PDPageContentStream contentStream, float x, float y, float width, float height, Color color) throws IOException {
         contentStream.addRect(x, y, width, height);
         contentStream.setStrokingColor(color);
         contentStream.setNonStrokingColor(color);
@@ -16,7 +16,7 @@ public class PdfItemManager {
         contentStream.stroke();
     }
 
-    public static void addText(PDPageContentStream contentStream, String text, int x, int y, PDFont font, int fontSize) throws IOException {
+    public static void addText(PDPageContentStream contentStream, String text, float x, float y, PDFont font, int fontSize) throws IOException {
         contentStream.beginText();
         contentStream.setFont(font, fontSize);
         contentStream.setNonStrokingColor(0, 0, 0);
@@ -26,7 +26,7 @@ public class PdfItemManager {
     }
 
 
-    public static void addCenteredText(PDPageContentStream contentStream, String text, int x, int y, PDFont font, int fontSize) throws IOException {
+    public static void addCenteredText(PDPageContentStream contentStream, String text, float x, float y, PDFont font, int fontSize) throws IOException {
         float textWidth = font.getStringWidth(text) / 1000 * fontSize;
         float centeredX = x - (textWidth / 2);
 

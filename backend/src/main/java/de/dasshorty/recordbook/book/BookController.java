@@ -72,9 +72,8 @@ public class BookController {
     }
 
     @GetMapping("/export")
-    @PreAuthorize("isAnonymous()")
     public ResponseEntity<byte[]> exportBookAsPdf() throws IOException {
-        var book = this.bookService.getBookEntityById(UUID.fromString("b66ddd80-9036-4220-b62d-e17dd22f30c7")).orElseThrow();
+        var book = this.bookService.getBookEntityById(UUID.fromString("a90f474b-eef3-46de-bd1d-c36632d90349")).orElseThrow();
 
         ByteArrayOutputStream pdf = PdfManager.createPdf(book);
 
