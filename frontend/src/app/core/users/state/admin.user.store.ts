@@ -1,16 +1,17 @@
 import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
 import {CreateUser, User} from '@core/users/models/users.model';
 import {inject} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {retry} from 'rxjs';
 import {httpConfig} from '@environment/environment';
 import {Page} from '@core/http/model/page.model';
 import {Consumer} from '@shared/data/consumer';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 export const AdminUserStore = signalStore(
   {providedIn: 'root'},
   withState({
-    data: {} as Page<User>
+    users: {} as Page<User>
   }),
   withMethods(store => {
 
@@ -18,21 +19,26 @@ export const AdminUserStore = signalStore(
 
     return {
 
+      fetchUsers(size: number, page: number) {
+        return httpClient.get<Page<User>>(httpConfig.baseUrl + "users", {
+          withCredentials: true,
+          params: {
+            page: page,
+            size: size
+          }
+        });
+      },
+
       getUsers(size: number = 20, page: number = 0) {
 
-        const httpParams = new HttpParams()
-          .set("page", page)
-          .set("size", size);
+        this.fetchUsers(size, page).pipe(takeUntilDestroyed()).subscribe(page => {
 
-        httpClient.get<Page<User>>(httpConfig.baseUrl + "users", {
-          withCredentials: true,
-          params: httpParams
-        }).pipe(
-          retry(1)
-        ).subscribe(value => {
+          if (!page) {
+            return;
+          }
 
           patchState(store, {
-            data: value
+            users: page,
           });
 
         });

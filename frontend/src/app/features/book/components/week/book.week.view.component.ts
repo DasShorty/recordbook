@@ -1,6 +1,5 @@
 import {ChangeDetectionStrategy, Component, computed, effect, inject, input, signal} from '@angular/core';
 import {BookWeek} from '@features/book/models/book.week.model';
-import {TableModule} from 'primeng/table';
 import {BookId} from '@features/book/models/book.model';
 import {BookTrainerStore} from '@features/book/state/book.trainer.store';
 import {BookWeekNavigationService} from '@features/book/services/book.week.navigation.service';
@@ -12,7 +11,6 @@ import {BookWeekViewHeaderComponent} from './headers/book.week.view.header.compo
   selector: 'book-week-view-component',
   imports: [
     CommonModule,
-    TableModule,
     BookWeekViewRowComponent,
     BookWeekViewHeaderComponent,
   ],
@@ -44,27 +42,24 @@ import {BookWeekViewHeaderComponent} from './headers/book.week.view.header.compo
           </div>
         </div>
 
-        <div class="flex-1 overflow-hidden">
-          <p-table
-            [value]="bookWeek()!.days"
-            [scrollable]="true"
-            scrollHeight="flex"
-            class="p-datatable-striped"
-            [tableStyle]="{ 'width': '100%', 'height': '100%' }"
-          >
-            <ng-template #header>
+        <div class="flex-1 overflow-hidden border-t">
+          <div class="overflow-auto h-full">
+            <table class="w-full border-collapse text-sm">
+              <thead class="sticky top-0 bg-gray-100 border-b">
               <tr>
-                <th>Tag / Datum</th>
-                <th>Anwesenheit</th>
-                <th>Ort</th>
-                <th>Stunden</th>
+                <th class="px-2 py-2 text-left font-medium">Tag / Datum</th>
+                <th class="px-2 py-2 text-left font-medium">Anwesenheit</th>
+                <th class="px-2 py-2 text-left font-medium">Ort</th>
+                <th class="px-2 py-2 text-left font-medium">Stunden</th>
               </tr>
-            </ng-template>
-
-            <ng-template #body let-day>
-              <tr book-week-view-row [bookDay]="day"></tr>
-            </ng-template>
-          </p-table>
+              </thead>
+              <tbody>
+                @for (day of bookWeek()!.days; track day.date) {
+                  <tr book-week-view-row [bookDay]="day"></tr>
+                }
+              </tbody>
+            </table>
+          </div>
         </div>
       }
     </div>
@@ -72,12 +67,8 @@ import {BookWeekViewHeaderComponent} from './headers/book.week.view.header.compo
   styles: [
     `
       :host ::ng-deep {
-        .p-datatable .p-datatable-tbody > tr.weekend {
+        tbody > tr.weekend {
           background-color: rgba(0, 0, 0, 0.03);
-        }
-
-        .p-datatable .p-datatable-tbody > tr > td {
-          padding: 0.5rem;
         }
       }
     `,

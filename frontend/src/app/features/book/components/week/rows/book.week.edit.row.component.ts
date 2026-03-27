@@ -4,12 +4,10 @@ import {FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {BookDay} from '@features/book/models/book.day.model';
 import {Presence, PresenceDisplay, PresenceType,} from '@features/book/models/presence.type';
 import {DateFormatService} from '@features/book/services/date.format.service';
-import {Select} from 'primeng/select';
-import {InputNumber} from 'primeng/inputnumber';
 
 @Component({
   selector: '[book-week-edit-row]',
-  imports: [CommonModule, ReactiveFormsModule, Select, InputNumber],
+  imports: [CommonModule, ReactiveFormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class.weekend]': 'dateFormatService.isWeekend(bookDay().date)',
@@ -29,54 +27,52 @@ import {InputNumber} from 'primeng/inputnumber';
       </td>
 
       <td class="px-2 py-1">
-        <p-select
-          class="w-full"
+        <select
+          class="w-full border rounded-md px-2 py-1 text-sm"
           formControlName="presence"
-          [options]="presenceOptions()"
-          optionLabel="label"
-          optionValue="value"
-          [showClear]="true"
-          placeholder="Unbekannt"
-          ariaLabel="Anwesenheit"
-          fluid
-        ></p-select>
+          aria-label="Anwesenheit"
+        >
+          <option [ngValue]="null">Unbekannt</option>
+          @for (opt of presenceOptions(); track opt.value) {
+            <option [ngValue]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
       </td>
 
       <td class="px-2 py-1">
-        <p-select
-          class="w-full"
+        <select
+          class="w-full border rounded-md px-2 py-1 text-sm"
           formControlName="presenceLocation"
-          [options]="presenceTypeOptions()"
-          optionLabel="label"
-          optionValue="value"
-          [showClear]="true"
-          placeholder="Unbekannt"
-          ariaLabel="Ort"
-          fluid
-        ></p-select>
+          aria-label="Ort"
+        >
+          <option [ngValue]="null">Unbekannt</option>
+          @for (opt of presenceTypeOptions(); track opt.value) {
+            <option [ngValue]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
       </td>
 
       <td class="px-2 py-1 text-right flex gap-1 flex-row">
-        <p-input-number
-          class="text-right"
+        <input
+          class="w-20 text-right border rounded-md px-2 py-1 text-sm"
+          type="number"
           formControlName="hours"
-          [min]="0"
-          [max]="24"
-          [step]="1"
-          [showButtons]="true"
-          ariaLabel="Stunden"
-          fluid
-        ></p-input-number>
-        <p-input-number
-          class="text-right"
+          min="0"
+          max="24"
+          step="1"
+          aria-label="Stunden"
+          placeholder="Std"
+        />
+        <input
+          class="w-20 text-right border rounded-md px-2 py-1 text-sm"
+          type="number"
           formControlName="minutes"
-          [min]="0"
-          [max]="59"
-          [step]="1"
-          [showButtons]="true"
-          ariaLabel="Minuten"
-          fluid
-        ></p-input-number>
+          min="0"
+          max="59"
+          step="1"
+          aria-label="Minuten"
+          placeholder="Min"
+        />
       </td>
     </ng-container>
   `,

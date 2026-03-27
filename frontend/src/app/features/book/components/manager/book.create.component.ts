@@ -1,67 +1,54 @@
-import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, inject, Output, signal} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {User, UserType} from '@core/users/models/users.model';
 import {UserOptionStore} from '@core/users/state/user.option.store';
 import {BookStore} from '@features/book/state/book.store';
 import {SelectComponent} from '@shared/select/select.component';
-import {Button} from 'primeng/button';
-import {ProgressSpinner} from 'primeng/progressspinner';
-import {DynamicDialogRef} from 'primeng/dynamicdialog';
+import {HlmButton} from '@spartan-ng/helm/button';
 
 @Component({
   selector: 'book-create',
-  imports: [ReactiveFormsModule, SelectComponent, Button, ProgressSpinner],
+  imports: [ReactiveFormsModule, SelectComponent, HlmButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @defer (on viewport) {
-      <form [formGroup]="formGroup" class="flex flex-col gap-2">
-        <select-component
-          placeholder="Azubi wählen"
-          (onLazyLoad)="lazyLoadMoreTrainees()"
-          (onShow)="this.userOptionStore.retrieveTrainees()"
-          [control]="formGroup.controls['trainee']"
-          [data]="this.userOptionStore.traineePage().content"
-          label="Azubis*">
-          <ng-template errors>
-            @if (formGroup.controls['trainee'].errors && formGroup.dirty) {
-              @if (formGroup.controls['trainee'].hasError('required')) {
-                <span>Das Berichtsheft benötigt einen Azubi</span>
-              }
+    <form [formGroup]="formGroup" class="flex flex-col gap-2">
+      <select-component
+        placeholder="Azubi wählen"
+        (onLazyLoad)="lazyLoadMoreTrainees()"
+        (onShow)="this.userOptionStore.retrieveTrainees()"
+        [control]="formGroup.controls['trainee']"
+        [data]="this.userOptionStore.traineePage().content"
+        label="Azubis*">
+        <ng-template errors>
+          @if (formGroup.controls['trainee'].errors && formGroup.dirty) {
+            @if (formGroup.controls['trainee'].hasError('required')) {
+              <span class="text-red-600 text-sm">Das Berichtsheft benötigt einen Azubi</span>
             }
-          </ng-template>
-        </select-component>
-        <select-component
-          placeholder="Ausbildungskraft wählen"
-          (onLazyLoad)="lazyLoadMoreTrainers()"
-          (onShow)="this.userOptionStore.retrieveTrainers()"
-          [control]="formGroup.controls['trainer']"
-          [data]="this.userOptionStore.trainersPage().content"
-          label="Ausbildungskräfte*">
-          <ng-template errors>
-            @if (formGroup.controls['trainer'].errors && formGroup.dirty) {
-              @if (formGroup.controls['trainer'].hasError('required')) {
-                <span>Das Berichtsheft benötigt einen Azubi</span>
-              }
+          }
+        </ng-template>
+      </select-component>
+      <select-component
+        placeholder="Ausbildungskraft wählen"
+        (onLazyLoad)="lazyLoadMoreTrainers()"
+        (onShow)="this.userOptionStore.retrieveTrainers()"
+        [control]="formGroup.controls['trainer']"
+        [data]="this.userOptionStore.trainersPage().content"
+        label="Ausbildungskräfte*">
+        <ng-template errors>
+          @if (formGroup.controls['trainer'].errors && formGroup.dirty) {
+            @if (formGroup.controls['trainer'].hasError('required')) {
+              <span class="text-red-600 text-sm">Das Berichtsheft benötigt eine Ausbildungskraft</span>
             }
-          </ng-template>
-        </select-component>
-        <div class="mt-2 flex gap-1 justify-end">
-          <p-button label="Abbrechen" outlined severity="danger" (click)="closeForm()"/>
-          <p-button
-            type="submit"
-            [disabled]="formGroup.invalid"
-            severity="success"
-            [loading]="loading()"
-            label="Erstellen"
-            (click)="submitForm()"
-          />
-        </div>
-      </form>
-    } @placeholder {
-      <div class="flex justify-center items-center">
-        <p-progress-spinner ariaLabel="loading"></p-progress-spinner>
+          }
+        </ng-template>
+      </select-component>
+      <div class="mt-4 flex gap-2 justify-end">
+        <button hlmBtn variant="outline" type="button" (click)="closeForm()">Abbrechen</button>
+        <button hlmBtn type="submit" [disabled]="formGroup.invalid || loading()">
+          {{ loading() ? 'Erstellen...' : 'Erstellen' }}
+        </button>
       </div>
-    }
+    </form>
   `
 })
 export class BookCreateComponent {
@@ -69,7 +56,8 @@ export class BookCreateComponent {
   readonly loading = signal(false);
   readonly userOptionStore = inject(UserOptionStore);
   readonly bookManagerStore = inject(BookStore);
-  readonly dialogRef = inject(DynamicDialogRef);
+  @Output() closed = new EventEmitter<void>();
+
   protected readonly formGroup = new FormGroup({
     id: new FormControl(''),
     trainee: new FormControl<User | null>(null, {
@@ -81,7 +69,7 @@ export class BookCreateComponent {
 
   closeForm() {
     this.formGroup.reset();
-    this.dialogRef.close();
+    this.closed.emit();
   }
 
   protected submitForm() {
@@ -96,7 +84,7 @@ export class BookCreateComponent {
     const trainerIds = value.trainer?.id;
 
     if (traineeId == undefined || trainerIds == undefined) {
-      return; // throw an error?
+      return;
     }
 
     this.loading.set(true);
@@ -105,25 +93,25 @@ export class BookCreateComponent {
       this.loading.set(false);
 
       if (!created) {
-        // creation failed or returned null
         return;
       }
 
       const page = this.bookManagerStore.page();
       const size = this.bookManagerStore.size()
 
-      this.bookManagerStore.loadBooks(page, size, () => {});
+      this.bookManagerStore.loadBooks(page, size, () => {
+      });
 
-      this.dialogRef.close();
+      this.closed.emit();
     });
   }
 
   protected lazyLoadMoreTrainees() {
-    this.userOptionStore.loadOptions(UserType.TRAINEE); // TODO - error handling
+    this.userOptionStore.loadOptions(UserType.TRAINEE);
   }
 
   protected lazyLoadMoreTrainers() {
-    this.userOptionStore.loadOptions(UserType.TRAINER); // TODO - error handling
+    this.userOptionStore.loadOptions(UserType.TRAINER);
   }
 }
 

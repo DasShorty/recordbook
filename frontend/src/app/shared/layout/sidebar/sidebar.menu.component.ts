@@ -1,19 +1,17 @@
 import {Component, computed, inject} from '@angular/core';
-import {MenuItem} from 'primeng/api';
 import {SidebarGroupComponent} from '@shared/layout/sidebar/sidebar.group.component';
 import {LayoutStore} from '@shared/layout/layout.store';
-import {NgClass} from '@angular/common';
 import {UserStore} from '@core/users/state/user.store';
 import {Authority} from '@core/users/models/users.model';
+import {SidebarMenuItem} from '@shared/layout/sidebar/sidebar.menu-item';
 
 @Component({
   selector: 'sidebar-menu-component',
   imports: [
-    SidebarGroupComponent,
-    NgClass
+    SidebarGroupComponent
   ],
   template: `
-    <nav class="sidebar-navigation" [ngClass]="isMenuOpen() ? '' : 'menu-invisible'">
+    <nav class="sidebar-navigation" [class.menu-invisible]="!isMenuOpen()">
       <ul>
         @for (item of menuItems(); track item) {
           @if (item.visible) {
@@ -86,7 +84,7 @@ export class SidebarMenuComponent {
           {label: 'Admin', icon: 'pi pi-file-arrow-up', visible: this.isUserAdmin(), routerLink: ['/admin']}
         ]
       },
-    ] as MenuItem[];
+    ] as SidebarMenuItem[];
   })
 
   private readonly layoutStore = inject(LayoutStore);

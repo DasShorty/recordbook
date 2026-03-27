@@ -1,83 +1,75 @@
-import {Component, computed, effect, inject, viewChild} from '@angular/core';
-import {Menu} from 'primeng/menu';
-import {Ripple} from 'primeng/ripple';
-import {MenuItem} from 'primeng/api';
+import {Component, computed, effect, inject, signal} from '@angular/core';
 import {UserStore} from '@core/users/state/user.store';
 import {AuthenticationService} from '@core/auth/authentication.service';
 import {Router} from '@angular/router';
 import {Authority} from '@core/users/models/users.model';
+import {CommonModule} from '@angular/common';
+import {HlmButton} from '@spartan-ng/helm/button';
+import {NgIcon, provideIcons} from '@ng-icons/core';
+import {lucideLogOut, lucideUser} from '@ng-icons/lucide';
 
 @Component({
-  selector: 'profile-component', imports: [Menu, Ripple], template: `
-    <button class="cursor-pointer bg-white m-5" (click)="toggleAccountMenu(menu, $event)">
-      <i class="pi pi-user" style="font-size: 1.3rem;"></i>
-    </button>
-    <p-menu #menu appendTo="body" [model]="this.items" [popup]="true">
-      <ng-template #start>
-        <button pRipple
-                class="relative w-full flex gap-4 justify-center items-center-safe hover:bg-gray-50 dark:hover:bg-gray-900"
-                style="padding: 0.25rem">
-          <i class="pi pi-user"></i>
-          <span class="inline-flex flex-col items-start">
-                    <span class="font-bold">{{ this.userName() }}</span>
-                    <span class="text-sm">{{ this.userType() }}</span>
-          </span>
-        </button>
-      </ng-template>
-      <ng-template #item let-item>
-        @if (item.delete) {
-          <a pRipple style="padding: 0.25rem"
-             class="flex items-center gap-2 cursor-pointer text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10">
-            <span [class]="item.icon"></span>
-            <span>{{ item.label }}</span>
-          </a>
-        } @else {
-          <a pRipple style="padding: 0.25rem" class="flex items-center gap-2 cursor-pointer">
-            <span [class]="item.icon"></span>
-            <span>{{ item.label }}</span>
-          </a>
-        }
-      </ng-template>
-    </p-menu>
-  `, styles: `
-    .p-menu-item-content {
-      background-color: rgba(255, 0, 0, 0.25);
+  selector: 'profile-component',
+  imports: [CommonModule, HlmButton, NgIcon],
+  providers: [provideIcons({lucideUser, lucideLogOut})],
+  template: `
+    <div class="relative">
+      <button
+        hlmBtn
+        variant="ghost"
+        size="icon"
+        (click)="toggleMenu()"
+        class="mr-4"
+        type="button"
+      >
+        <ng-icon name="lucideUser" class="w-5 h-5"/>
+      </button>
 
-      a {
-        color: red;
+      @if (menuOpen()) {
+        <div
+          class="absolute right-0 top-12 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-50"
+          (click)="menuOpen.set(false)"
+        >
+          <!-- User Info Header -->
+          <div class="px-4 py-3 border-b border-gray-200 hover:bg-gray-50 cursor-default">
+            <div class="flex gap-3 items-center">
+              <ng-icon name="lucideUser" class="w-8 h-8 text-gray-600"/>
+              <div class="flex flex-col">
+                <span class="font-semibold text-sm">{{ userName() }}</span>
+                <span class="text-xs text-gray-600">{{ userType() }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Logout Option -->
+          <button
+            class="w-full px-4 py-2 flex items-center gap-2 hover:bg-red-50 text-red-600 transition text-left text-sm"
+            (click)="logout()"
+            type="button"
+          >
+            <ng-icon name="lucideLogOut" class="w-4 h-4"/>
+            <span>Logout</span>
+          </button>
+        </div>
       }
-    }
+    </div>
   `
 })
 export class ProfileComponent {
 
-  protected readonly menu = viewChild<Menu>('menu');
+  protected readonly menuOpen = signal(false);
   protected readonly authenticationService = inject(AuthenticationService);
-  protected userName = computed(() => this.user().forename + " " + this.user().surname);
-  protected userType = computed(() => {
-
+  protected readonly userName = computed(() => this.user().forename + " " + this.user().surname);
+  protected readonly userType = computed(() => {
     if (this.user().authority == Authority.ADMINISTRATOR) {
       return "ADMINISTRATOR"
     } else {
       return this.user().userType;
     }
-
   });
   private readonly userStore = inject(UserStore);
-  public user = computed(() => this.userStore.getActiveUser());
+  public readonly user = computed(() => this.userStore.getActiveUser());
   private readonly router = inject(Router);
-  protected items: MenuItem[] = [{
-    separator: true
-  }, {
-    label: 'Logout', icon: 'pi pi-sign-out', command: () => {
-      this.menu()!!.hide();
-      this.authenticationService.logout().then(() => {
-        this.router.navigateByUrl("/login").then(value => {
-          window.location.href = window.location.toString()
-        }); // TODO - add a confirm dialog for logout
-      });
-    }, delete: true
-  }];
 
   constructor() {
     effect(() => {
@@ -85,8 +77,17 @@ export class ProfileComponent {
     });
   }
 
-  protected toggleAccountMenu(menu: Menu, event: Event) {
-    menu.toggle(event);
+  protected toggleMenu() {
+    this.menuOpen.update(v => !v);
   }
 
+  protected logout() {
+    this.menuOpen.set(false);
+    this.authenticationService.logout().then(() => {
+      this.router.navigateByUrl("/login").then(() => {
+        window.location.href = window.location.toString()
+      });
+    });
+  }
 }
+

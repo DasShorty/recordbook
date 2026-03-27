@@ -1,16 +1,24 @@
-import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  ViewChild
+} from '@angular/core';
 import {StatisticsStore} from '@features/statistics/state/statistics.store';
 import {BoxComponent} from '@shared/layout/box.component';
 import {deepEqual} from '@shared/utils/deep-equal';
 import {StatWidgetComponent} from '@shared/widgets/stat.widget.component';
-import {ChartModule} from 'primeng/chart';
+import Chart from 'chart.js/auto';
 
 @Component({
   selector: 'admin-dashboard',
   imports: [
     BoxComponent,
-    StatWidgetComponent,
-    ChartModule
+    StatWidgetComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -51,11 +59,15 @@ import {ChartModule} from 'primeng/chart';
       <div class="chart-row">
         <box-component>
           <h3 class="text-lg font-semibold mb-4">Benutzer nach Typ</h3>
-          <p-chart type="pie" [data]="adminUserTypeChartData()" [options]="pieChartOptions"/>
+          <div class="w-full h-80">
+            <canvas #userTypeChart></canvas>
+          </div>
         </box-component>
         <box-component>
           <h3 class="text-lg font-semibold mb-4">Wochen-Status</h3>
-          <p-chart type="doughnut" [data]="adminWeeksChartData()" [options]="pieChartOptions"/>
+          <div class="w-full h-80">
+            <canvas #weeksChart></canvas>
+          </div>
         </box-component>
       </div>
     } @else {
@@ -74,22 +86,10 @@ import {ChartModule} from 'primeng/chart';
     }
   `
 })
-export class AdminDashboardComponent {
+export class AdminDashboardComponent implements AfterViewInit {
 
-  private readonly statisticsStore = inject(StatisticsStore);
-
-  protected readonly adminStats = computed(() => this.statisticsStore.adminStats());
-
-  protected readonly pieChartOptions = {
-    responsive: true,
-    maintainAspectRatio: true,
-    plugins: {
-      legend: {
-        position: 'bottom'
-      }
-    }
-  };
-
+  @ViewChild('userTypeChart') userTypeChart!: ElementRef;
+  @ViewChild('weeksChart') weeksChart!: ElementRef;
   protected readonly adminUserTypeChartData = computed(() => {
     const stats = this.adminStats();
     if (!stats) return {labels: [], datasets: []};
@@ -106,7 +106,6 @@ export class AdminDashboardComponent {
       }]
     };
   });
-
   protected readonly adminWeeksChartData = computed(() => {
     const stats = this.adminStats();
     if (!stats) return {labels: [], datasets: []};
@@ -119,4 +118,78 @@ export class AdminDashboardComponent {
       }]
     };
   }, {equal: deepEqual});
+  private userTypeChartInstance: any = null;
+  private weeksChartInstance: any = null;
+  private readonly statisticsStore = inject(StatisticsStore);
+  protected readonly adminStats = computed(() => this.statisticsStore.adminStats());
+
+  constructor() {
+    effect(() => {
+      const userTypeData = this.adminUserTypeChartData();
+      const weeksData = this.adminWeeksChartData();
+      if (this.userTypeChart && userTypeData.labels.length > 0) {
+        this.updateUserTypeChart(userTypeData);
+      }
+      if (this.weeksChart && weeksData.labels.length > 0) {
+        this.updateWeeksChart(weeksData);
+      }
+    });
+  }
+
+  ngAfterViewInit() {
+    const userTypeData = this.adminUserTypeChartData();
+    const weeksData = this.adminWeeksChartData();
+    if (userTypeData.labels.length > 0) {
+      this.updateUserTypeChart(userTypeData);
+    }
+    if (weeksData.labels.length > 0) {
+      this.updateWeeksChart(weeksData);
+    }
+  }
+
+  private updateUserTypeChart(data: any) {
+    if (!this.userTypeChart) return;
+
+    if (this.userTypeChartInstance) {
+      this.userTypeChartInstance.destroy();
+    }
+
+    const ctx = this.userTypeChart.nativeElement.getContext('2d');
+    this.userTypeChartInstance = new Chart(ctx, {
+      type: 'pie',
+      data: data,
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'bottom' as const
+          }
+        }
+      }
+    });
+  }
+
+  private updateWeeksChart(data: any) {
+    if (!this.weeksChart) return;
+
+    if (this.weeksChartInstance) {
+      this.weeksChartInstance.destroy();
+    }
+
+    const ctx = this.weeksChart.nativeElement.getContext('2d');
+    this.weeksChartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: data,
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'bottom' as const
+          }
+        }
+      }
+    });
+  }
 }

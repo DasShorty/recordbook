@@ -23,13 +23,13 @@ import {AdminDashboardComponent} from '@features/statistics/components/admin.das
 
         @switch (authority()) {
           @case ('TRAINEE') {
-            <trainee-dashboard />
+            <trainee-dashboard/>
           }
           @case ('TRAINER') {
-            <trainer-dashboard />
+            <trainer-dashboard/>
           }
           @default {
-            <admin-dashboard />
+            <admin-dashboard/>
           }
         }
       </div>
@@ -39,9 +39,8 @@ import {AdminDashboardComponent} from '@features/statistics/components/admin.das
 export class HomePage implements OnInit, OnDestroy {
 
   private readonly userStore = inject(UserStore);
-  private readonly statisticsStore = inject(StatisticsStore);
-
   protected readonly authority = computed(() => this.userStore.getActiveUser().authority);
+  private readonly statisticsStore = inject(StatisticsStore);
 
   ngOnInit(): void {
     const type = this.authority();

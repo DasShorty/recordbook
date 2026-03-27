@@ -1,16 +1,25 @@
-import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  QueryList,
+  ViewChildren
+} from '@angular/core';
 import {StatisticsStore} from '@features/statistics/state/statistics.store';
 import {BoxComponent} from '@shared/layout/box.component';
 import {StatWidgetComponent} from '@shared/widgets/stat.widget.component';
-import {ChartModule} from 'primeng/chart';
 import {deepEqual} from '@shared/utils/deep-equal';
+import Chart from 'chart.js/auto';
 
 @Component({
   selector: 'trainee-dashboard',
   imports: [
     BoxComponent,
-    StatWidgetComponent,
-    ChartModule
+    StatWidgetComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -42,22 +51,30 @@ import {deepEqual} from '@shared/utils/deep-equal';
       <div class="chart-row">
         <box-component>
           <h3 class="text-lg font-semibold mb-4">Anwesenheitsverteilung</h3>
-          <p-chart type="pie" [data]="presenceChartData()" [options]="pieChartOptions"/>
+          <div class="w-full h-80">
+            <canvas #presenceChartCanvas></canvas>
+          </div>
         </box-component>
         <box-component>
           <h3 class="text-lg font-semibold mb-4">Arbeitsort-Verteilung</h3>
-          <p-chart type="pie" [data]="locationChartData()" [options]="pieChartOptions"/>
+          <div class="w-full h-80">
+            <canvas #locationChartCanvas></canvas>
+          </div>
         </box-component>
       </div>
 
       <div class="chart-row">
         <box-component>
           <h3 class="text-lg font-semibold mb-4">Stunden pro Woche</h3>
-          <p-chart type="bar" [data]="weeklyHoursChartData()" [options]="barChartOptions"/>
+          <div class="w-full h-80">
+            <canvas #weeklyHoursChartCanvas></canvas>
+          </div>
         </box-component>
         <box-component>
           <h3 class="text-lg font-semibold mb-4">Stunden-Zeitverlauf</h3>
-          <p-chart type="line" [data]="weeklyHoursLineChartData()" [options]="lineChartOptions"/>
+          <div class="w-full h-80">
+            <canvas #weeklyHoursLineChartCanvas></canvas>
+          </div>
         </box-component>
       </div>
     } @else {
@@ -76,152 +93,155 @@ import {deepEqual} from '@shared/utils/deep-equal';
     }
   `
 })
-export class TraineeDashboardComponent {
+export class TraineeDashboardComponent implements AfterViewInit {
 
-  private readonly statisticsStore = inject(StatisticsStore);
-
-  protected readonly traineeStats = computed(() => this.statisticsStore.traineeStats());
-
-  protected readonly pieChartOptions = {
-    responsive: true,
-    maintainAspectRatio: true,
-    plugins: {
-      legend: {
-        position: 'bottom'
-      }
-    }
-  };
-
-  protected readonly barChartOptions = {
-    responsive: true,
-    maintainAspectRatio: true,
-    plugins: {
-      legend: {
-        display: false
-      }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Stunden'
-        }
-      },
-      x: {
-        title: {
-          display: true,
-          text: 'Kalenderwoche'
-        }
-      }
-    }
-  };
-
-  protected readonly lineChartOptions = {
-    responsive: true,
-    maintainAspectRatio: true,
-    plugins: {
-      legend: {
-        display: false
-      }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Stunden'
-        }
-      },
-      x: {
-        title: {
-          display: true,
-          text: 'Kalenderwoche'
-        }
-      }
-    }
-  };
-
+  @ViewChildren('presenceChartCanvas, locationChartCanvas, weeklyHoursChartCanvas, weeklyHoursLineChartCanvas', {read: ElementRef}) chartCanvases!: QueryList<ElementRef>;
   protected readonly completedWeeksPercentage = computed(() => {
     const stats = this.traineeStats();
-    if (!stats || stats.totalWeeks === 0) return '0%';
+    if (!stats || stats.totalWeeks === 0) return '';
     const percentage = Math.round((stats.completedWeeks / stats.totalWeeks) * 100);
-    return `${percentage}% abgeschlossen`;
+    return `${percentage}%`;
   });
-
   protected readonly formattedTotalHours = computed(() => {
     const stats = this.traineeStats();
-    if (!stats) return '0h 0m';
-    return `${stats.totalHours}h ${stats.totalMinutes}m`;
+    if (!stats) return '0';
+    return `${stats.totalHours}h`;
   });
-
   protected readonly presenceChartData = computed(() => {
-    const stats = this.traineeStats();
+    const stats = this.traineeStats() as any;
     if (!stats) return {labels: [], datasets: []};
 
     return {
-      labels: ['Anwesend', 'Urlaub', 'Abwesend', 'Zeitausgleich'],
+      labels: ['Anwesend', 'Urlaub', 'Abwesend'],
       datasets: [{
-        data: [
-          stats.presenceStatistics.presentDays,
-          stats.presenceStatistics.vacationDays,
-          stats.presenceStatistics.absenceDays,
-          stats.presenceStatistics.compensatoryTimeDays
-        ],
-        backgroundColor: ['#22c55e', '#3b82f6', '#ef4444', '#f59e0b']
+        data: [stats.presentDays || 0, stats.vacationDays || 0, stats.absenceDays || 0],
+        backgroundColor: ['#6366f1', '#8b5cf6', '#ec4899']
       }]
     };
   });
-
   protected readonly locationChartData = computed(() => {
-    const stats = this.traineeStats();
+    const stats = this.traineeStats() as any;
     if (!stats) return {labels: [], datasets: []};
 
     return {
       labels: ['Betrieb', 'Schule', 'ÜBA'],
       datasets: [{
-        data: [
-          stats.locationStatistics.workDays,
-          stats.locationStatistics.schoolDays,
-          stats.locationStatistics.guidanceDays
-        ],
-        backgroundColor: ['#6366f1', '#8b5cf6', '#a855f7']
+        data: [stats.workDays || 0, stats.schoolDays || 0, stats.guidanceDays || 0],
+        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b']
       }]
     };
   });
-
   protected readonly weeklyHoursChartData = computed(() => {
-    const stats = this.traineeStats();
-    if (!stats) return {labels: [], datasets: []};
+    const stats = this.traineeStats() as any;
+    if (!stats || !stats.weeklyData) return {labels: [], datasets: []};
 
-    const sortedWeeks = [...stats.weeklyHours].slice(-12);
-
+    const weeks = Array.isArray(stats.weeklyData) ? stats.weeklyData : [];
     return {
-      labels: sortedWeeks.map(w => `KW ${w.calendarWeek}`),
+      labels: weeks.map((w: any) => `W${w.week || w.weekNumber}`),
       datasets: [{
         label: 'Stunden',
-        data: sortedWeeks.map(w => w.totalHours + w.totalMinutes / 60),
+        data: weeks.map((w: any) => w.hours || w.totalHours || 0),
         backgroundColor: '#6366f1'
       }]
     };
-  });
-
+  }, {equal: deepEqual});
   protected readonly weeklyHoursLineChartData = computed(() => {
-    const stats = this.traineeStats();
-    if (!stats) return {labels: [], datasets: []};
+    const stats = this.traineeStats() as any;
+    if (!stats || !stats.weeklyData) return {labels: [], datasets: []};
 
-    const sortedWeeks = [...stats.weeklyHours];
+    const weeks = Array.isArray(stats.weeklyData) ? stats.weeklyData : [];
+    const accumulated = weeks.reduce((acc: number[], w: any, i: number) => {
+      acc.push((acc[i - 1] || 0) + (w.hours || w.totalHours || 0));
+      return acc;
+    }, [] as number[]);
 
     return {
-      labels: sortedWeeks.map(w => `KW ${w.calendarWeek}/${w.year}`),
+      labels: weeks.map((w: any) => `W${w.week || w.weekNumber}`),
       datasets: [{
-        label: 'Stunden',
-        data: sortedWeeks.map(w => w.totalHours + w.totalMinutes / 60),
-        borderColor: '#6366f1',
-        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-        fill: true,
+        label: 'Kumulierte Stunden',
+        data: accumulated,
+        borderColor: '#8b5cf6',
+        fill: false,
         tension: 0.4
       }]
     };
   }, {equal: deepEqual});
+  private charts: any[] = [];
+  private presenceChartRef!: ElementRef;
+  private locationChartRef!: ElementRef;
+  private weeklyHoursChartRef!: ElementRef;
+  private weeklyHoursLineChartRef!: ElementRef;
+  private readonly statisticsStore = inject(StatisticsStore);
+  protected readonly traineeStats = computed(() => this.statisticsStore.traineeStats());
+
+  constructor() {
+    effect(() => {
+      this.presenceChartData();
+      this.locationChartData();
+      this.weeklyHoursChartData();
+      this.weeklyHoursLineChartData();
+      this.updateCharts();
+    });
+  }
+
+  ngAfterViewInit() {
+    if (this.chartCanvases.length >= 4) {
+      this.presenceChartRef = this.chartCanvases.get(0)!;
+      this.locationChartRef = this.chartCanvases.get(1)!;
+      this.weeklyHoursChartRef = this.chartCanvases.get(2)!;
+      this.weeklyHoursLineChartRef = this.chartCanvases.get(3)!;
+      this.updateCharts();
+    }
+  }
+
+  private updateCharts() {
+    this.destroyCharts();
+
+    if (this.presenceChartRef?.nativeElement) {
+      const ctx = this.presenceChartRef.nativeElement.getContext('2d');
+      this.charts.push(new Chart(ctx, {
+        type: 'pie' as any,
+        data: this.presenceChartData(),
+        options: {responsive: true, maintainAspectRatio: true, plugins: {legend: {position: 'bottom' as const}}}
+      }));
+    }
+
+    if (this.locationChartRef?.nativeElement) {
+      const ctx = this.locationChartRef.nativeElement.getContext('2d');
+      this.charts.push(new Chart(ctx, {
+        type: 'pie' as any,
+        data: this.locationChartData(),
+        options: {responsive: true, maintainAspectRatio: true, plugins: {legend: {position: 'bottom' as const}}}
+      }));
+    }
+
+    if (this.weeklyHoursChartRef?.nativeElement) {
+      const ctx = this.weeklyHoursChartRef.nativeElement.getContext('2d');
+      this.charts.push(new Chart(ctx, {
+        type: 'bar' as any,
+        data: this.weeklyHoursChartData(),
+        options: {responsive: true, maintainAspectRatio: true, plugins: {legend: {display: false}}}
+      }));
+    }
+
+    if (this.weeklyHoursLineChartRef?.nativeElement) {
+      const ctx = this.weeklyHoursLineChartRef.nativeElement.getContext('2d');
+      this.charts.push(new Chart(ctx, {
+        type: 'line' as any,
+        data: this.weeklyHoursLineChartData(),
+        options: {responsive: true, maintainAspectRatio: true, plugins: {legend: {display: true}}}
+      }));
+    }
+  }
+
+  private destroyCharts() {
+    this.charts.forEach(chart => chart.destroy());
+    this.charts = [];
+  }
 }
+
+
+
+
+
+

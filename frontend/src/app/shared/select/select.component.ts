@@ -1,25 +1,32 @@
 import {Component, input, output} from '@angular/core';
-import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {Select, SelectLazyLoadEvent} from 'primeng/select';
+import {FormControl, ReactiveFormsModule} from '@angular/forms';
+import {HlmSelectImports} from '@spartan-ng/helm/select';
 import {SelectOption} from '@core/http/model/select.option.model';
 
 @Component({
-  selector: 'select-component', imports: [FormsModule, ReactiveFormsModule, Select], template: `
+  selector: 'select-component',
+  imports: [ReactiveFormsModule, HlmSelectImports],
+  template: `
     <div class="flex items-center gap-5 mb-4">
-      <label for="job" class="font-semibold w-36">{{ label() }}</label>
-      <p-select
-        appendTo="body"
-        [formControl]="this.control()"
+      <label class="font-semibold w-36">{{ label() }}</label>
+      <hlm-select
         class="flex-auto"
-        (onLazyLoad)="this.onLazyLoad.emit($event)"
-        [lazy]="true"
-        (onShow)="this.onShow.emit()"
-        [options]="this.data()"
-        [placeholder]="this.placeholder()">
-        <ng-template #item #selectedItem let-item>
-          {{ item.name }}
-        </ng-template>
-      </p-select>
+        [formControl]="this.control()"
+        [itemToString]="itemToString"
+        (stateChanged)="onStateChanged($event)">
+        <hlm-select-trigger>
+          <hlm-select-value [placeholder]="this.placeholder()"/>
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          <hlm-select-group>
+            @for (item of this.data(); track item.id) {
+              <hlm-select-item [value]="item">
+                {{ item.name }}
+              </hlm-select-item>
+            }
+          </hlm-select-group>
+        </hlm-select-content>
+      </hlm-select>
     </div>
     <div class="flex flex-col gap-0.5">
       <ng-content select="[errors]"></ng-content>
@@ -32,7 +39,19 @@ export class SelectComponent {
   readonly placeholder = input.required<string>();
   readonly control = input.required<FormControl>();
   readonly data = input.required<SelectOption<unknown>[]>();
-  readonly onLazyLoad = output<SelectLazyLoadEvent>();
+  readonly onLazyLoad = output<unknown>();
   readonly onShow = output<void>();
 
+  protected readonly itemToString = (item: SelectOption<unknown> | null): string => item?.name?.toString() ?? '';
+
+  protected onStateChanged(state: unknown) {
+    const popoverState = typeof state === 'string' ? state : null;
+
+    if (popoverState !== 'open') {
+      return;
+    }
+
+    this.onShow.emit();
+    this.onLazyLoad.emit({});
+  }
 }

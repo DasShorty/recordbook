@@ -1,6 +1,6 @@
 import {Component, input} from '@angular/core';
-import {MenuItem} from 'primeng/api';
 import {RouterLink, RouterLinkActive} from '@angular/router';
+import {SidebarMenuItem} from '@shared/layout/sidebar/sidebar.menu-item';
 
 @Component({
   selector: 'sidebar-item-component',
@@ -51,7 +51,7 @@ import {RouterLink, RouterLinkActive} from '@angular/router';
 })
 class SidebarItemComponent {
 
-  readonly menuItem = input.required<MenuItem>();
+  readonly menuItem = input.required<SidebarMenuItem>();
 
 }
 

@@ -1,14 +1,11 @@
 import {ChangeDetectionStrategy, Component, computed, effect, inject, input, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {TableModule} from 'primeng/table';
 import {FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {BookWeek} from '@features/book/models/book.week.model';
 import {BookWeekStore} from '@features/book/state/book.week.store';
 import {BookStore} from '@features/book/state/book.store';
 import {BookWeekFormService} from '@features/book/services/book.week.form.service';
 import {BookWeekNavigationService} from '@features/book/services/book.week.navigation.service';
-import {FloatLabel} from 'primeng/floatlabel';
-import {Textarea} from 'primeng/textarea';
 import {BookWeekEditRowComponent} from './rows/book.week.edit.row.component';
 import {BookWeekEditHeaderComponent} from './headers/book.week.edit.header.component';
 
@@ -16,11 +13,8 @@ import {BookWeekEditHeaderComponent} from './headers/book.week.edit.header.compo
   selector: 'book-week-edit-component',
   imports: [
     CommonModule,
-    TableModule,
     ReactiveFormsModule,
     FormsModule,
-    FloatLabel,
-    Textarea,
     BookWeekEditRowComponent,
     BookWeekEditHeaderComponent,
   ],
@@ -40,58 +34,49 @@ import {BookWeekEditHeaderComponent} from './headers/book.week.edit.header.compo
       ></book-week-edit-header>
 
       <div class="flex-none px-4 py-4">
-        <p-floatlabel>
-          <textarea
-            [disabled]="submitted()"
-            class="w-full"
-            pTextarea
-            id="over-label"
-            [(ngModel)]="weekText"
-            rows="5"
-            style="resize: none"
-          ></textarea>
-          <label for="over-label">Beschreibe kurz deine Tätigkeiten dieser Woche (Aufgaben, Projekte, Besonderheiten,
-            Probleme)</label>
-        </p-floatlabel>
+        <label for="description" class="block text-sm font-medium mb-2">
+          Beschreibe kurz deine Tätigkeiten dieser Woche (Aufgaben, Projekte, Besonderheiten, Probleme)
+        </label>
+        <textarea
+          [disabled]="submitted()"
+          class="w-full border rounded-md px-3 py-2 resize-none"
+          id="description"
+          [(ngModel)]="weekText"
+          rows="5"
+        ></textarea>
       </div>
 
-      <div class="flex-1 overflow-hidden">
-        <p-table
-          [value]="bookWeek().days"
-          [scrollable]="true"
-          scrollHeight="flex"
-          class="p-datatable-striped"
-          [tableStyle]="{ 'width': '100%', 'height': '100%' }">
-          <ng-template #header>
+      <div class="flex-1 overflow-hidden border-t">
+        <div class="overflow-auto h-full">
+          <table class="w-full border-collapse text-sm">
+            <thead class="sticky top-0 bg-gray-100 border-b">
             <tr>
-              <th>Tag / Datum</th>
-              <th>Anwesenheit</th>
-              <th>Ort</th>
-              <th>Stunden</th>
+              <th class="px-2 py-2 text-left font-medium">Tag / Datum</th>
+              <th class="px-2 py-2 text-left font-medium">Anwesenheit</th>
+              <th class="px-2 py-2 text-left font-medium">Ort</th>
+              <th class="px-2 py-2 text-left font-medium">Stunden</th>
             </tr>
-          </ng-template>
-
-          <ng-template #body let-day let-i="rowIndex">
-            @defer (when forms().length > 0) {
-              <tr book-week-edit-row
-                  [bookDay]="day"
-                  [formGroup]="getFormGroup(i)"
-              ></tr>
-            }
-          </ng-template>
-        </p-table>
+            </thead>
+            <tbody>
+              @for (day of bookWeek().days; track day.date; let i = $index) {
+                @defer (when forms().length > 0) {
+                  <tr book-week-edit-row
+                      [bookDay]="day"
+                      [formGroup]="getFormGroup(i)"
+                  ></tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   `,
   styles: [
     `
       :host ::ng-deep {
-        .p-datatable .p-datatable-tbody > tr.weekend {
+        tbody > tr.weekend {
           background-color: rgba(0, 0, 0, 0.03);
-        }
-
-        .p-datatable .p-datatable-tbody > tr > td {
-          padding: 0.5rem;
         }
       }
     `,
@@ -129,7 +114,7 @@ export class BookWeekEditComponent {
 
     const week = this.bookWeek();
 
-    if (!week) return { cw: 1, year: new Date().getFullYear() };
+    if (!week) return {cw: 1, year: new Date().getFullYear()};
 
     const next = this.navigationService.getNextWeek(
       week.calendarWeek,

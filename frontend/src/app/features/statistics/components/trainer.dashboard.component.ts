@@ -1,16 +1,24 @@
-import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  ViewChild
+} from '@angular/core';
 import {StatisticsStore} from '@features/statistics/state/statistics.store';
 import {BoxComponent} from '@shared/layout/box.component';
 import {StatWidgetComponent} from '@shared/widgets/stat.widget.component';
-import {ChartModule} from 'primeng/chart';
 import {deepEqual} from '@shared/utils/deep-equal';
+import Chart from 'chart.js/auto';
 
 @Component({
   selector: 'trainer-dashboard',
   imports: [
     BoxComponent,
-    StatWidgetComponent,
-    ChartModule
+    StatWidgetComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -37,7 +45,9 @@ import {deepEqual} from '@shared/utils/deep-equal';
       <div class="chart-row">
         <box-component>
           <h3 class="text-lg font-semibold mb-4">Signatur-Status</h3>
-          <p-chart type="doughnut" [data]="trainerSignatureChartData()" [options]="pieChartOptions"/>
+          <div class="w-full h-80">
+            <canvas #chartCanvas></canvas>
+          </div>
         </box-component>
       </div>
     } @else {
@@ -56,22 +66,9 @@ import {deepEqual} from '@shared/utils/deep-equal';
     }
   `
 })
-export class TrainerDashboardComponent {
+export class TrainerDashboardComponent implements AfterViewInit {
 
-  private readonly statisticsStore = inject(StatisticsStore);
-
-  protected readonly trainerStats = computed(() => this.statisticsStore.trainerStats());
-
-  protected readonly pieChartOptions = {
-    responsive: true,
-    maintainAspectRatio: true,
-    plugins: {
-      legend: {
-        position: 'bottom'
-      }
-    }
-  };
-
+  @ViewChild('chartCanvas') chartCanvas!: ElementRef;
   protected readonly trainerSignatureChartData = computed(() => {
     const stats = this.trainerStats();
     if (!stats) return {labels: [], datasets: []};
@@ -84,4 +81,46 @@ export class TrainerDashboardComponent {
       }]
     };
   }, {equal: deepEqual});
+  private chart: any = null;
+  private readonly statisticsStore = inject(StatisticsStore);
+  protected readonly trainerStats = computed(() => this.statisticsStore.trainerStats());
+
+  constructor() {
+    effect(() => {
+      const data = this.trainerSignatureChartData();
+      if (this.chartCanvas && data.labels.length > 0) {
+        this.updateChart(data);
+      }
+    });
+  }
+
+  ngAfterViewInit() {
+    const data = this.trainerSignatureChartData();
+    if (data.labels.length > 0) {
+      this.updateChart(data);
+    }
+  }
+
+  private updateChart(data: any) {
+    if (!this.chartCanvas) return;
+
+    if (this.chart) {
+      this.chart.destroy();
+    }
+
+    const ctx = this.chartCanvas.nativeElement.getContext('2d');
+    this.chart = new Chart(ctx, {
+      type: 'doughnut',
+      data: data,
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'bottom' as const
+          }
+        }
+      }
+    });
+  }
 }

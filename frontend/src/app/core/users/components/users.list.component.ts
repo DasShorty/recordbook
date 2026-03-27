@@ -1,50 +1,43 @@
-import {Component, effect, inject} from '@angular/core';
-import {Button} from 'primeng/button';
-import {ConfirmDialog} from 'primeng/confirmdialog';
-import {TableModule} from 'primeng/table';
-import {Toast} from 'primeng/toast';
-import {User} from '@core/users/models/users.model';
+import {Component, computed, inject, OnInit, signal} from '@angular/core';
 import {AdminUserStore} from '@core/users/state/admin.user.store';
-import {UserAddButton} from '@core/users/components/user.add.button';
+import {HlmTableImports} from '@spartan-ng/helm/table';
+import {HlmPaginationImports} from '@spartan-ng/helm/pagination';
 
 @Component({
   selector: 'users-list-component',
   imports: [
-    Button,
-    ConfirmDialog,
-    TableModule,
-    Toast,
-    UserAddButton
+    HlmTableImports,
+    HlmPaginationImports
+
   ],
   template: `
-    <p-toast/>
-    <p-confirm-dialog/>
-    <p-table [value]="this.userStore.data().content">
-      <ng-template #caption>
-        <div class="flex items-center justify-between gap-1">
-          <span class="text-xl font-bold">Benutzer verwalten</span>
-          <user-add-button></user-add-button>
-        </div>
-      </ng-template>
-      <ng-template #header>
-        <tr>
-          <th>Vorname</th>
-          <th>Nachname</th>
-          <th>Typ</th>
-          <th></th>
+
+    <div hlmTableContainer>
+      <table hlmTable>
+        <caption hlmCaption>A list of users</caption>
+        <thead hlmTHead>
+        <tr hlmTr>
+          <th hlmTh>Vorname</th>
+          <th hlmTh>Nachname</th>
+          <th hlmTh>Typ</th>
         </tr>
-      </ng-template>
-      <ng-template #body let-user>
-        <tr>
-          <td>{{ user.forename }}</td>
-          <td>{{ user.surname }}</td>
-          <td> {{ user.userType }}</td>
-          <td>
-            <p-button severity="danger" outlined icon="pi pi-trash" (onClick)="deleteItem(user, $event)"></p-button>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+        </thead>
+        <tbody hlmTBody>
+          @for (user of this.users(); track user.id) {
+            <tr hlmTr>
+              <td hlmTd>{{ user.forename }}</td>
+              <td hlmTd>{{ user.surname }}</td>
+              <td hlmTd>{{ user.userType }}</td>
+            </tr>
+          }
+        </tbody>
+        <tfoot hlmTFoot>
+        <hlm-numbered-pagination (currentPageChange)="changeCurrentPage($event)" [(currentPage)]="this.currentPage"
+                                 [(itemsPerPage)]="this.pageSize"
+                                 [totalItems]="this.totalSize()"></hlm-numbered-pagination>
+        </tfoot>
+      </table>
+    </div>
   `,
   styles: `
     tr:hover {
@@ -52,18 +45,23 @@ import {UserAddButton} from '@core/users/components/user.add.button';
     }
   `
 })
-export class UsersListComponent {
+export class UsersListComponent implements OnInit {
 
-  readonly userStore = inject(AdminUserStore);
+  public readonly currentPage = signal(0);
+  public readonly pageSize = signal(20);
+  public readonly totalSize = signal(0);
+  private readonly userStore = inject(AdminUserStore);
+  public readonly users = computed(() => this.userStore.users().content);
 
-  constructor() {
-    effect(() => {
-      this.userStore.getUsers();
-    });
+  ngOnInit() {
+    this.loadPage();
   }
 
-  deleteItem(user: User, $event: Event) {
-
+  loadPage() {
+    this.userStore.getUsers(this.pageSize(), this.currentPage());
   }
 
+  protected changeCurrentPage(newPage: number) {
+    this.userStore.getUsers(this.pageSize(), newPage);
+  }
 }

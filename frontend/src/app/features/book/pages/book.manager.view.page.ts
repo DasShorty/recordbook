@@ -30,15 +30,13 @@ import {BookWeek} from '@features/book/models/book.week.model';
 })
 export class BookManagerViewPage {
 
+  protected currentWeek = signal<BookWeek | undefined>(undefined);
   private readonly route = inject(ActivatedRoute);
   private data = toSignal(this.route.data);
   book = computed(() => this.data()!!["book"] as Book);
   calendarWeek = computed(() => this.data()!!["calendarWeek"] as number);
   calendarYear = computed(() => this.data()!!["calendarYear"] as number);
-
   private readonly weekStore = inject(BookWeekStore);
-
-  protected currentWeek = signal<BookWeek | undefined>(undefined);
 
   constructor() {
     effect(() => {

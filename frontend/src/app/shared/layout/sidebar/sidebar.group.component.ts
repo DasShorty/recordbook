@@ -1,6 +1,6 @@
 import {Component, input} from '@angular/core';
-import {MenuItem} from 'primeng/api';
 import SidebarItemComponent from '@shared/layout/sidebar/sidebar.item.component';
+import {SidebarMenuItem} from '@shared/layout/sidebar/sidebar.menu-item';
 
 @Component({
   selector: 'sidebar-group-component',
@@ -36,6 +36,6 @@ import SidebarItemComponent from '@shared/layout/sidebar/sidebar.item.component'
 })
 export class SidebarGroupComponent {
 
-  readonly menuItem = input.required<MenuItem>();
+  readonly menuItem = input.required<SidebarMenuItem>();
 
 }
