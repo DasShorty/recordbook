@@ -1,6 +1,6 @@
 import {Component, ChangeDetectionStrategy, inject, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {ReactiveFormsModule, FormBuilder, Validators} from '@angular/forms';
+import {ReactiveFormsModule, FormBuilder} from '@angular/forms';
 import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
@@ -12,7 +12,6 @@ import {BookWeekStore} from '@features/book/state/book.week.store';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule} from '@angular/material/core';
-import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-week-fillout-page',
@@ -136,13 +135,11 @@ export default class WeekFilloutPage {
   private readonly fb = inject(FormBuilder);
   private readonly bookStore = inject(BookStore);
   readonly weekStore = inject(BookWeekStore);
-  private readonly route = inject(ActivatedRoute);
-
   isSaving = signal(false);
   isSubmitting = signal(false);
 
   form = this.fb.group({
-    text: ['', Validators.required],
+    text: [''],
   });
 
   constructor() {
@@ -191,5 +188,3 @@ export default class WeekFilloutPage {
     }
   }
 }
-
-

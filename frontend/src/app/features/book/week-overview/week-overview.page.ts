@@ -7,11 +7,14 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatDividerModule} from '@angular/material/divider';
+import {MatDialog, MatDialogModule} from '@angular/material/dialog';
+import {ActivatedRoute, Router} from '@angular/router';
 import {BookStore} from '@features/book/state/book.store';
 import {BookWeekStore} from '@features/book/state/book.week.store';
 import {UserStore} from '@core/users/state/user.store';
 import {Authority} from '@core/users/models/users.model';
-import {BookWeekId} from '@features/book/models/book.week.model';
+import {BookWeek, BookWeekId} from '@features/book/models/book.week.model';
+import {WeekEditorDialogComponent} from './week-editor-dialog.component';
 
 @Component({
   selector: 'app-week-overview-page',
@@ -25,6 +28,7 @@ import {BookWeekId} from '@features/book/models/book.week.model';
     MatTabsModule,
     MatExpansionModule,
     MatDividerModule,
+    MatDialogModule,
   ],
   template: `
     <div class="page-container">
@@ -49,7 +53,7 @@ import {BookWeekId} from '@features/book/models/book.week.model';
           } @else if (bookStore.activeBook().weeks && bookStore.activeBook().weeks.length > 0) {
             <mat-accordion>
               @for (week of bookStore.activeBook().weeks; track week.id) {
-                  <mat-expansion-panel>
+                <mat-expansion-panel>
                   <mat-expansion-panel-header>
                     <mat-panel-title>
                       <span class="week-title">
@@ -187,9 +191,13 @@ export default class WeekOverviewPage {
   readonly bookStore = inject(BookStore);
   private readonly weekStore = inject(BookWeekStore);
   private readonly userStore = inject(UserStore);
+  private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   constructor() {
-    this.bookStore.getOwnBook(() => {});
+    this.bookStore.getOwnBook(() => {
+    });
   }
 
   isTrainee(): boolean {
@@ -200,25 +208,41 @@ export default class WeekOverviewPage {
     return this.userStore.getActiveUser().authority === Authority.TRAINER;
   }
 
-  getStatusColor(week: any): string {
-    if (week.signedFromTrainer) return 'accent';
-    if (week.locked) return 'warn';
-    return 'primary';
-  }
-
-  getStatusLabel(week: any): string {
-    if (week.signedFromTrainer) return 'Accepted';
-    if (week.locked) return 'Denied';
-    if (!week.signedFromTrainer) return 'Draft';
-    return 'Pending';
-  }
-
   createNewWeek() {
-    alert('Create new week functionality coming soon');
+    this.dialog
+      .open(WeekEditorDialogComponent, {
+        width: '640px',
+        data: {mode: 'create'},
+      })
+      .afterClosed()
+      .subscribe((result: { saved: boolean, weekId: BookWeekId } | undefined) => {
+        if (result?.saved && result.weekId) {
+          this.bookStore.getOwnBook(() => {
+          });
+          this.updateWeekIdQueryParam(result.weekId);
+        }
+      });
   }
 
   editWeek(weekId: BookWeekId) {
-    alert(`Edit week ${weekId} - functionality coming soon`);
+    const week = this.findWeekById(weekId);
+    if (!week) {
+      return;
+    }
+
+    this.dialog
+      .open(WeekEditorDialogComponent, {
+        width: '640px',
+        data: {mode: 'edit', week},
+      })
+      .afterClosed()
+      .subscribe((result: { saved: boolean, weekId: BookWeekId } | undefined) => {
+        if (result?.saved && result.weekId) {
+          this.bookStore.getOwnBook(() => {
+          });
+          this.updateWeekIdQueryParam(result.weekId);
+        }
+      });
   }
 
   deleteWeek(weekId: BookWeekId) {
@@ -226,7 +250,8 @@ export default class WeekOverviewPage {
       this.weekStore.deleteWeek(weekId).subscribe({
         next: () => {
           alert('Week deleted successfully');
-          this.bookStore.getOwnBook(() => {});
+          this.bookStore.getOwnBook(() => {
+          });
         },
         error: () => {
           alert('Failed to delete week');
@@ -238,5 +263,16 @@ export default class WeekOverviewPage {
   reviewWeek(weekId: string) {
     alert(`Review week ${weekId} - navigate to approval page`);
   }
-}
 
+  private findWeekById(weekId: BookWeekId): BookWeek | undefined {
+    return this.bookStore.activeBook().weeks?.find((week) => week.id === weekId);
+  }
+
+  private updateWeekIdQueryParam(weekId: BookWeekId) {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {weekId},
+      queryParamsHandling: 'merge',
+    });
+  }
+}
