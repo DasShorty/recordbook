@@ -35,13 +35,6 @@ body {
   margin: 0;
   height: 100%;
 }
-/* You can add global styles to this file, and also import other style files */
-//@use './assets/tailwind.css';
-@layer theme, base, components, utilities;
-@import 'tailwindcss/theme.css' layer(theme);
-@import 'tailwindcss/preflight.css' layer(base);
-@import 'tailwindcss/utilities.css';
-
 
 html, body, app-root {
   height: 100%;
@@ -58,3 +51,24 @@ html, body {
   padding: 0;
   margin: 0;
 }
+
+/* Tailwind CSS imports */
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/utilities.css';
+
+/* Global Material component overrides */
+mat-toolbar {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+mat-card {
+  margin-bottom: 16px;
+}
+
+mat-list-item.active {
+  font-weight: 500;
+}
+
+
