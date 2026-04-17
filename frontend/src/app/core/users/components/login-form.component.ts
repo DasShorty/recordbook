@@ -82,20 +82,29 @@ import {UserStore} from '@core/users/state/user.store';
       </mat-card-content>
 
       <mat-card-footer>
-        <button
-          mat-raised-button
-          color="primary"
-          form="login-form"
-          type="submit"
-          [disabled]="form.invalid || isLoading()">
-          @if (isLoading()) {
+        @if (isLoading()) {
+          <button
+            mat-raised-button
+            color="primary"
+            form="login-form"
+            type="submit"
+            class="align-with-text"
+            [disabled]="form.invalid || isLoading()">
             <mat-spinner diameter="20"></mat-spinner>
             <span>Anmelden wird durchgeführt...</span>
-          } @else {
+          </button>
+        } @else {
+          <button
+            mat-raised-button
+            color="primary"
+            form="login-form"
+            type="submit"
+            class="align-with-text"
+            [disabled]="form.invalid || isLoading()">
             <mat-icon>login</mat-icon>
             <span>Anmelden</span>
-          }
-        </button>
+          </button>
+        }
       </mat-card-footer>
 
     </mat-card>
@@ -129,7 +138,7 @@ import {UserStore} from '@core/users/state/user.store';
       display: flex;
       justify-content: flex-end;
       gap: 1rem;
-      padding-top: 1rem;
+      padding: 0.5rem 1rem;
       border-top: 1px solid rgba(0, 0, 0, 0.12);
 
       button {

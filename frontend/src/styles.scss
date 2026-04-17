@@ -71,4 +71,15 @@ mat-list-item.active {
   font-weight: 500;
 }
 
+.align-with-text {
+  display: inline-flex;
+  align-items: center;    /* Vertical alignment */
+  justify-content: center; /* Horizontal alignment */
+}
+
+.align-with-text mat-icon {
+  margin-right: 8px;      /* Gap between icon and text */
+  margin-left: -4px;      /* Optional: tweaks optical centering */
+}
+
 
