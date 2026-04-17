@@ -1,4 +1,4 @@
-import {Component, ChangeDetectionStrategy, inject} from '@angular/core';
+eimport {Component, ChangeDetectionStrategy, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
@@ -178,7 +178,7 @@ export default class WeekApprovalPage {
   }
 
   getPendingWeeks() {
-    return this.bookStore.activeBook().weeks?.filter(w => !w.locked && !w.signedFromTrainer) || [];
+    return this.bookStore.activeBook().weeks?.filter(w => w.locked && !w.signedFromTrainer) || [];
   }
 
   getAcceptedWeeks() {

@@ -342,8 +342,8 @@ export default class WeekFilloutPage {
 
   private openDialog(data: Record<string, unknown>) {
     this.dialog.open(WeekEditorDialogComponent, {
-      width: '900px',
-      maxWidth: '95vw',
+      width: '95vw',
+      maxWidth: '900px',
       data,
     }).afterClosed().subscribe((result: {saved: boolean; weekId: string} | undefined) => {
       if (result?.saved) {

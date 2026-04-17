@@ -316,7 +316,8 @@ export default class WeekOverviewPage {
   createNewWeek() {
     this.dialog
       .open(WeekEditorDialogComponent, {
-        width: '640px',
+        width: '95vw',
+        maxWidth: '900px',
         data: {mode: 'create'},
       })
       .afterClosed()
@@ -337,7 +338,8 @@ export default class WeekOverviewPage {
 
     this.dialog
       .open(WeekEditorDialogComponent, {
-        width: '640px',
+        width: '95vw',
+        maxWidth: '900px',
         data: {mode: 'edit', week},
       })
       .afterClosed()

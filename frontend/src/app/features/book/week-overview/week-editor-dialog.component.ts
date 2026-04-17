@@ -135,8 +135,18 @@ type WeekEditorResult = {
   `,
   styles: [
     `
+      :host {
+        display: block;
+      }
+
+      mat-dialog-content {
+        max-height: 72vh;
+      }
+
       .form-content {
         padding-top: 8px;
+        display: grid;
+        gap: 16px;
       }
 
       .full-width {
@@ -158,7 +168,7 @@ type WeekEditorResult = {
       .day-row {
         display: grid;
         gap: 10px;
-        grid-template-columns: 1.5fr 1fr 1fr 120px 120px;
+        grid-template-columns: minmax(180px, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(110px, 120px) minmax(110px, 120px);
         align-items: center;
       }
 
@@ -180,6 +190,49 @@ type WeekEditorResult = {
         min-height: 160px;
         display: grid;
         place-items: center;
+      }
+
+      mat-dialog-actions {
+        gap: 12px;
+        padding-top: 0;
+        flex-wrap: wrap;
+      }
+
+      mat-dialog-actions button {
+        min-width: 120px;
+      }
+
+      @media (max-width: 960px) {
+        .day-row {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .day-date {
+          grid-column: 1 / -1;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .row-fields {
+          grid-template-columns: 1fr;
+        }
+
+        .day-row {
+          grid-template-columns: 1fr;
+        }
+
+        .day-date {
+          grid-column: auto;
+        }
+
+        mat-dialog-actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        mat-dialog-actions button {
+          width: 100%;
+        }
       }
     `,
   ],
