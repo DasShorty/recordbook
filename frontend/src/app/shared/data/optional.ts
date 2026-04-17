@@ -1,5 +1,6 @@
 export class Optional<T> {
-  private constructor(private readonly value: T | null | undefined) {}
+  private constructor(private readonly value: T | null | undefined) {
+  }
 
   static of<T>(value: T): Optional<T> {
     if (value === null || value === undefined) {

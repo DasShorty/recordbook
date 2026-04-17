@@ -19,7 +19,10 @@ export namespace BookDay {
       id: new FormControl<BookDayId>({value: bookDay.id, disabled: disabled}),
       date: new FormControl<string>({value: bookDay.date, disabled: disabled}),
       presence: new FormControl<Presence | undefined>({value: bookDay.presence, disabled: disabled}),
-      presenceLocation: new FormControl<PresenceType | undefined>({value: bookDay.presenceLocation, disabled: disabled}),
+      presenceLocation: new FormControl<PresenceType | undefined>({
+        value: bookDay.presenceLocation,
+        disabled: disabled
+      }),
       hours: new FormControl<number>({
         value: bookDay.hours,
         disabled: disabled

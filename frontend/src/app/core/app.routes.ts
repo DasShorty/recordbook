@@ -1,34 +1,49 @@
 import {Routes} from '@angular/router';
 import {AuthGuard} from '@core/auth/auth.guard';
-import {OnlyAdminGuard} from '@shared/authentication/only.admin.guard';
+import {roleGuard} from '@core/auth/role.guard';
+import {Authority} from '@core/users/models/users.model';
+import {onlyTrainerGuard} from '@shared/authentication/only.trainer.guard';
+import LayoutPage from '@core/layout/layout.page';
 
 export const routes: Routes = [
   {
     path: 'login',
-    loadComponent: () => import('@core/login/login.page').then(m => m.LoginPage),
-  },
-  {
-    path: 'record-book',
-    loadChildren: () => import('@features/book/routes').then(m => m.routes),
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'dashboard',
-    loadComponent: () => import('@core/home/home.page').then(m => m.HomePage),
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'admin',
-    loadComponent: () => import('@core/admin/admin.page').then(m => m.AdminPage),
-    canActivate: [AuthGuard, OnlyAdminGuard]
+    loadComponent: () => import('@core/users/page/login.page').then(m => m.default),
   },
   {
     path: '',
-    redirectTo: '/dashboard',
-    pathMatch: 'full'
-  },
-  {
-    path: '**',
-    redirectTo: '/dashboard'
+    canActivate: [AuthGuard],
+    component: LayoutPage,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('@features/home/home.page').then(m => m.default),
+      },
+      {
+        path: 'users',
+        canMatch: [roleGuard(Authority.ADMINISTRATOR)],
+        loadComponent: () => import('@features/admin/users/users.page').then(m => m.default),
+      },
+      {
+        path: 'recordbooks',
+        canMatch: [onlyTrainerGuard],
+        loadComponent: () => import('@features/book/recordbook-management/recordbook-management.page').then(m => m.default),
+      },
+      {
+        path: 'weeks/fillout',
+        canMatch: [roleGuard(Authority.TRAINEE)],
+        loadComponent: () => import('@features/book/week-fillout/week-fillout.page').then(m => m.default),
+      },
+      {
+        path: 'weeks/approval',
+        canMatch: [onlyTrainerGuard],
+        loadComponent: () => import('@features/book/week-approval/week-approval.page').then(m => m.default),
+      },
+      {
+        path: 'weeks/overview',
+        canMatch: [roleGuard(Authority.TRAINEE, Authority.TRAINER)],
+        loadComponent: () => import('@features/book/week-overview/week-overview.page').then(m => m.default),
+      },
+    ],
   },
 ];
