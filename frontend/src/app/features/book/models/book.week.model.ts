@@ -4,6 +4,8 @@ import {Brand} from '@shared/data/brand';
 
 export type BookWeekId = Brand<string, "BookWeekId">
 
+export type BookWeekStatus = 'blank' | 'editing' | 'submitted' | 'approved';
+
 export type BookWeek = {
   id: BookWeekId
   text: string,
@@ -13,3 +15,4 @@ export type BookWeek = {
   year: number,
   locked: boolean
 }
+

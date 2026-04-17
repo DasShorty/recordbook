@@ -13,12 +13,13 @@ import {BookStore} from '@features/book/state/book.store';
 import {BookWeekStore} from '@features/book/state/book.week.store';
 import {UserStore} from '@core/users/state/user.store';
 import {Authority} from '@core/users/models/users.model';
-import {BookWeek, BookWeekId} from '@features/book/models/book.week.model';
+import {BookWeek, BookWeekId, BookWeekStatus} from '@features/book/models/book.week.model';
+import {DateFormatService} from '@features/book/services/date.format.service';
+import {PresenceDisplay} from '@features/book/models/presence.type';
 import {WeekEditorDialogComponent} from './week-editor-dialog.component';
 
 @Component({
   selector: 'app-week-overview-page',
-  standalone: true,
   imports: [
     CommonModule,
     MatCardModule,
@@ -59,6 +60,9 @@ import {WeekEditorDialogComponent} from './week-editor-dialog.component';
                       <span class="week-title">
                         Week {{ week.calendarWeek }} / {{ week.year }}
                       </span>
+                      <span class="week-status" [class]="getWeekStatus(week)">
+                        {{ getWeekStatusLabel(week) }}
+                      </span>
                     </mat-panel-title>
                   </mat-expansion-panel-header>
 
@@ -70,7 +74,15 @@ import {WeekEditorDialogComponent} from './week-editor-dialog.component';
                         <h4>Days:</h4>
                         @for (day of week.days; track day.id) {
                           <div class="day-item">
-                            <span>{{ day.presence }} - {{ day.hours }}h {{ day.minutes }}m</span>
+                            <div class="day-item-header">
+                              <span class="day-name">{{ getWeekdayName(day.date) }}</span>
+                              <span class="day-date">{{ formatDate(day.date) }}</span>
+                            </div>
+                            <div class="day-item-body">
+                              <span>{{ getPresenceLabel(day.presence) }}</span>
+                              <span>{{ getPresenceTypeLabel(day.presenceLocation) }}</span>
+                              <span>{{ day.hours }}h {{ day.minutes }}m</span>
+                            </div>
                           </div>
                         }
                       </div>
@@ -146,6 +158,22 @@ import {WeekEditorDialogComponent} from './week-editor-dialog.component';
       font-weight: 500;
     }
 
+    .week-status {
+      margin-left: auto;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .week-status.blank { color: #6b7280; }
+    .week-status.editing { color: #2563eb; }
+    .week-status.submitted { color: #d97706; }
+    .week-status.approved { color: #16a34a; }
+
     .week-details {
       padding: 16px 0;
     }
@@ -158,10 +186,35 @@ import {WeekEditorDialogComponent} from './week-editor-dialog.component';
     }
 
     .day-item {
-      padding: 8px;
+      padding: 10px 12px;
       border-left: 3px solid #1976d2;
       margin-bottom: 8px;
-      padding-left: 12px;
+      background: white;
+      border-radius: 4px;
+    }
+
+    .day-item-header,
+    .day-item-body {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .day-name {
+      font-weight: 600;
+    }
+
+    .day-date {
+      color: #6b7280;
+      font-size: 0.85rem;
+    }
+
+    .day-item-body {
+      margin-top: 4px;
+      color: #4b5563;
+      font-size: 0.9rem;
     }
 
     .signed-info {
@@ -194,6 +247,7 @@ export default class WeekOverviewPage {
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly dateFormatService = inject(DateFormatService);
 
   constructor() {
     this.bookStore.getOwnBook(() => {
@@ -206,6 +260,57 @@ export default class WeekOverviewPage {
 
   isTrainer(): boolean {
     return this.userStore.getActiveUser().authority === Authority.TRAINER;
+  }
+
+  getWeekStatus(week: BookWeek): BookWeekStatus {
+    if (week.signedFromTrainer) {
+      return 'approved';
+    }
+
+    if (week.locked) {
+      return 'submitted';
+    }
+
+    return 'editing';
+  }
+
+  getWeekStatusLabel(week: BookWeek): string {
+    const status = this.getWeekStatus(week);
+
+    switch (status) {
+      case 'editing':
+        return 'Editing';
+      case 'submitted':
+        return 'Submitted';
+      case 'approved':
+        return 'Approved';
+      default:
+        return 'Blank';
+    }
+  }
+
+  getWeekdayName(date: string): string {
+    return this.dateFormatService.getWeekdayName(date);
+  }
+
+  formatDate(date: string): string {
+    return this.dateFormatService.formatDate(date);
+  }
+
+  getPresenceLabel(presence?: string | null): string {
+    if (!presence) {
+      return 'No presence selected';
+    }
+
+    return PresenceDisplay.getPresenceDisplay(presence as any);
+  }
+
+  getPresenceTypeLabel(presenceType?: string | null): string {
+    if (!presenceType) {
+      return 'No location selected';
+    }
+
+    return PresenceDisplay.getPresenceType(presenceType as any);
   }
 
   createNewWeek() {
