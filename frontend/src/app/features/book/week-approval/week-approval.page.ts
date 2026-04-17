@@ -1,4 +1,4 @@
-eimport {Component, ChangeDetectionStrategy, inject} from '@angular/core';
+import {Component, ChangeDetectionStrategy, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
@@ -13,7 +13,6 @@ import {ApprovalDialogComponent} from './approval-dialog.component';
 
 @Component({
   selector: 'app-week-approval-page',
-  standalone: true,
   imports: [
     CommonModule,
     MatCardModule,
@@ -190,6 +189,11 @@ export default class WeekApprovalPage {
   }
 
   openApprovalDialog(weekId: string, action: 'accept' | 'deny') {
+    const week = this.bookStore.activeBook().weeks?.find(w => w.id === weekId);
+    if (!week?.locked || week.signedFromTrainer) {
+      return;
+    }
+
     this.dialog.open(ApprovalDialogComponent, {
       width: '500px',
       data: { weekId, action }
