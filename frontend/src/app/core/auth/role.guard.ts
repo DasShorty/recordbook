@@ -2,6 +2,7 @@ import {inject} from '@angular/core';
 import {CanMatchFn, Router} from '@angular/router';
 import {UserStore} from '@core/users/state/user.store';
 import {Authority} from '@core/users/models/users.model';
+import {catchError, map, of, take} from 'rxjs';
 
 export function roleGuard(...requiredRoles: Authority[]): CanMatchFn {
   return () => {
@@ -9,19 +10,19 @@ export function roleGuard(...requiredRoles: Authority[]): CanMatchFn {
     const router = inject(Router);
     const activeUser = userStore.getActiveUser();
 
-    if (!activeUser || !activeUser.id) {
-      router.navigate(['/login']).then();
-      return false;
+    const isAuthorized = (user: typeof activeUser): boolean => {
+      return Boolean(user?.id) && requiredRoles.includes(user.authority);
+    };
+
+    if (isAuthorized(activeUser)) {
+      return true;
     }
 
-    const hasRole = requiredRoles.includes(activeUser.authority);
-
-    if (!hasRole) {
-      router.navigate(['/']).then();
-      return false;
-    }
-
-    return true;
+    return userStore.retrieveActiveUser().pipe(
+      take(1),
+      map(user => isAuthorized(user) ? true : router.parseUrl('/login')),
+      catchError(() => of(router.parseUrl('/login')))
+    );
   };
 }
 

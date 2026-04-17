@@ -2,6 +2,7 @@ import {Routes} from '@angular/router';
 import {AuthGuard} from '@core/auth/auth.guard';
 import {roleGuard} from '@core/auth/role.guard';
 import {Authority} from '@core/users/models/users.model';
+import {onlyTrainerGuard} from '@shared/authentication/only.trainer.guard';
 import LayoutPage from '@core/layout/layout.page';
 
 export const routes: Routes = [
@@ -25,7 +26,7 @@ export const routes: Routes = [
       },
       {
         path: 'recordbooks',
-        canMatch: [roleGuard(Authority.ADMINISTRATOR, Authority.TRAINER)],
+        canMatch: [onlyTrainerGuard],
         loadComponent: () => import('@features/book/recordbook-management/recordbook-management.page').then(m => m.default),
       },
       {
@@ -35,7 +36,7 @@ export const routes: Routes = [
       },
       {
         path: 'weeks/approval',
-        canMatch: [roleGuard(Authority.TRAINER)],
+        canMatch: [onlyTrainerGuard],
         loadComponent: () => import('@features/book/week-approval/week-approval.page').then(m => m.default),
       },
       {

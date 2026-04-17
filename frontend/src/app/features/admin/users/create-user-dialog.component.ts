@@ -101,6 +101,10 @@ import {UserType, Authority} from '@core/users/models/users.model';
     mat-dialog-actions {
       margin-top: 24px;
     }
+
+    form {
+      padding-top: 1rem;
+    }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })

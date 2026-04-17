@@ -157,6 +157,7 @@ export default class SidebarNavComponent {
   });
 
   async logout() {
+    this.userStore.clearActiveUser();
     await this.authService.logout();
     await this.router.navigate(['/login']);
   }

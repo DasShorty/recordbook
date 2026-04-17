@@ -1,10 +1,21 @@
 import {inject} from '@angular/core';
-import {CanActivateFn} from '@angular/router';
+import {CanActivateFn, Router} from '@angular/router';
 import {UserStore} from '@core/users/state/user.store';
 import {Authority} from '@core/users/models/users.model';
+import {catchError, map, of, take} from 'rxjs';
 
-export const onlyTrainerGuard: CanActivateFn = () => {
+export function onlyTrainerGuard() {
   const userStore = inject(UserStore);
-  return userStore.activeUser().authority === Authority.TRAINER ||
-    userStore.activeUser().authority === Authority.ADMINISTRATOR;
-};
+  const router = inject(Router);
+  const activeUser = userStore.getActiveUser();
+
+  if (activeUser?.id && (activeUser.authority === Authority.TRAINER || activeUser.authority === Authority.ADMINISTRATOR)) {
+    return true;
+  }
+
+  return userStore.retrieveActiveUser().pipe(
+    take(1),
+    map(user => user.authority === Authority.TRAINER || user.authority === Authority.ADMINISTRATOR ? true : router.parseUrl('/login')),
+    catchError(() => of(router.parseUrl('/login')))
+  );
+}

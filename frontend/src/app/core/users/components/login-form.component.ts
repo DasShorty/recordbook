@@ -16,6 +16,7 @@ import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {AuthenticationService} from '@core/auth/authentication.service';
 import {Router} from '@angular/router';
 import {UserStore} from '@core/users/state/user.store';
+import {firstValueFrom} from 'rxjs';
 
 @Component({
   selector: 'login-form-component',
@@ -201,10 +202,8 @@ export class LoginFormComponent {
       const success = await this.authService.login(email, password);
 
       if (success) {
-        // Retrieve and store current user information
-        this.userStore.retrieveActiveUser();
+        await firstValueFrom(this.userStore.retrieveActiveUser());
 
-        // Navigate to home page
         await this.router.navigate(['/']);
       } else {
         this.errorMessage.set('Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldedaten.');
