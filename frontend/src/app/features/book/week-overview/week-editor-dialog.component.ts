@@ -7,6 +7,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatButtonModule} from '@angular/material/button';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatSelectModule} from '@angular/material/select';
+import {Observable, finalize, switchMap} from 'rxjs';
 import {BookStore} from '@features/book/state/book.store';
 import {BookWeekStore} from '@features/book/state/book.week.store';
 import {BookDay} from '@features/book/models/book.day.model';
@@ -123,6 +124,11 @@ type WeekEditorResult = {
     <mat-dialog-actions align="end">
       <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving() || isLoadingWeek()">Cancel</button>
       @if (isEditable()) {
+        @if (data.mode === 'edit') {
+          <button mat-stroked-button type="button" (click)="onSubmit()" [disabled]="form.invalid || isSaving() || isLoadingWeek()">
+            {{ isSaving() ? 'Submitting...' : 'Submit' }}
+          </button>
+        }
         <button mat-raised-button color="primary" type="button" (click)="onSave()" [disabled]="form.invalid || isSaving() || isLoadingWeek()">
           {{ isSaving() ? 'Saving...' : 'Save' }}
         </button>
@@ -313,6 +319,46 @@ export class WeekEditorDialogComponent {
 
     const fallbackDays = this.loadedWeek()?.days ?? [];
     this.saveWeek(weekId, bookId, this.collectDaysFromForm(fallbackDays));
+  }
+
+  protected onSubmit() {
+    if (this.data.mode !== 'edit' || this.form.invalid || !this.isEditable()) {
+      return;
+    }
+
+    const bookId = this.bookStore.activeBook().id;
+    if (!bookId) {
+      this.snackBar.open('No active recordbook found', 'Close', {duration: 3000});
+      return;
+    }
+
+    const weekId = this.loadedWeek()?.id;
+    if (!weekId) {
+      this.snackBar.open('Week could not be loaded', 'Close', {duration: 3000});
+      return;
+    }
+
+    const fallbackDays = this.loadedWeek()?.days ?? [];
+    const days = this.collectDaysFromForm(fallbackDays);
+
+    this.isSaving.set(true);
+    this.weekStore.updateWeekRequest(
+      weekId,
+      bookId,
+      this.form.controls.text.value ?? '',
+      days
+    ).pipe(
+      switchMap(() => this.weekStore.submitWeekToTrainer(weekId) as Observable<BookWeek>),
+      finalize(() => this.isSaving.set(false))
+    ).subscribe({
+      next: (submittedWeek) => {
+        this.loadedWeek.set(submittedWeek);
+        this.dialogRef.close({saved: true, weekId} as WeekEditorResult);
+      },
+      error: () => {
+        this.snackBar.open('Failed to submit week', 'Close', {duration: 3000});
+      },
+    });
   }
 
   private saveWeek(weekId: BookWeekId, bookId: string, days: BookDay[]) {

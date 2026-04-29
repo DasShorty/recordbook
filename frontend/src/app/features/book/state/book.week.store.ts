@@ -6,6 +6,7 @@ import {HttpClient} from '@angular/common/http';
 import {httpConfig} from '@environment/environment';
 import {BookId} from '@features/book/models/book.model';
 import {Page} from '@core/http/model/page.model';
+import {Observable, tap} from 'rxjs';
 
 export const BookWeekStore = signalStore(
   {providedIn: 'root'},
@@ -121,30 +122,21 @@ export const BookWeekStore = signalStore(
         });
       },
 
-      submitWeekToTrainer(weekId: string) {
+      submitWeekToTrainer(weekId: string): Observable<BookWeek> {
         patchState(store, {
           loading: true,
           error: undefined
         });
 
-        httpClient.patch<BookWeek>(`${httpConfig.baseUrl}books/weeks/${weekId}/submit`, {}, {
-          observe: "response",
+        return httpClient.patch<BookWeek>(`${httpConfig.baseUrl}books/weeks/${weekId}/submit`, {}, {
           withCredentials: true
-        })
-          .subscribe({
-            next: (res) => {
-              if (!res.ok || res.body === null) {
-                patchState(store, {
-                  loading: false,
-                  error: res.status
-                });
-                return;
-              }
-
+        }).pipe(
+          tap({
+            next: (submittedWeek) => {
               patchState(store, {
                 loading: false,
                 error: undefined,
-                week: res.body
+                week: submittedWeek
               });
             },
             error: (err) => {
@@ -153,7 +145,8 @@ export const BookWeekStore = signalStore(
                 error: err?.status ?? 500
               });
             }
-          });
+          })
+        );
       }
 
     }
