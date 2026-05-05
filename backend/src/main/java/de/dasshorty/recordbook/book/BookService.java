@@ -6,6 +6,7 @@ import de.dasshorty.recordbook.book.dto.CreateBookDto;
 import de.dasshorty.recordbook.book.week.BookWeek;
 import de.dasshorty.recordbook.exception.MissingTokenException;
 import de.dasshorty.recordbook.exception.NotExistingException;
+import de.dasshorty.recordbook.user.Authority;
 import de.dasshorty.recordbook.user.User;
 import de.dasshorty.recordbook.user.UserService;
 import org.springframework.data.domain.Page;
@@ -93,6 +94,13 @@ public class BookService {
         }
 
         UUID userId = optional.get();
+        User user = this.userService.retrieveUserEntityById(userId)
+                .orElseThrow(() -> new NotExistingException("User not found"));
+
+        if (user.getAuthority() == Authority.TRAINER) {
+            return this.bookRepository.findFirstByTrainer(user).map(Book::toDto);
+        }
+
         return this.getBookByTraineeId(userId);
     }
 

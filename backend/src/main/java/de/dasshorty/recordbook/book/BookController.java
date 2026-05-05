@@ -36,7 +36,7 @@ public class BookController {
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINEE')")
+    @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINEE', 'TRAINER')")
     public ResponseEntity<?> getOwnBook(@CookieValue("access_token") String accessToken) {
         try {
             Optional<BookDto> book = this.bookService.getOwnBookByAccessToken(accessToken);

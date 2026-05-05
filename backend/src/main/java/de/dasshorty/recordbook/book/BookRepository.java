@@ -28,6 +28,8 @@ public interface BookRepository extends JpaRepository<Book, UUID> {
 
     Optional<Book> getBookByTrainee(User trainee);
 
+    Optional<Book> findFirstByTrainer(User trainer);
+
     @Query("SELECT COUNT(b) FROM Book b WHERE b.trainer.id = :trainerId")
     long countByTrainerId(UUID trainerId);
 
