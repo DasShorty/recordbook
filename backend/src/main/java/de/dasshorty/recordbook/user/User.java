@@ -1,6 +1,6 @@
 package de.dasshorty.recordbook.user;
 
-import de.dasshorty.recordbook.user.dto.CreateUserDto;
+import de.dasshorty.recordbook.user.dto.CreateUserCommand;
 import de.dasshorty.recordbook.user.dto.UserDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -72,7 +72,7 @@ public class User implements UserDetails {
         this.userType = userType;
     }
 
-    public static User fromDto(CreateUserDto dto) {
+    public static User fromDto(CreateUserCommand dto) {
         return new User(
             dto.forename(),
             dto.surname(),

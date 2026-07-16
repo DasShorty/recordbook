@@ -1,9 +1,9 @@
 package de.dasshorty.recordbook.book.week;
 
+import de.dasshorty.recordbook.book.Book;
 import de.dasshorty.recordbook.book.BookService;
 import de.dasshorty.recordbook.book.week.dto.BookWeekDto;
-import de.dasshorty.recordbook.book.week.dto.UpdateBookWeekDto;
-import de.dasshorty.recordbook.exception.NotExistingException;
+import de.dasshorty.recordbook.book.week.dto.UpdateBookWeekCommand;
 import de.dasshorty.recordbook.http.handler.UserInputHandler;
 import de.dasshorty.recordbook.http.result.ErrorResult;
 import jakarta.validation.Valid;
@@ -33,36 +33,28 @@ public class BookWeekController {
 
     @GetMapping("/{bookId}/weeks")
     @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINER', 'TRAINEE')")
-    public ResponseEntity<Page<BookWeekDto>> getWeeks(@PathVariable UUID bookId, @PageableDefault Pageable pageable) {
-        return ResponseEntity.ok(bookService.getBookWeeks(bookId, pageable).map(BookWeek::toDto));
+    public ResponseEntity<Page<BookWeekDto>> getWeeks(@PathVariable("bookId") UUID book, @PageableDefault Pageable pageable) {
+        return ResponseEntity.ok(bookService.getBookWeeks(book, pageable).map(BookWeek::toDto));
     }
 
     @GetMapping("/{bookId}/weeks/{year}/{cw}")
     @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINER', 'TRAINEE')")
-    public ResponseEntity<?> getWeekByCalendarWeek(@PathVariable UUID bookId, @PathVariable("cw") @Min(1) Integer calendarWeek, @PathVariable Integer year) {
+    public ResponseEntity<?> getWeekByCalendarWeek(@PathVariable("bookId") Book book, @PathVariable("cw") @Min(1) Integer calendarWeek, @PathVariable Integer year) {
         int convertedYear = UserInputHandler.validInteger(year) ? year : Calendar.getInstance().get(Calendar.YEAR);
 
         if (calendarWeek < 0 || calendarWeek > Calendar.getInstance().getWeeksInWeekYear()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResult("invalid calendar week", "week"));
         }
 
-        try {
-            var week = this.bookWeekService.getOrCreateWeekForBook(bookId, calendarWeek, convertedYear);
-            return ResponseEntity.of(week);
-        } catch (NotExistingException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("not found", e.getMessage()));
-        }
+        var week = this.bookWeekService.getOrCreateWeekForBook(book, calendarWeek, convertedYear);
+        return ResponseEntity.of(week);
     }
 
     @PutMapping("/{bookId}/weeks/{weekId}")
     @PreAuthorize("hasAnyAuthority('TRAINEE')")
-    public ResponseEntity<?> updateWeek(@PathVariable UUID bookId, @PathVariable UUID weekId, @Valid @RequestBody UpdateBookWeekDto updateDto) {
-        try {
-            var updatedWeek = this.bookWeekService.updateWeek(bookId, weekId, updateDto);
-            return ResponseEntity.of(updatedWeek);
-        } catch (NotExistingException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResult("not found", e.getMessage()));
-        }
+    public ResponseEntity<?> updateWeek(@PathVariable UUID bookId, @PathVariable("weekId") BookWeek bookWeek, @Valid @RequestBody UpdateBookWeekCommand updateDto) {
+        var updatedWeek = this.bookWeekService.updateWeek(bookId, bookWeek, updateDto);
+        return ResponseEntity.of(updatedWeek);
     }
 
     @PatchMapping("/weeks/{weekId}/submit")
@@ -73,14 +65,14 @@ public class BookWeekController {
 
     @PatchMapping("/weeks/{weekId}/accept")
     @PreAuthorize("hasAnyAuthority('TRAINER', 'ADMINISTRATOR')")
-    public ResponseEntity<?> submitWeek(@PathVariable UUID weekId, @CookieValue("access_token") String accessToken) {
-        return ResponseEntity.ok(this.bookWeekService.acceptWeek(weekId, accessToken));
+    public ResponseEntity<?> submitWeek(@PathVariable("weekId") BookWeek bookWeek, @CookieValue("access_token") String accessToken) {
+        return ResponseEntity.ok(this.bookWeekService.acceptWeek(bookWeek, accessToken));
     }
 
     @PatchMapping("/weeks/{weekId}/deny")
     @PreAuthorize("hasAnyAuthority('TRAINER', 'ADMINISTRATOR')")
-    public ResponseEntity<?> denyWeek(@PathVariable UUID weekId) {
-        return ResponseEntity.ok(this.bookWeekService.denyWeek(weekId));
+    public ResponseEntity<?> denyWeek(@PathVariable("weekId") BookWeek bookWeek) {
+        return ResponseEntity.ok(this.bookWeekService.denyWeek(bookWeek));
     }
 
     @DeleteMapping("/weeks/{weekId}")

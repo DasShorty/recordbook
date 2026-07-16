@@ -3,7 +3,7 @@ package de.dasshorty.recordbook.book.week.dto;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
-public record CreateWeekDto(
+public record CreateWeekCommand(
         @Min(value = 1, message = "calendarWeek must be between 1 and 53")
         @Max(value = 53, message = "calendarWeek must be between 1 and 53")
         int calendarWeek,

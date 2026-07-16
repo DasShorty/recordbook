@@ -4,5 +4,5 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
-public record UpdateTrainerDto(@NotNull UUID trainer) {
+public record UpdateTrainerCommand(@NotNull UUID trainer) {
 }

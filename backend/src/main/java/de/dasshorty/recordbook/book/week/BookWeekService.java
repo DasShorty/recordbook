@@ -6,10 +6,12 @@ import de.dasshorty.recordbook.book.BookRepository;
 import de.dasshorty.recordbook.book.BookService;
 import de.dasshorty.recordbook.book.week.day.BookDay;
 import de.dasshorty.recordbook.book.week.day.BookDayRepository;
-import de.dasshorty.recordbook.book.week.day.dto.UpdateBookDayDto;
+import de.dasshorty.recordbook.book.week.day.dto.UpdateBookDayCommand;
+import de.dasshorty.recordbook.book.week.day.exceptions.BookDayNotFoundException;
 import de.dasshorty.recordbook.book.week.dto.BookWeekDto;
-import de.dasshorty.recordbook.book.week.dto.UpdateBookWeekDto;
-import de.dasshorty.recordbook.exception.NotExistingException;
+import de.dasshorty.recordbook.book.week.dto.UpdateBookWeekCommand;
+import de.dasshorty.recordbook.book.week.exceptions.BookWeekNotFoundException;
+import de.dasshorty.recordbook.book.week.exceptions.BookWeekNotLockedException;
 import de.dasshorty.recordbook.mail.MailService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -44,14 +46,12 @@ public class BookWeekService {
     }
 
     @Transactional
-    public Optional<BookWeekDto> getOrCreateWeekForBook(UUID bookId, int calendarWeek, int year) {
+    public Optional<BookWeekDto> getOrCreateWeekForBook(Book book, int calendarWeek, int year) {
 
-        var existing = findExistingWeek(calendarWeek, year, bookId);
+        var existing = findExistingWeek(calendarWeek, year, book.getId());
         if (existing.isPresent()) {
             return existing;
         }
-
-        Book book = getBookFromIdOrThrow(bookId);
 
         BookWeek newWeek = createAndAttachWeek(book, calendarWeek, year);
 
@@ -60,7 +60,7 @@ public class BookWeekService {
 
     @Transactional
     public void deleteWeek(UUID weekId) {
-        var week = this.bookWeekRepository.findById(weekId).orElseThrow(() -> new NotExistingException("Die Woche existiert nicht!"));
+        var week = this.bookWeekRepository.findById(weekId).orElseThrow(() -> new BookWeekNotFoundException("Die Woche existiert nicht!"));
 
         if (week.isLocked()) {
             throw new IllegalStateException("Die Woche ist gesperrt und kann nicht gelöscht werden!");
@@ -81,10 +81,6 @@ public class BookWeekService {
 
     private Optional<BookWeekDto> findExistingWeek(int calendarWeek, int year, UUID bookId) {
         return this.bookWeekRepository.findByCalendarWeekAndBookId(calendarWeek, year, bookId).map(BookWeek::toDto);
-    }
-
-    private Book getBookFromIdOrThrow(UUID bookId) {
-        return this.bookService.getBookEntityById(bookId).orElseThrow(() -> new NotExistingException("book is not existing"));
     }
 
     private BookWeek createAndAttachWeek(Book book, int calendarWeek, int year) {
@@ -127,19 +123,19 @@ public class BookWeekService {
     }
 
     @Transactional
-    public Optional<BookWeekDto> updateWeek(UUID bookId, UUID weekId, UpdateBookWeekDto updateDto) {
-        BookWeek week = this.bookWeekRepository.findById(weekId).orElseThrow(() -> new NotExistingException("week not found"));
+    public Optional<BookWeekDto> updateWeek(UUID bookId, final BookWeek week, UpdateBookWeekCommand updateDto) {
 
         // Verify the week belongs to the specified book by checking if it exists in the book's weeks
-        boolean weekBelongsToBook = this.bookWeekRepository.findByCalendarWeekAndBookId(week.getCalendarWeek(), week.getYear(), bookId).map(w -> w.getId().equals(weekId)).orElse(false);
+        boolean weekBelongsToBook = this.bookWeekRepository.findByCalendarWeekAndBookId(week.getCalendarWeek(), week.getYear(), bookId)
+                .map(w -> w.getId().equals(week.getId())).orElse(false);
 
         if (!weekBelongsToBook) {
-            throw new NotExistingException("week does not belong to the specified book");
+            throw new BookWeekNotFoundException("week does not belong to the specified book");
         }
 
         // Update each day
-        for (UpdateBookDayDto dayDto : updateDto.days()) {
-            BookDay day = week.getDays().stream().filter(d -> d.getId().equals(dayDto.id())).findFirst().orElseThrow(() -> new NotExistingException("day not found"));
+        for (UpdateBookDayCommand dayDto : updateDto.days()) {
+            BookDay day = week.getDays().stream().filter(d -> d.getId().equals(dayDto.id())).findFirst().orElseThrow(() -> new BookDayNotFoundException("day not found"));
 
             day.setHours(dayDto.hours());
             day.setMinutes(dayDto.minutes());
@@ -150,14 +146,12 @@ public class BookWeekService {
 
         // Save the updated week
         week.setText(updateDto.text());
-
-        week = this.bookWeekRepository.save(week);
-        return Optional.of(week.toDto());
+        return Optional.of(this.bookWeekRepository.save(week).toDto());
     }
 
     @Transactional
     public BookWeekDto submitWeek(UUID weekId) {
-        var week = this.bookWeekRepository.findById(weekId).orElseThrow(() -> new NotExistingException("week not found"));
+        var week = this.bookWeekRepository.findById(weekId).orElseThrow(() -> new BookWeekNotFoundException("week not found"));
 
         if (week.getSignedFromTrainer() != null) {
             throw new IllegalStateException("week is already signed from the trainer");
@@ -170,46 +164,44 @@ public class BookWeekService {
         week.setLocked(true);
         week = this.bookWeekRepository.save(week);
 
-        var book = this.bookRepository.findBookByWeekId(week.getId()).orElseThrow(() -> new NotExistingException("Das Buch zur Woche konnte nicht gefunden werden"));
+        var book = this.bookRepository.findBookByWeekId(week.getId()).orElseThrow(() -> new BookWeekNotFoundException("Das Buch zur Woche konnte nicht gefunden werden"));
         this.mailService.sendNewApprovalRequired(week, book.getTrainer().toDto(), book.getTrainee().toDto());
 
         return week.toDto();
     }
 
     @Transactional
-    public BookWeekDto acceptWeek(UUID weekId, String trainerAccessToken) {
+    public BookWeekDto acceptWeek(BookWeek week, String trainerAccessToken) {
 
         var user = this.authenticationService.obtainUserByToken(trainerAccessToken).orElseThrow(() -> new IllegalStateException("user token is not existing"));
-        var week = this.bookWeekRepository.findById(weekId).orElseThrow(() -> new NotExistingException("week not found"));
 
         if (week.getSignedFromTrainer() != null) {
             throw new IllegalStateException("week is already signed from the trainer");
         }
 
         if (!week.isLocked()) {
-            throw new IllegalStateException("week is locked");
+            throw new BookWeekNotLockedException("Week " + week.getCalendarWeek() + " of year " + week.getYear() + " is not locked and cannot be accepted.");
         }
 
         week.setSignedFromTrainer(user);
 
         BookWeek bookWeek = this.bookWeekRepository.save(week);
 
-        var book = this.bookRepository.findBookByWeekId(week.getId()).orElseThrow(() -> new NotExistingException("Das Buch zur Woche konnte nicht gefunden werden"));
+        var book = this.bookRepository.findBookByWeekId(week.getId()).orElseThrow(() -> new BookWeekNotFoundException("Das Buch zur Woche konnte nicht gefunden werden"));
         this.mailService.sendWeekApproved(bookWeek, book.getTrainer().toDto(), book.getTrainee().toDto());
 
         return bookWeek.toDto();
     }
 
     @CacheEvict(value = {"trainee-stats", "trainer-stats", "admin-stats"}, allEntries = true)
-    public BookWeekDto denyWeek(UUID weekId) {
-        var week = this.bookWeekRepository.findById(weekId).orElseThrow(() -> new NotExistingException("week not found"));
+    public BookWeekDto denyWeek(BookWeek week) {
 
         if (week.getSignedFromTrainer() != null) {
             throw new IllegalStateException("week is already signed from the trainer");
         }
 
         if (!week.isLocked()) {
-            throw new IllegalStateException("week is not locked");
+            throw new BookWeekNotLockedException("Week " + week.getCalendarWeek() + " of year " + week.getYear() + " is not locked and cannot be denied.");
         }
 
         week.setSignedFromTrainer(null);
@@ -217,7 +209,7 @@ public class BookWeekService {
 
         BookWeek bookWeek = this.bookWeekRepository.save(week);
 
-        var book = this.bookRepository.findBookByWeekId(week.getId()).orElseThrow(() -> new NotExistingException("Das Buch zur Woche konnte nicht gefunden werden"));
+        var book = this.bookRepository.findBookByWeekId(week.getId()).orElseThrow(() -> new BookWeekNotFoundException("Das Buch zur Woche konnte nicht gefunden werden"));
         this.mailService.sendWeekDenied(bookWeek, book.getTrainer().toDto(), book.getTrainee().toDto());
 
         return bookWeek.toDto();

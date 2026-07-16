@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.Length;
 
-public record CreateUserDto(
+public record CreateUserCommand(
     @NotBlank(message = "Forename is required") String forename,
     @NotBlank(message = "Surname is required") String surname,
     @NotBlank(message = "EMail is required")

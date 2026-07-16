@@ -1,11 +1,8 @@
 package de.dasshorty.recordbook.book;
 
 import de.dasshorty.recordbook.book.dto.BookDto;
-import de.dasshorty.recordbook.book.dto.CreateBookDto;
-import de.dasshorty.recordbook.book.dto.UpdateTrainerDto;
-import de.dasshorty.recordbook.exception.MissingTokenException;
-import de.dasshorty.recordbook.exception.NotExistingException;
-import de.dasshorty.recordbook.http.result.ErrorResult;
+import de.dasshorty.recordbook.book.dto.CreateBookCommand;
+import de.dasshorty.recordbook.book.dto.UpdateTrainerCommand;
 import de.dasshorty.recordbook.pdf.PdfManager;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -21,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -42,42 +38,35 @@ public class BookController {
 
     @GetMapping("/me")
     @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINEE', 'TRAINER')")
-    public ResponseEntity<?> getOwnBook(@CookieValue("access_token") String accessToken) {
-        try {
-            Optional<BookDto> book = this.bookService.getOwnBookByAccessToken(accessToken);
-            return ResponseEntity.of(book);
-        } catch (MissingTokenException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResult("not found", "access_token"));
-        }
+    public ResponseEntity<BookDto> getOwnBook(@CookieValue("access_token") String accessToken) {
+        return ResponseEntity.of(this.bookService.getOwnBookByAccessToken(accessToken));
     }
 
     @GetMapping("/{bookId}")
     @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINEE', 'TRAINER')")
-    public ResponseEntity<BookDto> getBookById(@PathVariable @NotNull UUID bookId) {
-        return ResponseEntity.of(this.bookService.getBookById(bookId));
+    public ResponseEntity<BookDto> getBookById(@PathVariable("bookId") @NotNull Book book) {
+        return ResponseEntity.of(Optional.of(book.toDto()));
     }
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ADMINISTRATOR')")
-    public ResponseEntity<BookDto> createBook(@RequestBody @Valid CreateBookDto bookBody) {
+    public ResponseEntity<BookDto> createBook(@RequestBody @Valid CreateBookCommand bookBody) {
         BookDto createdBook = this.bookService.createBookFromDto(bookBody);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBook);
     }
 
     @PutMapping("/{bookId}/trainer")
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
-    public ResponseEntity<BookDto> updateBookTrainer(@PathVariable @NotNull UUID bookId,
-                                                     @RequestBody @Valid UpdateTrainerDto updateTrainerDto) {
-        return ResponseEntity.of(this.bookService.updateBookTrainer(bookId, updateTrainerDto.trainer()));
+    public ResponseEntity<BookDto> updateBookTrainer(@PathVariable("bookId") @NotNull Book book,
+                                                     @RequestBody @Valid UpdateTrainerCommand updateTrainerDto) {
+        return ResponseEntity.of(this.bookService.updateBookTrainer(book, updateTrainerDto.trainer()));
     }
 
     @GetMapping("/{bookId}/export")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<byte[]> exportBookAsPdf(
-            @PathVariable @NotNull UUID bookId
-    )throws IOException {
-        var book = this.bookService.getBookEntityById(bookId).orElseThrow(() -> new NotExistingException("Das Buch mit der ID " + bookId + " existiert nicht."));
+            @PathVariable("bookId") @NotNull Book book
+    ) throws IOException {
         ByteArrayOutputStream pdf = PdfManager.createPdf(book);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)

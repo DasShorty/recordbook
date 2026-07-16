@@ -23,9 +23,9 @@ import java.util.Locale;
 
 public class PdfSiteConverter {
 
-    private final PDDocument pdDocument;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private static final Locale GERMAN_LOCALE = Locale.GERMAN;
+    private final PDDocument pdDocument;
 
     public PdfSiteConverter(PDDocument pdDocument) {
         this.pdDocument = pdDocument;
@@ -43,9 +43,9 @@ public class PdfSiteConverter {
 
         // Background image
         PDImageXObject backgroundImage = PDImageXObject.createFromByteArray(
-            this.pdDocument,
-            PdfAssetHandler.loadAssetAsByteArray("jpeg/pdf-export_page-background.jpg"),
-            "default_background_svg_image"
+                this.pdDocument,
+                PdfAssetHandler.loadAssetAsByteArray("jpeg/pdf-export_page-background.jpg"),
+                "default_background_svg_image"
         );
         contentStream.drawImage(backgroundImage, 0, 0, page.getMediaBox().getWidth(), page.getMediaBox().getHeight());
 
@@ -114,10 +114,10 @@ public class PdfSiteConverter {
             var trainer = week.getSignedFromTrainer();
             String trainerName = trainer.getForename() + " " + trainer.getSurname();
             String signatureText = String.format(
-                "Ausbilder %s hat die Woche %d am %s angenommen",
-                trainerName,
-                week.getCalendarWeek(),
-                toDateString
+                    "Ausbilder %s hat die Woche %d am %s angenommen",
+                    trainerName,
+                    week.getCalendarWeek(),
+                    toDateString
             );
             PdfItemManager.addCenteredText(contentStream, signatureText, centerX, signatureY, font, 10);
         }
@@ -126,7 +126,7 @@ public class PdfSiteConverter {
     }
 
     private void drawDayRow(PDPageContentStream contentStream, BookDay day, float x, float y,
-                           PDType0Font font) throws IOException {
+                            PDType0Font font) throws IOException {
         LocalDate date = day.getDate();
 
         // Day name and date
@@ -165,6 +165,8 @@ public class PdfSiteConverter {
             case WORK -> "Betrieb";
             case SCHOOL -> "Schule";
             case GUIDANCE -> "Anleitung";
+            case SICKNESS -> "Krankheit";
+            default -> "-";
         };
     }
 

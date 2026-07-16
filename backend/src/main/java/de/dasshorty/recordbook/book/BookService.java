@@ -2,13 +2,13 @@ package de.dasshorty.recordbook.book;
 
 import de.dasshorty.recordbook.authentication.jwt.JwtHandler;
 import de.dasshorty.recordbook.book.dto.BookDto;
-import de.dasshorty.recordbook.book.dto.CreateBookDto;
+import de.dasshorty.recordbook.book.dto.CreateBookCommand;
 import de.dasshorty.recordbook.book.week.BookWeek;
-import de.dasshorty.recordbook.exception.MissingTokenException;
-import de.dasshorty.recordbook.exception.NotExistingException;
+import de.dasshorty.recordbook.exceptions.MissingTokenException;
 import de.dasshorty.recordbook.user.Authority;
 import de.dasshorty.recordbook.user.User;
 import de.dasshorty.recordbook.user.UserService;
+import de.dasshorty.recordbook.user.exceptions.UserNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,18 +31,8 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<BookDto> getBookById(UUID bookId) {
-        return this.getBookEntityById(bookId).map(Book::toDto);
-    }
-
-    @Transactional(readOnly = true)
     public Optional<Book> getBookEntityByWeekId(UUID weekId) {
         return this.bookRepository.findBookByWeekId(weekId);
-    }
-
-    @Transactional(readOnly = true)
-    public Optional<Book> getBookEntityById(UUID bookId) {
-        return bookRepository.findById(bookId);
     }
 
     @Transactional(readOnly = true)
@@ -72,9 +62,9 @@ public class BookService {
     }
 
     @Transactional
-    public BookDto createBookFromDto(CreateBookDto dto) {
-        User trainee = this.userService.retrieveUserEntityById(dto.trainee()).orElseThrow(() -> new NotExistingException("Trainee not found"));
-        User trainer = this.userService.retrieveUserEntityById(dto.trainer()).orElseThrow(() -> new NotExistingException("Trainer not found"));
+    public BookDto createBookFromDto(CreateBookCommand dto) {
+        User trainee = this.userService.retrieveUserEntityById(dto.trainee()).orElseThrow(() -> new UserNotFoundException("Trainee not found"));
+        User trainer = this.userService.retrieveUserEntityById(dto.trainer()).orElseThrow(() -> new UserNotFoundException("Trainer not found"));
 
         Book book = new Book(trainee, trainer);
         return this.createBook(book);
@@ -82,20 +72,21 @@ public class BookService {
 
     @Transactional(readOnly = true)
     public Optional<BookDto> getBookByTraineeId(UUID traineeId) {
-        User trainee = this.userService.retrieveUserEntityById(traineeId).orElseThrow(() -> new NotExistingException("Trainee not found"));
+        User trainee = this.userService.retrieveUserEntityById(traineeId).orElseThrow(() -> new UserNotFoundException("Trainee not found"));
         return this.getBookByTrainee(trainee);
     }
 
     @Transactional(readOnly = true)
     public Optional<BookDto> getOwnBookByAccessToken(String accessToken) {
         Optional<UUID> optional = this.jwtHandler.extractUserId(accessToken);
+
         if (optional.isEmpty()) {
             throw new MissingTokenException("access_token");
         }
 
         UUID userId = optional.get();
         User user = this.userService.retrieveUserEntityById(userId)
-                .orElseThrow(() -> new NotExistingException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         if (user.getAuthority() == Authority.TRAINER) {
             return this.bookRepository.findFirstByTrainer(user).map(Book::toDto);
@@ -109,19 +100,16 @@ public class BookService {
     }
 
     @Transactional
-    public Optional<BookDto> updateBookTrainer(UUID bookId, UUID newTrainerId) {
-        var book = this.getBookEntityById(bookId);
-        if (book.isEmpty()) {
-            return Optional.empty();
-        }
+    public Optional<BookDto> updateBookTrainer(Book book, UUID newTrainerId) {
+
 
         var newTrainer = this.userService.retrieveUserEntityById(newTrainerId);
+
         if (newTrainer.isEmpty()) {
-            throw new NotExistingException("Trainer not found");
+            throw new UserNotFoundException("Trainer not found");
         }
 
-        Book bookEntity = book.get();
-        bookEntity.setTrainer(newTrainer.get());
-        return Optional.of(this.createBook(bookEntity));
+        book.setTrainer(newTrainer.get());
+        return Optional.of(this.createBook(book));
     }
 }

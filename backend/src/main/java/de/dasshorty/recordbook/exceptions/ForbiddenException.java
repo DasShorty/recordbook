@@ -1,4 +1,4 @@
-package de.dasshorty.recordbook.exception;
+package de.dasshorty.recordbook.exceptions;
 
 public class ForbiddenException extends RuntimeException {
     public ForbiddenException(String message) {

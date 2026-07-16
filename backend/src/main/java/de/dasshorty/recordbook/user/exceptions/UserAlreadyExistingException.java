@@ -1,4 +1,4 @@
-package de.dasshorty.recordbook.user.exception;
+package de.dasshorty.recordbook.user.exceptions;
 
 public class UserAlreadyExistingException extends RuntimeException {
 

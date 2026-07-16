@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
-public record UpdateBookDayDto(
+public record UpdateBookDayCommand(
         @NotNull UUID id,
         @Min(value = 0)
         @Max(value = 24)

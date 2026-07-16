@@ -1,11 +1,10 @@
 package de.dasshorty.recordbook.user;
 
-import de.dasshorty.recordbook.exception.ForbiddenException;
-import de.dasshorty.recordbook.exception.NotExistingException;
+import de.dasshorty.recordbook.exceptions.ForbiddenException;
 import de.dasshorty.recordbook.mail.MailService;
-import de.dasshorty.recordbook.user.dto.CreateUserDto;
+import de.dasshorty.recordbook.user.dto.CreateUserCommand;
 import de.dasshorty.recordbook.user.dto.UserDto;
-import de.dasshorty.recordbook.user.exception.UserAlreadyExistingException;
+import de.dasshorty.recordbook.user.exceptions.UserAlreadyExistingException;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -68,17 +68,17 @@ public class UserService implements UserDetailsService {
             return;
         }
 
-        CreateUserDto createUserDto = new CreateUserDto(administratorUserForename, administratorUserSurname,
+        CreateUserCommand createUserCommand = new CreateUserCommand(administratorUserForename, administratorUserSurname,
                 administratorUserEmail, passwordEncoder.encode(administratorUserPassword), UserType.TRAINER);
 
-        User user = User.fromDto(createUserDto);
+        User user = User.fromDto(createUserCommand);
         user.setAuthority(Authority.ADMINISTRATOR);
 
         this.userRepository.save(user);
     }
 
     @Transactional
-    public UserDto createUser(CreateUserDto userDto) {
+    public UserDto createUser(CreateUserCommand userDto) {
         if (this.userRepository.findByEmail(userDto.email()).isPresent()) {
             throw new UserAlreadyExistingException(
                     "User with email, already exists"
@@ -96,17 +96,14 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void deleteUser(UUID id) {
-        var user = this.userRepository.findById(id).orElseThrow(() ->
-                new NotExistingException("User not found")
-        );
+    public void deleteUser(User user) {
 
-        var isAdministrator = SecurityContextHolder.getContext()
-                .getAuthentication()
+        var isAdministrator = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
                 .getAuthorities()
                 .stream()
                 .anyMatch(a ->
-                        a.getAuthority().equals(Authority.ADMINISTRATOR.name())
+                        Objects.equals(a.getAuthority(), Authority.ADMINISTRATOR.name())
                 );
 
         if (user.isAdministrator() && !isAdministrator) {
@@ -115,7 +112,7 @@ public class UserService implements UserDetailsService {
             );
         }
 
-        this.userRepository.deleteById(id);
+        this.userRepository.deleteById(user.getId());
     }
 
     @Override
@@ -134,21 +131,17 @@ public class UserService implements UserDetailsService {
         return this.userRepository.findByEmail(email);
     }
 
-    public Optional<UserDto> retrieveUserById(UUID id) {
-        return this.userRepository.findById(id).map(User::toDto);
-    }
-
     // Internal method for service-to-service calls that need the entity
     public Optional<User> retrieveUserEntityById(UUID id) {
         return this.userRepository.findById(id);
     }
 
     public Page<UserDto> retrieveUsers(Pageable pageable, UserType userType) {
-        var isAdmin = SecurityContextHolder.getContext()
-                .getAuthentication()
+        var isAdmin = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
                 .getAuthorities()
                 .stream()
-                .anyMatch(a -> a.getAuthority().equals("ADMINISTRATOR"));
+                .anyMatch(a -> Objects.equals(a.getAuthority(), "ADMINISTRATOR"));
 
         if (userType == null && !isAdmin) {
             throw new ForbiddenException(
