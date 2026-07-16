@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import SidebarNavComponent from '@core/layout/sidebar-nav.component';
 
 @Component({
@@ -6,6 +6,7 @@ import SidebarNavComponent from '@core/layout/sidebar-nav.component';
   standalone: true,
   imports: [SidebarNavComponent],
   template: `<sidebar-nav></sidebar-nav>`,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [
     `
       :host {

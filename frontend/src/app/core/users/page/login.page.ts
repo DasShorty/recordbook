@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {ReactiveFormsModule} from '@angular/forms';
 import {LoginFormComponent} from '@core/users/components/login-form.component';
 
@@ -9,6 +9,7 @@ import {LoginFormComponent} from '@core/users/components/login-form.component';
       <login-form-component></login-form-component>
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     LoginFormComponent
