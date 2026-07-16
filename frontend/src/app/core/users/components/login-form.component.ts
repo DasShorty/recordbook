@@ -43,7 +43,7 @@ import {firstValueFrom} from 'rxjs';
 
       <mat-card-header>
         <mat-card-title>Berichtsheft</mat-card-title>
-        <mat-card-subtitle>Recordbook v2.0 - Berichtsheftsoftware</mat-card-subtitle>
+        <mat-card-subtitle>Recordbook v2.1 - Berichtsheftsoftware</mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content>
