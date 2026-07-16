@@ -4,6 +4,7 @@ import {inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {httpConfig} from '@environment/environment';
 import {Page} from '@core/http/model/page.model';
+import {Observable, tap} from 'rxjs';
 
 export const UserStore = signalStore(
   {providedIn: 'root'},
@@ -18,15 +19,20 @@ export const UserStore = signalStore(
 
     return {
 
-      retrieveActiveUser() {
-
-        httpClient.get<User>(httpConfig.baseUrl + 'authentication/me', {
+      retrieveActiveUser(): Observable<User> {
+        return httpClient.get<User>(httpConfig.baseUrl + 'authentication/me', {
           withCredentials: true
-        }).subscribe(res => {
+        }).pipe(tap(res => {
           patchState(store, {
             activeUser: res
           });
-        })
+        }));
+      },
+
+      clearActiveUser() {
+        patchState(store, {
+          activeUser: {} as User
+        });
       },
 
 

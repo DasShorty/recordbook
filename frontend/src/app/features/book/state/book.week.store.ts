@@ -6,6 +6,7 @@ import {HttpClient} from '@angular/common/http';
 import {httpConfig} from '@environment/environment';
 import {BookId} from '@features/book/models/book.model';
 import {Page} from '@core/http/model/page.model';
+import {Observable, tap} from 'rxjs';
 
 export const BookWeekStore = signalStore(
   {providedIn: 'root'},
@@ -37,10 +38,28 @@ export const BookWeekStore = signalStore(
       },
 
       loadWeek(week: number, year: number, bookId: BookId) {
-        console.log("Loading week", week, "year", year, "for book", bookId);
         return httpClient.get<BookWeek>(`${httpConfig.baseUrl}books/${bookId}/weeks/${year}/${week}`, {
           withCredentials: true
-        })
+        });
+      },
+
+      updateWeekRequest(weekId: string, bookId: string, text: string, days: BookDay[]) {
+        const updatePayload = {
+          id: weekId,
+          text: text,
+          days: days.map(d => ({
+            id: d.id,
+            hours: d.hours,
+            minutes: d.minutes,
+            presence: d.presence,
+            presenceLocation: d.presenceLocation
+          }))
+        };
+
+        const url = `${httpConfig.baseUrl}books/${bookId}/weeks/${weekId}`;
+        return httpClient.put<BookWeek>(url, updatePayload, {
+          withCredentials: true
+        });
       },
 
       getWeek(week: number, year: number, bookId: string) {
@@ -86,36 +105,12 @@ export const BookWeekStore = signalStore(
           error: undefined
         });
 
-        const updatePayload = {
-          id: weekId,
-          text: text,
-          days: days.map(d => ({
-            id: d.id,
-            hours: d.hours,
-            minutes: d.minutes,
-            presence: d.presence,
-            presenceLocation: d.presenceLocation
-          }))
-        };
-
-        const url = `${httpConfig.baseUrl}books/${bookId}/weeks/${weekId}`;
-        httpClient.put<BookWeek>(url, updatePayload, {
-          observe: "response",
-          withCredentials: true
-        }).subscribe({
-          next: (res) => {
-            if (!res.ok || res.body === null) {
-              patchState(store, {
-                loading: false,
-                error: res.status
-              });
-              return;
-            }
-
+        this.updateWeekRequest(weekId, bookId, text, days).subscribe({
+          next: (updatedWeek) => {
             patchState(store, {
               loading: false,
               error: undefined,
-              week: res.body
+              week: updatedWeek
             });
           },
           error: (err) => {
@@ -127,30 +122,21 @@ export const BookWeekStore = signalStore(
         });
       },
 
-      submitWeekToTrainer(weekId: string) {
+      submitWeekToTrainer(weekId: string): Observable<BookWeek> {
         patchState(store, {
           loading: true,
           error: undefined
         });
 
-        httpClient.patch<BookWeek>(`${httpConfig.baseUrl}books/weeks/${weekId}/submit`, {}, {
-          observe: "response",
+        return httpClient.patch<BookWeek>(`${httpConfig.baseUrl}books/weeks/${weekId}/submit`, {}, {
           withCredentials: true
-        })
-          .subscribe({
-            next: (res) => {
-              if (!res.ok || res.body === null) {
-                patchState(store, {
-                  loading: false,
-                  error: res.status
-                });
-                return;
-              }
-
+        }).pipe(
+          tap({
+            next: (submittedWeek) => {
               patchState(store, {
                 loading: false,
                 error: undefined,
-                week: res.body
+                week: submittedWeek
               });
             },
             error: (err) => {
@@ -159,7 +145,8 @@ export const BookWeekStore = signalStore(
                 error: err?.status ?? 500
               });
             }
-          });
+          })
+        );
       }
 
     }

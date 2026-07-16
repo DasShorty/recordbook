@@ -4,6 +4,7 @@ public enum PresenceLocation {
 
     WORK,
     SCHOOL,
-    GUIDANCE
+    GUIDANCE,
+    SICKNESS
 
 }

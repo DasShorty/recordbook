@@ -44,13 +44,19 @@ export const BookStore = signalStore(
               return;
             }
 
+            // If book doesn't have weeks, load them separately
+            const book = response.body;
+            if (!book.weeks || book.weeks.length === 0) {
+              this.loadBookWeeks(book.id);
+            }
+
             patchState(store, {
               error: undefined,
-              activeBook: response.body,
+              activeBook: book,
               loading: false
             });
 
-            res(response.body);
+            res(book);
           },
           error: (err) => {
             patchState(store, {
@@ -60,6 +66,28 @@ export const BookStore = signalStore(
           }
         })
 
+      },
+
+      loadBookWeeks(bookId: BookId) {
+        httpClient.get<Page<any>>(httpConfig.baseUrl + `books/${bookId}/weeks`, {
+          withCredentials: true,
+          params: {
+            page: '0',
+            size: '100'
+          }
+        }).subscribe({
+          next: (response) => {
+            if (response?.content) {
+              const currentBook = store.activeBook();
+              patchState(store, {
+                activeBook: {
+                  ...currentBook,
+                  weeks: response.content
+                }
+              });
+            }
+          }
+        });
       },
 
       // ---- Manager-like methods migrated into BookStore ----

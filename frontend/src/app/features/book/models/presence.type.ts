@@ -8,7 +8,8 @@ export enum Presence {
 export enum PresenceType {
   WORK = "WORK",
   SCHOOL = "SCHOOL",
-  GUIDANCE = "GUIDANCE"
+  GUIDANCE = "GUIDANCE",
+  SICKNESS = "SICKNESS",
 }
 
 export class PresenceDisplay {
@@ -34,6 +35,8 @@ export class PresenceDisplay {
         return "Betrieb";
       case PresenceType.SCHOOL:
         return "Schule";
+      case PresenceType.SICKNESS:
+        return "Krankheit";
     }
   }
 

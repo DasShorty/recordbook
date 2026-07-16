@@ -6,3 +6,5 @@ build
 /.idea/
 
 /node_modules/
+/frontend/build-output.txt
+/package-lock.json

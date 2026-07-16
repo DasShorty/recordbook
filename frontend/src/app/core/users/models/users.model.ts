@@ -1,16 +1,21 @@
 import {Brand} from '@shared/data/brand';
 
-export type UserId = Brand<string, "UserId">
+export type UserId = Brand<string, 'UserId'>
 
-export type User = CreateUser & {
+export type UserBase = {
+  forename: string,
+  surname: string,
+  email: string,
+  userType: UserType,
+  authority: Authority,
+}
+
+export type User = UserBase & {
   id: UserId,
 }
 
-export type CreateUser = {
-  forename: string,
-  surname: string,
-  userType: UserType,
-  authority: Authority,
+export type CreateUser = UserBase & {
+  password: string,
 }
 
 export enum UserType {
