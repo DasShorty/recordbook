@@ -8,6 +8,7 @@ import de.dasshorty.recordbook.http.result.ErrorResult;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -31,10 +32,11 @@ public class BookController {
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINER')")
-    public ResponseEntity<?> getBooks(@PageableDefault Pageable pageable) {
-        return ResponseEntity.ok(this.bookService.getBooks(pageable));
+    public Page<BookDto> getBooks(@PageableDefault Pageable pageable) {
+        return this.bookService.getBooks(pageable);
     }
 
+    @Deprecated // TODO - refactor to remove ResponseEntity return
     @GetMapping("/me")
     @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINEE', 'TRAINER')")
     public ResponseEntity<?> getOwnBook(@CookieValue("access_token") String accessToken) {
@@ -49,22 +51,22 @@ public class BookController {
 
     @GetMapping("/{bookId}")
     @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'TRAINEE', 'TRAINER')")
-    public ResponseEntity<BookDto> getBookById(@PathVariable @NotNull UUID bookId) {
-        return ResponseEntity.of(this.bookService.getBookById(bookId));
+    public BookDto getBookById(@PathVariable @NotNull UUID bookId) {
+        return this.bookService.getBookById(bookId).toDto();
     }
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ADMINISTRATOR')")
-    public ResponseEntity<BookDto> createBook(@RequestBody @Valid CreateBookDto bookBody) {
-        BookDto createdBook = this.bookService.createBookFromDto(bookBody);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdBook);
+    @ResponseStatus(HttpStatus.CREATED)
+    public BookDto createBook(@RequestBody @Valid CreateBookDto bookBody) {
+        return this.bookService.createBookFromDto(bookBody);
     }
 
     @PutMapping("/{bookId}/trainer")
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
-    public ResponseEntity<BookDto> updateBookTrainer(@PathVariable @NotNull UUID bookId,
-                                                     @RequestBody @Valid UpdateTrainerDto updateTrainerDto) {
-        return ResponseEntity.of(this.bookService.updateBookTrainer(bookId, updateTrainerDto.trainer()));
+    public BookDto updateBookTrainer(@PathVariable @NotNull UUID bookId,
+                                     @RequestBody @Valid UpdateTrainerDto updateTrainerDto) {
+        return this.bookService.updateBookTrainer(bookId, updateTrainerDto.trainer());
     }
 
 }

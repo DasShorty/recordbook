@@ -20,9 +20,13 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Book {
 
+
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
+
+    private UUID publicId;
+
     @ManyToOne
     private User trainee;
     @ManyToOne
@@ -37,7 +41,7 @@ public class Book {
 
     public BookDto toDto() {
         return new BookDto(
-                this.id,
+                this.publicId,
                 this.trainee.toDto(),
                 this.trainer.toDto()
         );

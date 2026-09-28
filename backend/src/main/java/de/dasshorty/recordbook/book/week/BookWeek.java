@@ -26,8 +26,10 @@ import java.util.UUID;
 public class BookWeek {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
+
+    private UUID publicId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User signedFromTrainer;
@@ -60,12 +62,13 @@ public class BookWeek {
     public static BookWeek createEmptyWeek(int calendarWeek, int year, List<BookDay> days) {
         BookWeek bookWeek = new BookWeek(calendarWeek, year);
         bookWeek.setDays(days != null ? new ArrayList<>(days) : new ArrayList<>());
+        bookWeek.setPublicId(UUID.randomUUID());
         return bookWeek;
     }
 
     public BookWeekDto toDto() {
         return new BookWeekDto(
-                this.id,
+                this.publicId,
                 this.signedFromTrainer == null ? null : this.signedFromTrainer.toDto(),
                 this.text,
                 this.year,
